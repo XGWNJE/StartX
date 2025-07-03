@@ -1,0 +1,223 @@
+/* 基础变量定义 */
+:root {
+  --glass-opacity: 0.1;
+  --glass-blur: 10px;
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.15);
+  --glass-shadow: rgba(0, 0, 0, 0.15);
+  --search-bar-height: 70px;
+  --search-bar-width: 600px;
+  --search-bar-border-radius: 30px;
+  --text-size: 18px;
+  --bg-color-1: #0f0c29;
+  --bg-color-2: #302b63;
+  --bg-color-3: #24243e;
+  --bg-opacity: 1;
+  --bg-blur: 0px;
+  
+  /* 强调色变量 */
+  --accent-primary: #7d6aff;
+  --accent-secondary: #ff7eb3;
+  --accent-tertiary: #5ce1e6;
+  --accent-gradient: linear-gradient(to right, var(--accent-secondary), var(--accent-primary));
+  
+  /* 强调色RGB格式（用于rgba函数） */
+  --accent-primary-rgb: 125, 106, 255;
+  --accent-secondary-rgb: 255, 126, 179;
+  --accent-tertiary-rgb: 92, 225, 230;
+  
+  /* UI主题颜色变量 - 默认深色主题 */
+  --theme-background: #121212;
+  --theme-surface: #1e1e1e;
+  --theme-text: #ffffff;
+  --theme-text-secondary: #b0b0b0;  
+  --theme-border: #333333;
+  --theme-shadow: rgba(0, 0, 0, 0.5);
+}
+
+/* 全局样式重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+html {
+  background-color: #000; /* 确保html背景为黑色 */
+}
+
+body {
+  /* 使用固定背景，避免背景随动画变化 */
+  background: linear-gradient(125deg, var(--bg-color-1), var(--bg-color-2), var(--bg-color-3));
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  transition: background 0.5s ease;
+  color: var(--theme-text); /* 应用主题文本颜色 */
+}
+
+/* 退出动画时确保背景为黑色 */
+body.page-exit {
+  background: #000 !important;
+  transition: none !important;
+}
+
+/* 主内容容器 */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  position: relative;
+  z-index: 1; /* 确保内容在背景层之上 */
+}
+
+/* 页脚 */
+.footer {
+  position: fixed;
+  bottom: 20px;
+  color: var(--theme-text-secondary);
+  font-size: 14px;
+  z-index: 1;
+}
+
+/* 强制重绘辅助类 */
+.force-repaint {
+  animation: forceRepaint 0.01s forwards;
+}
+
+@keyframes forceRepaint {
+  0% {
+    transform: translateZ(0);
+  }
+  100% {
+    transform: translateZ(0);
+  }
+}
+
+/* 禁用浏览器自动填充样式 */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--theme-surface) inset !important;
+  -webkit-text-fill-color: var(--theme-text) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* 隐藏Chrome的自动填充图标 */
+input::-webkit-contacts-auto-fill-button,
+input::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+}
+
+/* 隐藏元素 */
+.hidden {
+  display: none;
+} 
+
+/* 强调色文本 */
+.accent-text {
+  color: var(--accent-primary);
+}
+
+/* 强调色边框 */
+.accent-border {
+  border-color: var(--accent-primary);
+}
+
+/* 强调色背景 */
+.accent-bg {
+  background-color: var(--accent-primary);
+}
+
+/* 强调色渐变 */
+.accent-gradient {
+  background: var(--accent-gradient);
+}
+
+/* 主题颜色样式类 */
+.theme-bg {
+  background-color: var(--theme-background);
+}
+
+.theme-surface {
+  background-color: var(--theme-surface);
+}
+
+.theme-text {
+  color: var(--theme-text);
+}
+
+.theme-text-secondary {
+  color: var(--theme-text-secondary);
+}
+
+.theme-border {
+  border-color: var(--theme-border);
+}
+
+.theme-shadow {
+  box-shadow: 0 4px 10px var(--theme-shadow);
+}
+
+/* 提取颜色加载指示器 */
+body.extracting-colors::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent-gradient);
+  z-index: 1000;
+  animation: colorExtractingProgress 2s infinite linear;
+}
+
+@keyframes colorExtractingProgress {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* 提取颜色时的搜索栏样式 */
+body.extracting-colors .search-container {
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px var(--accent-primary);
+}
+
+/* 提取颜色时的设置按钮样式 */
+body.extracting-colors .settings-button {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(var(--accent-primary-rgb), 0.7);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(var(--accent-primary-rgb), 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(var(--accent-primary-rgb), 0);
+  }
+} 

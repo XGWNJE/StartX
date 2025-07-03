@@ -1,0 +1,15 @@
+/* 响应式设计样式 */
+
+/* 中等屏幕设备 */
+@media (max-width: 768px) {
+  .search-container {
+    width: 90%;
+  }
+}
+
+/* 小屏幕设备 */
+@media (max-width: 500px) {
+  .search-container {
+    max-width: 95%;
+  }
+} 

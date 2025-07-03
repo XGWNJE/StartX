@@ -1,0 +1,447 @@
+ StartX 初始化...
+ 初始化UI...
+ 找到设置信息: Object
+ 当前设置状态: {
+  "bgType": "preset",
+  "presetName": "night",
+  "customBgData": null,
+  "opacity": 100,
+  "blur": 0,
+  "searchWidth": 570,
+  "searchHeight": 95,
+  "searchRadius": 0,
+  "glassOpacity": 2,
+  "glassBlur": 10,
+  "glowIntensity": 30,
+  "textSize": 18,
+  "placeholder": "｜",
+  "previousBgType": null,
+  "previousPresetName": null
+}
+ 找到设置信息: Object
+ 设置加载完成: Object
+ 应用背景设置: preset night
+ 应用预设背景: night
+ 应用预设颜色: night Array(3)
+ 应用搜索栏设置: 570 95 0 2 10 30 18 ｜
+ 更新UI状态，当前背景类型: preset 预设名称: night
+ 点击预设背景: blue
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset blue
+ 应用预设背景: blue
+ 应用预设颜色: blue Array(2)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: blue
+ 背景设置已成功应用
+ 点击预设背景: sunset
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset sunset
+ 应用预设背景: sunset
+ 应用预设颜色: sunset Array(2)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: sunset
+ 背景设置已成功应用
+ 点击预设背景: default
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: default default
+ 应用默认背景
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: default 预设名称: default
+ 背景设置已成功应用
+ 点击预设背景: night
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset night
+ 应用预设背景: night
+ 应用预设颜色: night Array(3)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: night
+ 背景设置已成功应用
+ 点击预设背景: forest
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset forest
+ 应用预设背景: forest
+ 应用预设颜色: forest Array(2)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: forest
+ 背景设置已成功应用
+ 点击预设背景: purple
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset purple
+ 应用预设背景: purple
+ 应用预设颜色: purple Array(2)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: purple
+ 背景设置已成功应用
+ 点击预设背景: sunset
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset sunset
+ 应用预设背景: sunset
+ 应用预设颜色: sunset Array(2)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: sunset
+ 背景设置已成功应用
+ 点击预设背景: sunset
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset sunset
+ 应用预设背景: sunset
+ 应用预设颜色: sunset Array(2)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: sunset
+ 背景设置已成功应用
+ 点击预设背景: sunset
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset sunset
+ 应用预设背景: sunset
+ 应用预设颜色: sunset Array(2)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: sunset
+ 背景设置已成功应用
+ 点击预设背景: blue
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset blue
+ 应用预设背景: blue
+ 应用预设颜色: blue Array(2)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: blue
+ 背景设置已成功应用
+ 点击预设背景: night
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset night
+ 应用预设背景: night
+ 应用预设颜色: night Array(3)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: night
+ 背景设置已成功应用
+ 点击预设背景: default
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: default default
+ 应用默认背景
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: default 预设名称: default
+ 背景设置已成功应用
+ 点击预设背景: sunset
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset sunset
+ 应用预设背景: sunset
+ 应用预设颜色: sunset Array(2)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: sunset
+ 背景设置已成功应用
+ 点击预设背景: default
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: default default
+ 应用默认背景
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: default 预设名称: default
+ 背景设置已成功应用
+ 点击预设背景: default
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: default default
+ 应用默认背景
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: default 预设名称: default
+ 背景设置已成功应用
+ 点击预设背景: night
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset night
+ 应用预设背景: night
+ 应用预设颜色: night Array(3)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: night
+ 背景设置已成功应用
+ 点击预设背景: forest
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset forest
+ 应用预设背景: forest
+ 应用预设颜色: forest Array(2)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: forest
+ 背景设置已成功应用
+ 点击预设背景: forest
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset forest
+ 应用预设背景: forest
+ 应用预设颜色: forest Array(2)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: forest
+ 背景设置已成功应用
+ 点击预设背景: forest
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset forest
+ 应用预设背景: forest
+ 应用预设颜色: forest Array(2)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: forest
+ 背景设置已成功应用
+ 点击预设背景: night
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset night
+ 应用预设背景: night
+ 应用预设颜色: night Array(3)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: night
+ 背景设置已成功应用
+ 点击预设背景: night
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset night
+ 应用预设背景: night
+ 应用预设颜色: night Array(3)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: night
+ 背景设置已成功应用
+ 点击预设背景: night
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset night
+ 应用预设背景: night
+ 应用预设颜色: night Array(3)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: night
+ 背景设置已成功应用
+ 点击预设背景: night
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset night
+ 应用预设背景: night
+ 应用预设颜色: night Array(3)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: night
+ 背景设置已成功应用
+ 点击预设背景: night
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset night
+ 应用预设背景: night
+ 应用预设颜色: night Array(3)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: night
+ 背景设置已成功应用
+ 点击预设背景: night
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset night
+ 应用预设背景: night
+ 应用预设颜色: night Array(3)
+ 开始保存设置: Object
+ 保存设置信息: Object
+ 设置信息已保存到Chrome存储
+ 旧的自定义背景数据已从Chrome存储中移除
+ 更新UI状态，当前背景类型: preset 预设名称: night
+ 背景设置已成功应用
+ 点击预设背景: night
+ 找到设置信息: Object
+ 当前设置: Object
+ 新设置: Object
+ 应用背景设置: preset night
+ 应用预设背景: night
+ui.js:24 应用预设颜色: night Array(3)
+settings.js:109 开始保存设置: Object
+settings.js:135 保存设置信息: Object
+settings.js:142 设置信息已保存到Chrome存储
+settings.js:161 旧的自定义背景数据已从Chrome存储中移除
+ui.js:77 更新UI状态，当前背景类型: preset 预设名称: night
+ui.js:339 背景设置已成功应用
+ui.js:299 点击预设背景: blue
+settings.js:17 找到设置信息: Object
+ui.js:310 当前设置: Object
+ui.js:320 新设置: Object
+ui.js:6 应用背景设置: preset blue
+ui.js:20 应用预设背景: blue
+ui.js:24 应用预设颜色: blue Array(2)
+settings.js:109 开始保存设置: Object
+settings.js:135 保存设置信息: Object
+settings.js:142 设置信息已保存到Chrome存储
+settings.js:161 旧的自定义背景数据已从Chrome存储中移除
+ui.js:77 更新UI状态，当前背景类型: preset 预设名称: blue
+ui.js:339 背景设置已成功应用
+ui.js:299 点击预设背景: blue
+settings.js:17 找到设置信息: Object
+ui.js:310 当前设置: Object
+ui.js:320 新设置: Object
+ui.js:6 应用背景设置: preset blue
+ui.js:20 应用预设背景: blue
+ui.js:24 应用预设颜色: blue Array(2)
+settings.js:109 开始保存设置: Object
+settings.js:135 保存设置信息: Object
+settings.js:142 设置信息已保存到Chrome存储
+settings.js:161 旧的自定义背景数据已从Chrome存储中移除
+ui.js:77 更新UI状态，当前背景类型: preset 预设名称: blue
+ui.js:339 背景设置已成功应用
+ui.js:299 点击预设背景: blue
+settings.js:17 找到设置信息: Object
+ui.js:310 当前设置: Object
+ui.js:320 新设置: Object
+ui.js:6 应用背景设置: preset blue
+ui.js:20 应用预设背景: blue
+ui.js:24 应用预设颜色: blue Array(2)
+settings.js:109 开始保存设置: Object
+settings.js:135 保存设置信息: Object
+settings.js:142 设置信息已保存到Chrome存储
+settings.js:161 旧的自定义背景数据已从Chrome存储中移除
+ui.js:77 更新UI状态，当前背景类型: preset 预设名称: blue
+ui.js:339 背景设置已成功应用
+ui.js:299 点击预设背景: purple
+settings.js:17 找到设置信息: Object
+ui.js:310 当前设置: Object
+ui.js:320 新设置: Object
+ui.js:6 应用背景设置: preset purple
+ui.js:20 应用预设背景: purple
+ui.js:24 应用预设颜色: purple Array(2)
+settings.js:109 开始保存设置: Object
+settings.js:135 保存设置信息: Object
+settings.js:142 设置信息已保存到Chrome存储
+settings.js:161 旧的自定义背景数据已从Chrome存储中移除
+ui.js:77 更新UI状态，当前背景类型: preset 预设名称: purple
+ui.js:339 背景设置已成功应用
+ui.js:299 点击预设背景: purple
+settings.js:17 找到设置信息: Object
+ui.js:310 当前设置: Object
+ui.js:320 新设置: Object
+ui.js:6 应用背景设置: preset purple
+ui.js:20 应用预设背景: purple
+ui.js:24 应用预设颜色: purple Array(2)
+settings.js:109 开始保存设置: Object
+settings.js:135 保存设置信息: Object
+settings.js:142 设置信息已保存到Chrome存储
+settings.js:161 旧的自定义背景数据已从Chrome存储中移除
+ui.js:77 更新UI状态，当前背景类型: preset 预设名称: purple
+ui.js:339 背景设置已成功应用
+ui.js:299 点击预设背景: purple
+settings.js:17 找到设置信息: Object
+ui.js:310 当前设置: Object
+ui.js:320 新设置: Object
+ui.js:6 应用背景设置: preset purple
+ui.js:20 应用预设背景: purple
+ui.js:24 应用预设颜色: purple Array(2)
+settings.js:109 开始保存设置: Object
+settings.js:135 保存设置信息: Object
+settings.js:142 设置信息已保存到Chrome存储
+settings.js:161 旧的自定义背景数据已从Chrome存储中移除
+ui.js:77 更新UI状态，当前背景类型: preset 预设名称: purple
+ui.js:339 背景设置已成功应用
+警告：请勿将您不理解或未自行检查的代码粘贴到开发者工具控制台中。这可能会导致攻击者趁机窃取您的身份信息或控制您的计算机。请在下方输入“允许粘贴”，然后按 Enter 键允许粘贴。
+警告：请勿将您不理解或未自行检查的代码粘贴到开发者工具控制台中。这可能会导致攻击者趁机窃取您的身份信息或控制您的计算机。请在下方输入“允许粘贴”，然后按 Enter 键允许粘贴。
+警告：请勿将您不理解或未自行检查的代码粘贴到开发者工具控制台中。这可能会导致攻击者趁机窃取您的身份信息或控制您的计算机。请在下方输入“允许粘贴”，然后按 Enter 键允许粘贴。
+允许粘贴
+debugStartX()
+Promise {<pending>}[[Prototype]]: Promise[[PromiseState]]: "fulfilled"[[PromiseResult]]: Object
+settings.js:17 找到设置信息: {hasCustomBg: false, lastUpdated: '2025-07-03T19:59:27.347Z', settings: {…}}hasCustomBg: falselastUpdated: "2025-07-03T19:59:27.347Z"settings: {bgType: 'preset', blur: 0, customBgData: null, glassBlur: 10, glassOpacity: 2, …}[[Prototype]]: Object
+main.js:18 当前设置状态: {bgType: 'preset', presetName: 'purple', customBgData: null, opacity: 100, blur: 0, …}bgType: "preset"blur: 0customBgData: nullglassBlur: 10glassOpacity: 2glowIntensity: 30opacity: 100placeholder: "｜"presetName: "purple"previousBgType: nullpreviousPresetName: nullsearchHeight: 95searchRadius: 0searchWidth: 570textSize: 18[[Prototype]]: Object
