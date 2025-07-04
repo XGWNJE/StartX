@@ -43,6 +43,7 @@ let currentBookmarks = [];
 let selectedBookmarkIndex = -1;
 let searchTimeout = null;
 const SEARCH_DELAY = 300; // 搜索延迟时间，避免频繁请求
+let searchActive = false; // 跟踪搜索栏是否处于活动状态
 
 /**
  * 处理书签搜索
@@ -259,6 +260,51 @@ export function handleKeyNavigation(event, searchInput, bookmarksResults, bookma
       hideBookmarksResults(bookmarksResults);
       break;
   }
+}
+
+/**
+ * 激活搜索栏
+ * @param {HTMLElement} searchContainer - 搜索容器
+ * @param {HTMLInputElement} searchInput - 搜索输入框
+ * @param {HTMLElement} bookmarksResults - 书签结果容器
+ * @param {HTMLElement} bookmarksList - 书签列表容器
+ */
+export function activateSearch(searchContainer, searchInput, bookmarksResults, bookmarksList) {
+  if (searchActive) return;
+  
+  searchActive = true;
+  searchContainer.classList.add('active');
+  
+  // 添加平滑过渡动画
+  document.body.classList.add('search-active');
+  
+  // 如果有输入内容，显示书签结果
+  if (searchInput.value.trim()) {
+    handleBookmarkSearch(searchInput, bookmarksResults, bookmarksList);
+  }
+  
+  // 聚焦输入框
+  setTimeout(() => {
+    searchInput.focus();
+  }, 50);
+}
+
+/**
+ * 停用搜索栏
+ * @param {HTMLElement} searchContainer - 搜索容器
+ * @param {HTMLElement} bookmarksResults - 书签结果容器
+ */
+export function deactivateSearch(searchContainer, bookmarksResults) {
+  if (!searchActive) return;
+  
+  searchActive = false;
+  searchContainer.classList.remove('active');
+  document.body.classList.remove('search-active');
+  
+  // 延迟隐藏结果，以便可以点击结果
+  setTimeout(() => {
+    hideBookmarksResults(bookmarksResults);
+  }, 200);
 }
 
 /**

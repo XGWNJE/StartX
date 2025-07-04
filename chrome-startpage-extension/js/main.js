@@ -92,7 +92,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // 主题设置元素
     themeModeBtns: document.querySelectorAll('.theme-mode-btn'),
     themePresetBtns: document.querySelectorAll('.theme-preset'),
-    customThemeControls: document.querySelector('.custom-theme-controls')
+    customThemeControls: document.querySelector('.custom-theme-controls'),
+    
+    // 壁纸历史元素
+    prevWallpaper: document.getElementById('prev-wallpaper'),
+    nextWallpaper: document.getElementById('next-wallpaper'),
+    autoChangeWallpaper: document.getElementById('auto-change-wallpaper'),
+    autoChangeInterval: document.getElementById('auto-change-interval'),
+    wallpaperHistoryGrid: document.getElementById('wallpaper-history-grid')
   };
 
   // --- Initialization ---
@@ -104,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 确保动画元素存在
     if (!domElements.liquidEffect) {
-      console.warn("找不到液态玻璃效果元素，创建一个默认元素");
+      console.warn("找不到毛玻璃效果元素，创建一个默认元素");
       domElements.liquidEffect = document.querySelector('.liquid-glass-effect');
     }
     

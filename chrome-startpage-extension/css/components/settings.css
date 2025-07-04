@@ -692,3 +692,234 @@
     grid-template-columns: repeat(2, 1fr);
   }
 } 
+
+/* 壁纸历史控制 */
+.wallpaper-history-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.wallpaper-nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.wallpaper-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.wallpaper-nav-btn:active {
+  transform: scale(0.95);
+}
+
+.wallpaper-nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auto-change-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.auto-change-control input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.auto-change-control label {
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.auto-change-control select {
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.auto-change-control select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 壁纸历史网格 */
+.wallpaper-history-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+/* 自定义滚动条 */
+.wallpaper-history-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.wallpaper-history-grid::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.wallpaper-history-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.wallpaper-history-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 壁纸项 */
+.wallpaper-item {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.wallpaper-item:hover {
+  transform: scale(1.05);
+}
+
+.wallpaper-item.active {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.wallpaper-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.wallpaper-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.wallpaper-item:hover .wallpaper-info {
+  opacity: 1;
+}
+
+.wallpaper-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.wallpaper-date {
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+.wallpaper-actions {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  gap: 5px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.wallpaper-item:hover .wallpaper-actions {
+  opacity: 1;
+}
+
+.wallpaper-action-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.wallpaper-action-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.wallpaper-empty-msg {
+  grid-column: 1 / -1;
+  padding: 20px;
+  text-align: center;
+  color: var(--theme-text-secondary);
+  font-style: italic;
+}
+
+/* 壁纸分页控制 */
+.wallpaper-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+  padding: 10px 0;
+}
+
+.pagination-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-indicator {
+  font-size: 14px;
+  color: var(--theme-text-secondary);
+} 

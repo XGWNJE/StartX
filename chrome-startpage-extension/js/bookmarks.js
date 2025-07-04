@@ -187,8 +187,10 @@ export function formatBookmarkPath(path) {
 export function getBookmarkIconUrl(url) {
   try {
     const urlObj = new URL(url);
-    return `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=32`;
+    // 使用Google的favicon服务，请求更大尺寸的图标(sz=64)以获得更高质量
+    return `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=64`;
   } catch (e) {
-    return '';
+    // 返回一个默认图标
+    return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>';
   }
 } 

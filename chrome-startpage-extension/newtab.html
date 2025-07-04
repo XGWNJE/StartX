@@ -57,7 +57,7 @@
       <!-- 背景层 -->
       <div class="search-background"></div>
       
-      <!-- 玻璃效果层 -->
+      <!-- 毛玻璃效果层 -->
       <div class="liquid-glass-effect"></div>
       
       <!-- 边缘高光效果 -->
@@ -93,8 +93,7 @@
         <div class="settings-tabs">
           <button class="tab-button active" data-tab="bg-settings">背景</button>
           <button class="tab-button" data-tab="search-settings">搜索栏</button>
-          <button class="tab-button" data-tab="accent-settings">强调色</button>
-          <button class="tab-button" data-tab="theme-settings">主题</button>
+          <button class="tab-button" data-tab="appearance-settings">外观</button>
         </div>
         
         <!-- 背景设置选项卡 -->
@@ -126,6 +125,37 @@
               <label for="bg-blur">背景模糊</label>
               <input type="range" id="bg-blur" min="0" max="20" value="0">
               <span id="blur-value">0px</span>
+            </div>
+          </div>
+          
+          <div class="settings-section">
+            <h4>壁纸历史</h4>
+            <div class="wallpaper-history-controls">
+              <button id="prev-wallpaper" class="wallpaper-nav-btn" title="上一张壁纸">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              </button>
+              <button id="next-wallpaper" class="wallpaper-nav-btn" title="下一张壁纸">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </button>
+              <div class="auto-change-control">
+                <input type="checkbox" id="auto-change-wallpaper">
+                <label for="auto-change-wallpaper">自动切换壁纸</label>
+                <select id="auto-change-interval" disabled>
+                  <option value="5">5分钟</option>
+                  <option value="15">15分钟</option>
+                  <option value="30" selected>30分钟</option>
+                  <option value="60">1小时</option>
+                  <option value="180">3小时</option>
+                  <option value="360">6小时</option>
+                  <option value="720">12小时</option>
+                  <option value="1440">24小时</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="wallpaper-history-grid" id="wallpaper-history-grid">
+              <!-- 壁纸历史项将由JS动态添加 -->
+              <div class="wallpaper-empty-msg">尚无历史壁纸</div>
             </div>
           </div>
         </div>
@@ -207,10 +237,10 @@
           </div>
         </div>
         
-        <!-- 强调色设置选项卡 -->
-        <div class="settings-tab-content" id="accent-settings">
+        <!-- 外观设置选项卡（整合强调色和主题） -->
+        <div class="settings-tab-content" id="appearance-settings">
           <div class="settings-section accent-color-section">
-            <h4>强调色模式</h4>
+            <h4>强调色</h4>
             <div class="accent-mode-options">
               <button class="accent-mode-btn active" data-mode="auto">自动匹配</button>
               <button class="accent-mode-btn" data-mode="custom">自定义</button>
@@ -256,21 +286,6 @@
             </div>
           </div>
           
-          <div class="settings-section">
-            <h4>强调色预览</h4>
-            <p class="accent-text">这是使用强调色的文本</p>
-            <div style="margin: 10px 0; padding: 10px; border: 2px solid var(--accent-primary); border-radius: 8px;">
-              带有强调色边框的容器
-            </div>
-            <button style="background: var(--accent-primary); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; margin-top: 10px;">
-              强调色按钮
-            </button>
-            <div style="margin-top: 15px; height: 6px; border-radius: 3px; background: var(--accent-gradient);"></div>
-          </div>
-        </div>
-        
-        <!-- 主题颜色设置选项卡 -->
-        <div class="settings-tab-content" id="theme-settings">
           <div class="settings-section">
             <h4>主题模式</h4>
             <div class="theme-mode-options">

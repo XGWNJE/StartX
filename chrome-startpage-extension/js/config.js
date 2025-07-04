@@ -7,6 +7,12 @@ export const defaultSettings = {
   opacity: 100,
   blur: 0,
   
+  // 壁纸历史设置
+  wallpaperHistory: [],
+  currentWallpaperIndex: -1,
+  wallpaperAutoChange: false,
+  wallpaperChangeInterval: 30, // 分钟
+  
   // 搜索栏设置
   searchWidth: 600,
   searchHeight: 70,   
@@ -197,4 +203,5 @@ export const searchEngines = {
 
 // Storage keys
 export const SETTINGS_INFO_KEY = 'startx_settings_info';
-export const CUSTOM_BG_KEY = 'startx_custom_bg'; 
+export const CUSTOM_BG_KEY = 'startx_custom_bg';
+export const WALLPAPER_HISTORY_KEY = 'startx_wallpaper_history'; 
