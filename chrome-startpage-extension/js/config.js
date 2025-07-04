@@ -7,12 +7,13 @@ export const defaultSettings = {
   opacity: 100,
   blur: 0,
   
-  // 壁纸历史设置
+  // 壁纸设置
   wallpaperHistory: [],
   currentWallpaperIndex: -1,
   wallpaperAutoChange: false,
   wallpaperChangeInterval: 30, // 分钟
   wallpaperFolderPath: 'startx-wallpapers', // 默认壁纸文件夹名称
+  wallpaperFolderCreated: false, // 是否已创建壁纸文件夹
   
   // 搜索栏设置
   searchWidth: 600,

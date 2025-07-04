@@ -40,8 +40,7 @@ export async function setWallpaperFolderName(folderName) {
     settings.wallpaperFolderPath = cleanFolderName;
     await saveSettings(settings);
     
-    // 创建新文件夹
-    await createWallpaperFolder(cleanFolderName);
+    console.log(`壁纸文件夹路径已更新为: ${cleanFolderName}`);
     
     return true;
   } catch (error) {
@@ -57,6 +56,10 @@ export async function setWallpaperFolderName(folderName) {
  */
 export async function createWallpaperFolder(folderName) {
   try {
+    if (!folderName || typeof folderName !== 'string' || folderName.trim() === '') {
+      folderName = 'startx-wallpapers'; // 使用默认名称
+    }
+    
     // 由于浏览器安全限制，我们不能直接创建文件夹
     // 但可以通过创建一个README文件来引导用户创建文件夹
     
@@ -94,6 +97,7 @@ export async function createWallpaperFolder(folderName) {
       URL.revokeObjectURL(link.href);
     }, 100);
     
+    console.log(`已创建壁纸文件夹: ${folderName}`);
     return true;
   } catch (error) {
     console.error('创建壁纸文件夹时出错:', error);
@@ -120,14 +124,24 @@ export async function initBackground(domElements) {
   // 创建壁纸文件夹
   try {
     const folderName = await getWallpaperFolderName();
-    await createWallpaperFolder(folderName);
     
     // 如果有文件夹路径输入框，设置初始值
     if (domElements.wallpaperFolderPath) {
       domElements.wallpaperFolderPath.value = folderName;
     }
+    
+    // 检查是否是首次运行
+    const settings = await loadSettings();
+    if (!settings.wallpaperFolderCreated) {
+      // 首次运行时创建文件夹
+      await createWallpaperFolder(folderName);
+      
+      // 标记文件夹已创建
+      settings.wallpaperFolderCreated = true;
+      await saveSettings(settings);
+    }
   } catch (error) {
-    console.error("创建壁纸文件夹时出错:", error);
+    console.error("初始化壁纸文件夹时出错:", error);
   }
   
   // 初始化壁纸历史控件

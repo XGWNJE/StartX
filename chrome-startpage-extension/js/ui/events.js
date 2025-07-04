@@ -611,10 +611,14 @@ async function initWallpaperHistory(domElements) {
           }
           
           const folderName = wallpaperFolderPath.value;
+          
+          // 先设置文件夹路径
           const success = await setWallpaperFolderName(folderName);
           
           if (success) {
-            alert(`壁纸文件夹路径已更新为: ${folderName}`);
+            // 然后创建文件夹
+            await createWallpaperFolder(folderName);
+            alert(`壁纸文件夹路径已更新为: ${folderName}\n已创建相应的文件夹，请在下载文件夹中查看。`);
           } else {
             alert('更新壁纸文件夹路径失败');
           }
