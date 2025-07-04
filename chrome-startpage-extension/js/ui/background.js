@@ -1365,7 +1365,7 @@ export async function importWallpaperFromFile(file) {
  * @param {string} imageData - 图像数据URL
  * @returns {Promise<string>} 缩略图数据URL
  */
-async function createThumbnail(imageData) {
+export async function createThumbnail(imageData) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     
