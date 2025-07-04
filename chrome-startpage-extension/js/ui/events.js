@@ -11,13 +11,12 @@ import {
   previousWallpaper,
   startWallpaperAutoChange,
   stopWallpaperAutoChange,
-  importWallpapersFromFolder,
   saveWallpaperToSystem,
   getWallpaperFolderPath,
-  getWallpaperFolderName,
-  setWallpaperFolderName,
-  createWallpaperFolder,
-  importWallpaperFromFile
+  setWallpaperFolderPath,
+  ensureWallpaperFolderExists,
+  createThumbnail,
+  addToWallpaperHistory
 } from './background.js';
 import { 
   handleBookmarkSearch, 
