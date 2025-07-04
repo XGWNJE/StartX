@@ -12,6 +12,7 @@ export const defaultSettings = {
   currentWallpaperIndex: -1,
   wallpaperAutoChange: false,
   wallpaperChangeInterval: 30, // 分钟
+  wallpaperFolderPath: 'startx-wallpapers', // 默认壁纸文件夹名称
   
   // 搜索栏设置
   searchWidth: 600,
@@ -20,17 +21,13 @@ export const defaultSettings = {
   glassOpacity: 10,
   glassBlur: 10,
   textSize: 18,
-  placeholder: '｜',
+  placeholder: '搜索网页、书签',
   
   // 搜索引擎设置
   searchEngine: 'google',
   
   // 强调色设置
-  accentColorMode: 'auto', // 'auto' 或 'custom'
-  customAccentColor: null, // 用户自定义强调色
-  customSecondaryColor: null, // 用户自定义辅助强调色
-  gradientDirection: 'to right', // 渐变方向
-  useCustomGradient: false, // 是否使用自定义渐变
+  accentColorMode: 'auto', // 仅支持'auto'模式
   
   // UI主题颜色设置
   themeMode: 'default', // 'default', 'preset' 或 'custom'
@@ -204,4 +201,5 @@ export const searchEngines = {
 // Storage keys
 export const SETTINGS_INFO_KEY = 'startx_settings_info';
 export const CUSTOM_BG_KEY = 'startx_custom_bg';
-export const WALLPAPER_HISTORY_KEY = 'startx_wallpaper_history'; 
+export const WALLPAPER_HISTORY_KEY = 'startx_wallpaper_history';
+export const WALLPAPER_FOLDER_KEY = 'startx_wallpaper_folder'; 

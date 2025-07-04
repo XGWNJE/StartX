@@ -10,7 +10,14 @@ import {
   nextWallpaper,
   previousWallpaper,
   startWallpaperAutoChange,
-  stopWallpaperAutoChange
+  stopWallpaperAutoChange,
+  importWallpapersFromFolder,
+  saveWallpaperToSystem,
+  getWallpaperFolderPath,
+  getWallpaperFolderName,
+  setWallpaperFolderName,
+  createWallpaperFolder,
+  importWallpaperFromFile
 } from './background.js';
 import { 
   handleBookmarkSearch, 
@@ -41,7 +48,9 @@ export function initEvents(domElements) {
     themeModeBtns, themePresetBtns, customThemeControls,
     searchEngineBtns,
     prevWallpaper, nextWallpaper, autoChangeWallpaper, autoChangeInterval,
-    wallpaperHistoryGrid
+    wallpaperHistoryGrid,
+    wallpaperFolderPath,
+    saveWallpaperFolder
   } = domElements;
 
   // --- 搜索栏事件 ---
@@ -158,123 +167,13 @@ export function initEvents(domElements) {
 
   // --- 强调色设置事件 ---
   if (accentModeBtns) {
-    accentModeBtns.forEach(btn => {
-      btn.addEventListener('click', async () => {
-        try {
-          const modeName = btn.getAttribute('data-mode');
-          console.log(`切换强调色模式: ${modeName}`);
-          
-          // 创建新的设置对象
-          const newSettings = {
-            accentColorMode: modeName
-          };
-          
-          // 应用设置
-          await handleSettingsChange(newSettings, domElements);
-          
-          console.log("强调色模式已更新");
-        } catch (error) {
-          console.error("更新强调色模式时出错:", error);
-          alert("更新强调色模式失败，请重试。");
-        }
-      });
-    });
+    // 强调色现在只有自动匹配模式，无需添加点击事件
+    console.log("强调色仅支持自动匹配模式");
   } else {
-    console.warn("initEvents: accentModeBtns不存在，无法绑定强调色模式事件");
+    console.warn("initEvents: accentModeBtns不存在");
   }
   
-  // 自定义强调色更改事件
-  if (customAccentColor) {
-    customAccentColor.addEventListener('input', async () => {
-      try {
-        const color = customAccentColor.value;
-        console.log(`自定义强调色更改: ${color}`);
-        
-        // 创建新的设置对象
-        const newSettings = {
-          customAccentColor: color,
-          accentColorMode: 'custom' // 自动切换到自定义模式
-        };
-        
-        // 应用设置
-        await handleSettingsChange(newSettings, domElements);
-        
-        console.log("自定义强调色已更新");
-      } catch (error) {
-        console.error("更新自定义强调色时出错:", error);
-      }
-    });
-  }
-  
-  // 自定义辅助强调色更改事件
-  if (customSecondaryColor) {
-    customSecondaryColor.addEventListener('input', async () => {
-      try {
-        const color = customSecondaryColor.value;
-        console.log(`自定义辅助强调色更改: ${color}`);
-        
-        // 创建新的设置对象
-        const newSettings = {
-          customSecondaryColor: color,
-          accentColorMode: 'custom', // 自动切换到自定义模式
-          useCustomGradient: true // 自动启用自定义渐变
-        };
-        
-        // 应用设置
-        await handleSettingsChange(newSettings, domElements);
-        
-        console.log("自定义辅助强调色已更新");
-      } catch (error) {
-        console.error("更新自定义辅助强调色时出错:", error);
-      }
-    });
-  }
-  
-  // 自定义渐变复选框事件
-  if (useCustomGradient) {
-    useCustomGradient.addEventListener('change', async () => {
-      try {
-        const isChecked = useCustomGradient.checked;
-        console.log(`自定义渐变选项更改: ${isChecked}`);
-        
-        // 创建新的设置对象
-        const newSettings = {
-          useCustomGradient: isChecked,
-          accentColorMode: 'custom' // 自动切换到自定义模式
-        };
-        
-        // 应用设置
-        await handleSettingsChange(newSettings, domElements);
-        
-        console.log("自定义渐变选项已更新");
-      } catch (error) {
-        console.error("更新自定义渐变选项时出错:", error);
-      }
-    });
-  }
-  
-  // 渐变方向选择事件
-  if (gradientDirectionSelect) {
-    gradientDirectionSelect.addEventListener('change', async () => {
-      try {
-        const direction = gradientDirectionSelect.value;
-        console.log(`渐变方向更改: ${direction}`);
-        
-        // 创建新的设置对象
-        const newSettings = {
-          gradientDirection: direction,
-          accentColorMode: 'custom' // 自动切换到自定义模式
-        };
-        
-        // 应用设置
-        await handleSettingsChange(newSettings, domElements);
-        
-        console.log("渐变方向已更新");
-      } catch (error) {
-        console.error("更新渐变方向时出错:", error);
-      }
-    });
-  }
+  // 移除了所有与自定义强调色相关的事件处理
 
   // --- 背景设置事件 ---
   bgPresets.forEach(preset => {
@@ -295,98 +194,16 @@ export function initEvents(domElements) {
         // 应用设置
         await handleSettingsChange(newSettings, domElements);
         
+        // 刷新壁纸历史
+        const updatedHistory = await loadWallpaperHistory();
+        renderWallpaperHistory(updatedHistory, 0, wallpaperHistoryGrid);
+        
         console.log("背景设置已成功应用");
       } catch (error) {
         console.error("应用预设背景时出错:", error);
         alert("应用预设背景失败，请重试。");
       }
     });
-  });
-
-  bgUpload.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      try {
-        // 显示加载指示器
-        document.body.classList.add('loading-bg');
-        console.log("开始处理上传的背景图片");
-        
-        // 处理背景图片
-        const imgData = await processBackgroundImage(file);
-        console.log("背景图片处理完成");
-        
-        // 获取当前设置
-        const currentSettings = await loadSettings();
-        console.log("当前设置:", currentSettings);
-        
-        // 保存当前背景类型和预设名称，以便之后恢复
-        const newSettings = {
-          bgType: 'custom',
-          customBgData: imgData,
-          // 保存当前背景设置，以便之后恢复
-          previousBgType: currentSettings.bgType,
-          previousPresetName: currentSettings.presetName
-        };
-        
-        // 应用设置
-        await handleSettingsChange(newSettings, domElements);
-        
-        console.log("自定义背景已成功应用");
-      } catch (error) {
-        console.error('处理上传图片时出错:', error);
-        alert('上传图片时发生错误，请重试。');
-      } finally {
-        // 隐藏加载指示器
-        document.body.classList.remove('loading-bg');
-        // 重置input的值，确保下次选择同一个文件能触发change事件
-        e.target.value = null;
-      }
-    }
-  });
-  
-  removeCustomBg.addEventListener('click', async () => {
-    try {
-      // 获取当前设置
-      const currentSettings = await loadSettings();
-      console.log("移除自定义背景，当前设置:", currentSettings);
-      
-      if (currentSettings.bgType !== 'custom' || !currentSettings.customBgData) {
-        console.warn("没有自定义背景可移除");
-        return;
-      }
-      
-      // 确定要恢复的背景类型和预设名称
-      let bgType = 'default';
-      let presetName = 'default';
-      
-      // 如果有保存的之前的背景设置，使用它
-      if (currentSettings.previousBgType) {
-        bgType = currentSettings.previousBgType;
-        if (bgType === 'preset' && currentSettings.previousPresetName) {
-          presetName = currentSettings.previousPresetName;
-        }
-      }
-      
-      console.log(`恢复到背景类型: ${bgType}, 预设: ${presetName}`);
-      
-      // 创建新的设置对象
-      const newSettings = {
-        bgType: bgType,
-        presetName: presetName,
-        customBgData: null,
-        // 清除"上一个"状态
-        previousBgType: null,
-        previousPresetName: null
-      };
-      
-      // 应用设置
-      await handleSettingsChange(newSettings, domElements);
-      
-      console.log("已恢复到之前的背景设置");
-    } catch (error) {
-      console.error("移除自定义背景时出错:", error);
-      alert("移除自定义背景失败，请重试。");
-    }
   });
   
   bgOpacity.addEventListener('input', async () => {
@@ -403,7 +220,7 @@ export function initEvents(domElements) {
       document.documentElement.style.setProperty('--bg-opacity', value / 100);
       
       // 保存设置
-      await saveSettings(newSettings);
+      await handleSettingsChange(newSettings, domElements);
     } catch (error) {
       console.error("更新背景不透明度时出错:", error);
     }
@@ -422,8 +239,17 @@ export function initEvents(domElements) {
       // 直接应用背景设置
       document.documentElement.style.setProperty('--bg-blur', `${value}px`);
       
+      // 强制触发重绘，确保模糊效果立即生效
+      const searchContainer = document.querySelector('.search-container');
+      if (searchContainer) {
+        // 强制回流和重绘
+        searchContainer.classList.add('force-repaint');
+        void searchContainer.offsetHeight;
+        searchContainer.classList.remove('force-repaint');
+      }
+      
       // 保存设置
-      await saveSettings(newSettings);
+      await handleSettingsChange(newSettings, domElements);
     } catch (error) {
       console.error("更新背景模糊度时出错:", error);
     }
@@ -450,7 +276,7 @@ export function initEvents(domElements) {
       }
       
       // 保存设置
-      await saveSettings(newSettings);
+      await handleSettingsChange(newSettings, domElements);
     } catch (error) {
       console.error("更新搜索栏宽度时出错:", error);
     }
@@ -476,7 +302,7 @@ export function initEvents(domElements) {
       }
       
       // 保存设置
-      await saveSettings(newSettings);
+      await handleSettingsChange(newSettings, domElements);
     } catch (error) {
       console.error("更新搜索栏高度时出错:", error);
     }
@@ -508,7 +334,7 @@ export function initEvents(domElements) {
       }
       
       // 保存设置
-      await saveSettings(newSettings);
+      await handleSettingsChange(newSettings, domElements);
     } catch (error) {
       console.error("更新搜索栏圆角时出错:", error);
     }
@@ -528,7 +354,7 @@ export function initEvents(domElements) {
       document.documentElement.style.setProperty('--glass-opacity', value / 100);
       
       // 保存设置
-      await saveSettings(newSettings);
+      await handleSettingsChange(newSettings, domElements);
     } catch (error) {
       console.error("更新玻璃效果透明度时出错:", error);
     }
@@ -557,7 +383,7 @@ export function initEvents(domElements) {
       }
       
       // 保存设置
-      await saveSettings(newSettings);
+      await handleSettingsChange(newSettings, domElements);
     } catch (error) {
       console.error("更新玻璃效果模糊度时出错:", error);
     }
@@ -577,7 +403,7 @@ export function initEvents(domElements) {
       document.documentElement.style.setProperty('--text-size', `${value}px`);
       
       // 保存设置
-      await saveSettings(newSettings);
+      await handleSettingsChange(newSettings, domElements);
     } catch (error) {
       console.error("更新文本大小时出错:", error);
     }
@@ -596,7 +422,7 @@ export function initEvents(domElements) {
       document.getElementById('search-input').placeholder = value || '｜';
       
       // 保存设置
-      await saveSettings(newSettings);
+      await handleSettingsChange(newSettings, domElements);
     } catch (error) {
       console.error("更新占位符文本时出错:", error);
     }
@@ -750,24 +576,118 @@ export function initEvents(domElements) {
 }
 
 /**
- * 初始化壁纸历史功能
+ * 初始化壁纸历史
  * @param {Object} domElements - DOM元素对象
  */
 async function initWallpaperHistory(domElements) {
-  const {
-    prevWallpaper: prevWallpaperBtn, 
-    nextWallpaper: nextWallpaperBtn, 
-    autoChangeWallpaper, 
-    autoChangeInterval,
-    wallpaperHistoryGrid
-  } = domElements;
-  
   try {
-    // 加载当前设置
-    const settings = await loadSettings();
+    const { 
+      importWallpapersBtn, 
+      refreshWallpapersBtn, 
+      openWallpaperFolderBtn,
+      wallpaperFolderPath,
+      saveWallpaperFolder,
+      autoChangeWallpaper, 
+      autoChangeInterval, 
+      wallpaperHistoryGrid 
+    } = domElements;
     
-    // 加载壁纸历史
+    // 加载设置和壁纸历史
+    const settings = await loadSettings();
     const history = await loadWallpaperHistory();
+    
+    // 设置壁纸文件夹路径输入框的初始值
+    if (wallpaperFolderPath) {
+      wallpaperFolderPath.value = settings.wallpaperFolderPath || 'startx-wallpapers';
+    }
+    
+    // 添加保存壁纸文件夹路径按钮事件
+    if (saveWallpaperFolder) {
+      saveWallpaperFolder.addEventListener('click', async () => {
+        try {
+          if (!wallpaperFolderPath || !wallpaperFolderPath.value) {
+            alert('请输入有效的文件夹名称');
+            return;
+          }
+          
+          const folderName = wallpaperFolderPath.value;
+          const success = await setWallpaperFolderName(folderName);
+          
+          if (success) {
+            alert(`壁纸文件夹路径已更新为: ${folderName}`);
+          } else {
+            alert('更新壁纸文件夹路径失败');
+          }
+        } catch (error) {
+          console.error('保存壁纸文件夹路径时出错:', error);
+          alert('保存壁纸文件夹路径失败: ' + error.message);
+        }
+      });
+    }
+    
+    // 添加导入壁纸按钮事件
+    if (importWallpapersBtn) {
+      importWallpapersBtn.addEventListener('click', async () => {
+        try {
+          const fileInput = document.createElement('input');
+          fileInput.type = 'file';
+          fileInput.accept = 'image/*';
+          fileInput.multiple = true;
+          
+          fileInput.onchange = async (e) => {
+            if (e.target.files.length > 0) {
+              const files = Array.from(e.target.files);
+              
+              // 处理选择的文件
+              for (const file of files) {
+                await importWallpaperFromFile(file);
+              }
+              
+              // 刷新壁纸历史
+              const updatedHistory = await loadWallpaperHistory();
+              renderWallpaperHistory(updatedHistory, 0, wallpaperHistoryGrid);
+              
+              alert(`成功导入 ${files.length} 个壁纸`);
+            }
+          };
+          
+          fileInput.click();
+        } catch (error) {
+          console.error('导入壁纸时出错:', error);
+          alert('导入壁纸失败: ' + error.message);
+        }
+      });
+    }
+    
+    // 添加刷新壁纸按钮事件
+    if (refreshWallpapersBtn) {
+      refreshWallpapersBtn.addEventListener('click', async () => {
+        try {
+          // 刷新壁纸历史
+          const updatedHistory = await loadWallpaperHistory();
+          renderWallpaperHistory(updatedHistory, 0, wallpaperHistoryGrid);
+          
+          alert('壁纸列表已刷新');
+        } catch (error) {
+          console.error('刷新壁纸时出错:', error);
+          alert('刷新壁纸失败: ' + error.message);
+        }
+      });
+    }
+    
+    // 添加打开壁纸文件夹按钮事件
+    if (openWallpaperFolderBtn) {
+      openWallpaperFolderBtn.addEventListener('click', async () => {
+        try {
+          const folderName = await getWallpaperFolderName();
+          await createWallpaperFolder(folderName);
+          alert(`已创建壁纸文件夹: ${folderName}\n请在下载文件夹中找到并打开它。`);
+        } catch (error) {
+          console.error('打开壁纸文件夹时出错:', error);
+          alert('打开壁纸文件夹失败: ' + error.message);
+        }
+      });
+    }
     
     // 渲染壁纸历史
     renderWallpaperHistory(history, settings.currentWallpaperIndex, wallpaperHistoryGrid);
@@ -782,47 +702,18 @@ async function initWallpaperHistory(domElements) {
       startWallpaperAutoChange(settings.wallpaperChangeInterval);
     }
     
-    // 上一张壁纸按钮事件
-    prevWallpaperBtn.addEventListener('click', async () => {
-      prevWallpaperBtn.disabled = true;
-      await previousWallpaper();
-      
-      // 重新加载历史和设置
-      const updatedSettings = await loadSettings();
-      const updatedHistory = await loadWallpaperHistory();
-      
-      // 更新UI
-      renderWallpaperHistory(updatedHistory, updatedSettings.currentWallpaperIndex, wallpaperHistoryGrid);
-      prevWallpaperBtn.disabled = false;
-    });
-    
-    // 下一张壁纸按钮事件
-    nextWallpaperBtn.addEventListener('click', async () => {
-      nextWallpaperBtn.disabled = true;
-      await nextWallpaper();
-      
-      // 重新加载历史和设置
-      const updatedSettings = await loadSettings();
-      const updatedHistory = await loadWallpaperHistory();
-      
-      // 更新UI
-      renderWallpaperHistory(updatedHistory, updatedSettings.currentWallpaperIndex, wallpaperHistoryGrid);
-      nextWallpaperBtn.disabled = false;
-    });
-    
     // 自动切换复选框事件
     autoChangeWallpaper.addEventListener('change', async () => {
       const isChecked = autoChangeWallpaper.checked;
       autoChangeInterval.disabled = !isChecked;
       
       // 更新设置
-      const updatedSettings = {
-        ...settings,
+      const newSettings = {
         wallpaperAutoChange: isChecked,
         wallpaperChangeInterval: parseInt(autoChangeInterval.value)
       };
       
-      await saveSettings(updatedSettings);
+      await handleSettingsChange(newSettings, domElements);
       
       // 启动或停止自动切换
       if (isChecked) {
@@ -837,12 +728,11 @@ async function initWallpaperHistory(domElements) {
       const interval = parseInt(autoChangeInterval.value);
       
       // 更新设置
-      const updatedSettings = {
-        ...settings,
+      const newSettings = {
         wallpaperChangeInterval: interval
       };
       
-      await saveSettings(updatedSettings);
+      await handleSettingsChange(newSettings, domElements);
       
       // 如果已启用自动切换，重新启动定时器
       if (autoChangeWallpaper.checked) {
@@ -856,25 +746,34 @@ async function initWallpaperHistory(domElements) {
 
 /**
  * 渲染壁纸历史
- * @param {Array} history - 壁纸历史记录
+ * @param {Object} historyObj - 壁纸历史记录对象
  * @param {number} currentIndex - 当前壁纸索引
  * @param {HTMLElement} container - 容器元素
  */
-function renderWallpaperHistory(history, currentIndex, container) {
+function renderWallpaperHistory(historyObj, currentIndex, container) {
   // 清空容器
+  if (!container) return;
   container.innerHTML = '';
   
+  // 确保历史对象格式正确
+  if (!historyObj || !historyObj.items) {
+    console.warn('壁纸历史记录格式不正确，使用空数组');
+    historyObj = { items: [], currentIndex: -1 };
+  }
+  
+  const history = historyObj.items;
+  
   // 如果历史记录为空，显示提示信息
-  if (!history || history.length === 0) {
+  if (!history || !Array.isArray(history) || history.length === 0) {
     const emptyMsg = document.createElement('div');
     emptyMsg.className = 'wallpaper-empty-msg';
-    emptyMsg.textContent = '尚无历史壁纸';
+    emptyMsg.textContent = '尚无壁纸';
     container.appendChild(emptyMsg);
     return;
   }
   
   // 分页设置
-  const itemsPerPage = 4; // 每页显示4个壁纸
+  const itemsPerPage = 8; // 每页显示8个壁纸
   const totalPages = Math.ceil(history.length / itemsPerPage);
   
   // 获取或初始化当前页码
@@ -904,6 +803,12 @@ function renderWallpaperHistory(history, currentIndex, container) {
     thumbnail.className = 'wallpaper-thumbnail';
     thumbnail.src = wallpaper.thumbnail;
     thumbnail.alt = wallpaper.name;
+    thumbnail.onerror = function() {
+      // 图片加载失败时显示替代内容
+      this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>';
+      this.style.padding = '10px';
+      this.style.opacity = '0.5';
+    };
     
     // 信息
     const info = document.createElement('div');
@@ -968,17 +873,16 @@ function renderWallpaperHistory(history, currentIndex, container) {
   if (totalPages > 1) {
     const paginationContainer = document.createElement('div');
     paginationContainer.className = 'wallpaper-pagination';
-    paginationContainer.style.gridColumn = '1 / -1'; // 跨越所有列
     
     // 上一页按钮
     const prevPageBtn = document.createElement('button');
     prevPageBtn.className = 'pagination-btn';
     prevPageBtn.disabled = currentPage === 1;
-    prevPageBtn.innerHTML = '&laquo;';
+    prevPageBtn.innerHTML = '上一页';
     prevPageBtn.addEventListener('click', () => {
       if (currentPage > 1) {
         container.dataset.currentPage = currentPage - 1;
-        renderWallpaperHistory(history, currentIndex, container);
+        renderWallpaperHistory(historyObj, currentIndex, container);
       }
     });
     
@@ -991,11 +895,11 @@ function renderWallpaperHistory(history, currentIndex, container) {
     const nextPageBtn = document.createElement('button');
     nextPageBtn.className = 'pagination-btn';
     nextPageBtn.disabled = currentPage === totalPages;
-    nextPageBtn.innerHTML = '&raquo;';
+    nextPageBtn.innerHTML = '下一页';
     nextPageBtn.addEventListener('click', () => {
       if (currentPage < totalPages) {
-        container.dataset.currentPage = currentPage + 1;
-        renderWallpaperHistory(history, currentIndex, container);
+        container.dataset.currentPage = parseInt(currentPage) + 1;
+        renderWallpaperHistory(historyObj, currentIndex, container);
       }
     });
     
