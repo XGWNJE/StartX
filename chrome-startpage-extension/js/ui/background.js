@@ -4,103 +4,94 @@ import { hexToHSL, hslToHex, hexToRgb, deepenColor } from './utils.js';
 import { applyAccentColors } from './accent.js';
 import { loadSettings, saveSettings } from '../settings.js';
 
-// 壁纸系统文件夹配置
-const WALLPAPER_FOLDER_NAME = 'startx-wallpapers';
+// 壁纸系统文件夹配置 - 相对于扩展根目录
+const DEFAULT_WALLPAPER_FOLDER = 'wallpapers';
 
 /**
- * 获取壁纸文件夹名称
- * @returns {Promise<string>} 壁纸文件夹名称
+ * 获取壁纸文件夹路径
+ * @returns {Promise<string>} 壁纸文件夹路径
  */
-export async function getWallpaperFolderName() {
+export async function getWallpaperFolderPath() {
   try {
     const settings = await loadSettings();
-    return settings.wallpaperFolderPath || 'startx-wallpapers';
+    return settings.wallpaperFolderPath || DEFAULT_WALLPAPER_FOLDER;
   } catch (error) {
-    console.error('获取壁纸文件夹名称时出错:', error);
-    return 'startx-wallpapers';
+    console.error('获取壁纸文件夹路径时出错:', error);
+    return DEFAULT_WALLPAPER_FOLDER;
   }
 }
 
 /**
- * 设置壁纸文件夹名称
- * @param {string} folderName - 新的文件夹名称
+ * 设置壁纸文件夹路径
+ * @param {string} folderPath - 新的文件夹路径
  * @returns {Promise<boolean>} 是否设置成功
  */
-export async function setWallpaperFolderName(folderName) {
+export async function setWallpaperFolderPath(folderPath) {
   try {
-    if (!folderName || typeof folderName !== 'string' || folderName.trim() === '') {
+    if (!folderPath || typeof folderPath !== 'string' || folderPath.trim() === '') {
       return false;
     }
     
-    // 清理文件夹名称，移除特殊字符
-    const cleanFolderName = folderName.trim().replace(/[^\w-]/g, '_');
+    // 清理文件夹路径，移除特殊字符
+    const cleanFolderPath = folderPath.trim().replace(/[^\w\-\/\\]/g, '_');
     
     // 更新设置
     const settings = await loadSettings();
-    settings.wallpaperFolderPath = cleanFolderName;
+    settings.wallpaperFolderPath = cleanFolderPath;
     await saveSettings(settings);
     
-    console.log(`壁纸文件夹路径已更新为: ${cleanFolderName}`);
+    console.log(`壁纸文件夹路径已更新为: ${cleanFolderPath}`);
     
     return true;
   } catch (error) {
-    console.error('设置壁纸文件夹名称时出错:', error);
+    console.error('设置壁纸文件夹路径时出错:', error);
     return false;
   }
 }
 
 /**
- * 创建壁纸文件夹
- * @param {string} folderName - 文件夹名称
- * @returns {Promise<boolean>} 是否创建成功
+ * 确保壁纸文件夹存在
+ * 在扩展目录中创建壁纸文件夹
+ * @returns {Promise<boolean>} 是否成功
  */
-export async function createWallpaperFolder(folderName) {
+export async function ensureWallpaperFolderExists() {
   try {
-    if (!folderName || typeof folderName !== 'string' || folderName.trim() === '') {
-      folderName = 'startx-wallpapers'; // 使用默认名称
+    const folderPath = await getWallpaperFolderPath();
+    
+    // 检查文件夹是否存在，如果不存在则创建
+    try {
+      // 使用fetch API检查文件夹是否存在
+      const response = await fetch(chrome.runtime.getURL(`${folderPath}/.exists`));
+      console.log(`壁纸文件夹已存在: ${folderPath}`);
+      return true;
+    } catch (error) {
+      // 文件夹可能不存在，尝试创建
+      console.log(`创建壁纸文件夹: ${folderPath}`);
+      
+      // 在Chrome扩展中，我们不能直接创建文件夹
+      // 但可以通过创建一个占位文件来实现
+      const placeholderContent = `此文件夹用于存储StartX扩展的壁纸图片。
+请勿删除此文件夹。`;
+      
+      // 使用background页面创建文件夹
+      chrome.runtime.sendMessage({
+        action: 'createFolder',
+        folderPath: folderPath,
+        placeholderContent: placeholderContent
+      }, response => {
+        if (response && response.success) {
+          console.log(`成功创建壁纸文件夹: ${folderPath}`);
+          return true;
+        } else {
+          console.error(`创建壁纸文件夹失败: ${response ? response.error : '未知错误'}`);
+          return false;
+        }
+      });
+      
+      return true;
     }
-    
-    // 由于浏览器安全限制，我们不能直接创建文件夹
-    // 但可以通过创建一个README文件来引导用户创建文件夹
-    
-    // 创建一个文本文件，包含说明信息
-    const content = `StartX壁纸文件夹
-
-这是StartX扩展的壁纸存储文件夹。
-您可以将壁纸图片文件放在这个文件夹中，然后通过扩展的"导入壁纸"功能将它们添加到StartX中。
-
-文件夹路径: ${folderName}
-
-使用方法:
-1. 将您喜欢的壁纸图片保存到这个文件夹
-2. 在StartX的设置中点击"导入壁纸"按钮
-3. 选择您想要导入的壁纸图片
-
-注意: 为了获得最佳效果，建议使用高质量的图片作为壁纸。
-`;
-
-    // 创建Blob对象
-    const blob = new Blob([content], { type: 'text/plain' });
-    
-    // 创建下载链接
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `${folderName}/README.txt`;
-    
-    // 添加到DOM并触发点击
-    document.body.appendChild(link);
-    link.click();
-    
-    // 清理DOM
-    setTimeout(() => {
-      document.body.removeChild(link);
-      URL.revokeObjectURL(link.href);
-    }, 100);
-    
-    console.log(`已创建壁纸文件夹: ${folderName}`);
-    return true;
   } catch (error) {
-    console.error('创建壁纸文件夹时出错:', error);
+    console.error('确保壁纸文件夹存在时出错:', error);
     return false;
   }
 }
@@ -121,24 +112,14 @@ export async function initBackground(domElements) {
     document.body.appendChild(customBackground);
   }
   
-  // 创建壁纸文件夹
+  // 确保壁纸文件夹存在
   try {
-    const folderName = await getWallpaperFolderName();
+    await ensureWallpaperFolderExists();
     
     // 如果有文件夹路径输入框，设置初始值
     if (domElements.wallpaperFolderPath) {
-      domElements.wallpaperFolderPath.value = folderName;
-    }
-    
-    // 检查是否是首次运行
-    const settings = await loadSettings();
-    if (!settings.wallpaperFolderCreated) {
-      // 首次运行时创建文件夹
-      await createWallpaperFolder(folderName);
-      
-      // 标记文件夹已创建
-      settings.wallpaperFolderCreated = true;
-      await saveSettings(settings);
+      const folderPath = await getWallpaperFolderPath();
+      domElements.wallpaperFolderPath.value = folderPath;
     }
   } catch (error) {
     console.error("初始化壁纸文件夹时出错:", error);
@@ -152,7 +133,7 @@ export async function initBackground(domElements) {
       if (shouldCheckImport) {
         // 延迟执行导入，避免影响初始化流程
         setTimeout(() => {
-          checkAndImportWallpapers().catch(error => {
+          importWallpapersFromFolder().catch(error => {
             console.error("导入壁纸时出错:", error);
           });
         }, 2000);
@@ -1194,20 +1175,6 @@ function renderWallpaperHistory(items, currentIndex, container) {
 }
 
 /**
- * 获取壁纸文件夹路径
- * @returns {Promise<string>} 壁纸文件夹路径
- */
-export async function getWallpaperFolderPath() {
-  try {
-    const folderName = await getWallpaperFolderName();
-    return folderName;
-  } catch (error) {
-    console.error('获取壁纸文件夹路径时出错:', error);
-    return 'startx-wallpapers';
-  }
-}
-
-/**
  * 将壁纸保存到系统文件夹
  * @param {string} imageData - 壁纸数据URL
  * @param {string} fileName - 文件名
@@ -1228,7 +1195,7 @@ export function saveWallpaperToSystem(imageData, fileName) {
       document.body.removeChild(link);
     }, 100);
     
-    console.log(`壁纸已保存到下载文件夹，建议移动到 ${WALLPAPER_FOLDER_NAME} 文件夹`);
+    console.log(`壁纸已保存到下载文件夹，建议移动到 ${DEFAULT_WALLPAPER_FOLDER} 文件夹`);
     return true;
   } catch (error) {
     console.error('保存壁纸到系统文件夹时出错:', error);
@@ -1296,10 +1263,10 @@ export async function checkAndImportWallpapers() {
     console.log("检查并导入壁纸...");
     
     // 获取壁纸文件夹名称
-    const folderName = await getWallpaperFolderName();
+    const folderName = await getWallpaperFolderPath();
     
     // 创建壁纸文件夹
-    await createWallpaperFolder(folderName);
+    await ensureWallpaperFolderExists();
     
     // 标记为已导入，避免重复导入
     const settings = await loadSettings();
@@ -1321,10 +1288,10 @@ export async function checkAndImportWallpapers() {
 export async function openWallpaperFolder() {
   try {
     // 获取当前壁纸文件夹名称
-    const folderName = await getWallpaperFolderName();
+    const folderName = await getWallpaperFolderPath();
     
     // 创建文件夹
-    const success = await createWallpaperFolder(folderName);
+    const success = await ensureWallpaperFolderExists();
     
     if (success) {
       alert(`请在您的下载文件夹中找到并打开 ${folderName} 文件夹。\n您可以将壁纸图片放在此文件夹中，然后通过"导入壁纸"功能将它们添加到StartX中。`);

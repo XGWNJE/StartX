@@ -3,9 +3,13 @@
   "name": "StartX",
   "version": "1.0",
   "description": "一个精美起始页",
-  "permissions": ["storage", "bookmarks"],
+  "permissions": ["storage", "bookmarks", "fileSystem"],
   "chrome_url_overrides": {
     "newtab": "newtab.html"
+  },
+  "background": {
+    "service_worker": "js/background.js",
+    "type": "module"
   },
   "icons": {
     "16": "images/icon16.png",

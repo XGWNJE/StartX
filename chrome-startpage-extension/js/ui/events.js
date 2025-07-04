@@ -610,15 +610,24 @@ async function initWallpaperHistory(domElements) {
             return;
           }
           
-          const folderName = wallpaperFolderPath.value;
+          const folderPath = wallpaperFolderPath.value;
           
-          // 先设置文件夹路径
-          const success = await setWallpaperFolderName(folderName);
+          // 更新设置中的文件夹路径
+          const success = await setWallpaperFolderPath(folderPath);
           
           if (success) {
-            // 然后创建文件夹
-            await createWallpaperFolder(folderName);
-            alert(`壁纸文件夹路径已更新为: ${folderName}\n已创建相应的文件夹，请在下载文件夹中查看。`);
+            // 尝试创建或访问文件夹
+            chrome.runtime.sendMessage({
+              action: 'createFolder',
+              folderPath: folderPath,
+              placeholderContent: `此文件夹用于存储StartX扩展的壁纸图片。\n请勿删除此文件夹。`
+            }, response => {
+              if (response && response.success) {
+                alert(`壁纸文件夹路径已更新为: ${folderPath}\n文件夹已成功创建。`);
+              } else {
+                alert(`壁纸文件夹路径已更新，但创建文件夹失败: ${response ? response.error : '未知错误'}`);
+              }
+            });
           } else {
             alert('更新壁纸文件夹路径失败');
           }
@@ -629,33 +638,66 @@ async function initWallpaperHistory(domElements) {
       });
     }
     
+    // 添加打开壁纸文件夹按钮事件
+    if (openWallpaperFolderBtn) {
+      openWallpaperFolderBtn.addEventListener('click', async () => {
+        try {
+          const folderPath = await getWallpaperFolderPath();
+          
+          // 尝试打开文件夹
+          chrome.runtime.sendMessage({
+            action: 'createFolder',
+            folderPath: folderPath,
+            placeholderContent: `此文件夹用于存储StartX扩展的壁纸图片。\n请勿删除此文件夹。`
+          }, response => {
+            if (response && response.success) {
+              alert(`壁纸文件夹已打开: ${folderPath}`);
+            } else {
+              alert(`打开壁纸文件夹失败: ${response ? response.error : '未知错误'}`);
+            }
+          });
+        } catch (error) {
+          console.error('打开壁纸文件夹时出错:', error);
+          alert('打开壁纸文件夹失败: ' + error.message);
+        }
+      });
+    }
+    
     // 添加导入壁纸按钮事件
     if (importWallpapersBtn) {
       importWallpapersBtn.addEventListener('click', async () => {
         try {
-          const fileInput = document.createElement('input');
-          fileInput.type = 'file';
-          fileInput.accept = 'image/*';
-          fileInput.multiple = true;
+          const folderPath = await getWallpaperFolderPath();
           
-          fileInput.onchange = async (e) => {
-            if (e.target.files.length > 0) {
-              const files = Array.from(e.target.files);
-              
-              // 处理选择的文件
-              for (const file of files) {
-                await importWallpaperFromFile(file);
+          // 从壁纸文件夹导入图片
+          chrome.runtime.sendMessage({
+            action: 'importWallpapers',
+            folderPath: folderPath
+          }, async response => {
+            if (response && response.success) {
+              const wallpapers = response.wallpapers;
+              if (wallpapers && wallpapers.length > 0) {
+                // 处理导入的壁纸
+                for (const wallpaper of wallpapers) {
+                  // 创建缩略图
+                  const thumbnail = await createThumbnail(wallpaper.data);
+                  
+                  // 添加到历史记录
+                  await addToWallpaperHistory(wallpaper.data, thumbnail, wallpaper.name);
+                }
+                
+                // 刷新壁纸历史
+                const updatedHistory = await loadWallpaperHistory();
+                renderWallpaperHistory(updatedHistory, 0, wallpaperHistoryGrid);
+                
+                alert(`成功导入 ${wallpapers.length} 个壁纸`);
+              } else {
+                alert('没有找到可导入的壁纸');
               }
-              
-              // 刷新壁纸历史
-              const updatedHistory = await loadWallpaperHistory();
-              renderWallpaperHistory(updatedHistory, 0, wallpaperHistoryGrid);
-              
-              alert(`成功导入 ${files.length} 个壁纸`);
+            } else {
+              alert(`导入壁纸失败: ${response ? response.error : '未知错误'}`);
             }
-          };
-          
-          fileInput.click();
+          });
         } catch (error) {
           console.error('导入壁纸时出错:', error);
           alert('导入壁纸失败: ' + error.message);
@@ -675,20 +717,6 @@ async function initWallpaperHistory(domElements) {
         } catch (error) {
           console.error('刷新壁纸时出错:', error);
           alert('刷新壁纸失败: ' + error.message);
-        }
-      });
-    }
-    
-    // 添加打开壁纸文件夹按钮事件
-    if (openWallpaperFolderBtn) {
-      openWallpaperFolderBtn.addEventListener('click', async () => {
-        try {
-          const folderName = await getWallpaperFolderName();
-          await createWallpaperFolder(folderName);
-          alert(`已创建壁纸文件夹: ${folderName}\n请在下载文件夹中找到并打开它。`);
-        } catch (error) {
-          console.error('打开壁纸文件夹时出错:', error);
-          alert('打开壁纸文件夹失败: ' + error.message);
         }
       });
     }
