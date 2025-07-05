@@ -25,6 +25,47 @@
             <div id="suggestions" class="suggestions-container"></div>
         </div>
     </main>
+    <div id="settings-panel" class="settings-panel">
+        <div class="settings-header">
+            <h3>设置</h3>
+            <div id="close-settings" class="close-button">&times;</div>
+        </div>
+        <div class="settings-content">
+            <div class="setting-item">
+                <label class="setting-label">搜索引擎</label>
+                <div class="radio-group pill-style" id="search-engine-group">
+                    <div class="radio-pill-background"></div>
+                    <label class="radio-label">
+                        <input type="radio" name="searchEngine" value="google" checked>
+                        Google
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="searchEngine" value="bing">
+                        Bing
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="searchEngine" value="baidu">
+                        Baidu
+                    </label>
+                </div>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">外观</label>
+                <div class="theme-switch-wrapper">
+                    <label class="switch">
+                        <input type="checkbox" id="theme-switch">
+                        <span class="slider round"></span>
+                    </label>
+                    <span id="theme-name">深色模式</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-button-container">
+        <img id="open-settings" src="icons/settings.svg" alt="Settings">
+    </div>
+
     <script src="main.js"></script>
 </body>
 </html> 

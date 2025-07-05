@@ -1,11 +1,29 @@
 :root {
-    --background-color: #1a1a1a;
-    --text-color: #ffffff;
-    --input-background: #2c2c2c;
-    --input-border-color: #444444;
-    --suggestion-background: #2c2c2c;
-    --suggestion-hover-background: #3c3c3c;
-    --suggestion-text-color: #f0f0f0;
+    /* Dark Theme (Default) */
+    --primary-bg: rgba(255, 255, 255, 0.2);
+    --primary-border: rgba(255, 255, 255, 0.3);
+    --primary-text: #212121;
+    --secondary-text: #333;
+    --highlight-bg: rgba(255, 255, 255, 0.3);
+    --settings-panel-bg: rgba(255, 255, 255, 0.15);
+    --settings-panel-border: rgba(255, 255, 255, 0.2);
+    --pill-bg: rgba(0, 0, 0, 0.1);
+    --pill-slider-bg: #212121;
+    --pill-text-selected: white;
+}
+
+body.light-theme {
+    /* Light Theme */
+    --primary-bg: rgba(255, 255, 255, 0.4);
+    --primary-border: rgba(0, 0, 0, 0.2);
+    --primary-text: #212121;
+    --secondary-text: #555;
+    --highlight-bg: rgba(0, 0, 0, 0.1);
+    --settings-panel-bg: rgba(255, 255, 255, 0.5);
+    --settings-panel-border: rgba(0, 0, 0, 0.1);
+    --pill-bg: rgba(0, 0, 0, 0.1);
+    --pill-slider-bg: #212121;
+    --pill-text-selected: white;
 }
 
 body, html {
@@ -14,7 +32,7 @@ body, html {
     width: 100%;
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    color: var(--text-color);
+    color: var(--primary-text);
     overflow: hidden;
 }
 
@@ -29,14 +47,14 @@ body, html {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: var(--primary-bg);
+    border: 1px solid var(--primary-border);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #212121;
+    color: var(--primary-text);
     font-size: 20px;
     font-weight: bold;
     cursor: pointer;
@@ -44,7 +62,7 @@ body, html {
 }
 
 .help-button:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: var(--highlight-bg);
 }
 
 .tooltip {
@@ -52,12 +70,12 @@ body, html {
     top: 0;
     left: 50px;
     padding: 10px 15px;
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: var(--primary-bg);
+    border: 1px solid var(--primary-border);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-radius: 8px;
-    color: #212121;
+    color: var(--primary-text);
     white-space: nowrap;
     font-size: 14px;
     line-height: 1.6;
@@ -68,6 +86,204 @@ body, html {
 
 .help-container:hover .tooltip {
     visibility: visible;
+    opacity: 1;
+}
+
+/* Settings Panel */
+.settings-panel {
+    position: fixed;
+    top: 0;
+    right: -350px; /* Hidden by default */
+    width: 350px;
+    height: 100%;
+    background: var(--settings-panel-bg);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-left: 1px solid var(--settings-panel-border);
+    z-index: 200;
+    transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    color: var(--primary-text);
+}
+
+.settings-panel.open {
+    right: 0;
+}
+
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--settings-panel-border);
+}
+
+.settings-header h3 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.close-button {
+    font-size: 28px;
+    font-weight: lighter;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.15s;
+}
+
+.close-button:hover {
+    opacity: 1;
+}
+
+.settings-content {
+    padding: 20px;
+}
+
+.setting-item {
+    margin-bottom: 25px;
+}
+
+.setting-label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    opacity: 0.9;
+}
+
+.radio-group .radio-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.radio-group input[type="radio"] {
+    opacity: 0;
+    position: absolute;
+}
+
+/* Pill Style Radio Buttons */
+.radio-group.pill-style {
+    position: relative;
+    display: flex;
+    background-color: var(--pill-bg);
+    border-radius: 20px;
+    padding: 4px;
+}
+
+.radio-group.pill-style .radio-label {
+    flex: 1;
+    text-align: center;
+    padding: 6px 0;
+    margin: 0;
+    z-index: 1;
+    color: var(--primary-text);
+    transition: color 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.radio-group.pill-style .radio-label.selected-label {
+    color: var(--pill-text-selected);
+}
+
+.radio-pill-background {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: calc((100% - 8px) / 3);
+    height: calc(100% - 8px);
+    background-color: var(--pill-slider-bg);
+    border-radius: 16px;
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Theme Switch */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+#theme-name {
+    margin-left: 15px;
+    font-weight: 500;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.1);
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #212121;
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+
+.settings-button-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
+}
+
+#open-settings {
+    width: 24px;
+    height: 24px;
+    padding: 8px;
+    border-radius: 50%;
+    background: var(--primary-bg);
+    border: 1px solid var(--primary-border);
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    transition: background-color 0.15s, transform 0.2s;
+    opacity: 0.7;
+}
+
+#open-settings:hover {
+    background-color: var(--highlight-bg);
+    transform: rotate(45deg);
     opacity: 1;
 }
 
@@ -107,10 +323,10 @@ body, html {
 #searchInput {
     width: 100%;
     padding: 15px 20px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid var(--primary-border);
     border-radius: 28px;
-    background-color: rgba(255, 255, 255, 0.2);
-    color: #212121;
+    background-color: var(--primary-bg);
+    color: var(--primary-text);
     font-size: 16px;
     outline: none;
     box-sizing: border-box;
@@ -118,11 +334,11 @@ body, html {
 }
 
 #searchInput::placeholder {
-    color: #333;
+    color: var(--secondary-text);
 }
 
 #searchInput:focus {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: var(--highlight-bg);
 }
 
 .search-wrapper.suggestions-active {
@@ -139,7 +355,7 @@ body, html {
     display: none;
     position: absolute;
     width: 100%;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--primary-bg);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-radius: 0 0 28px 28px;
@@ -147,7 +363,7 @@ body, html {
     overflow: hidden;
     max-height: 400px;
     overflow-y: auto;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid var(--primary-border);
     border-top: none;
     box-sizing: border-box;
 }
@@ -160,7 +376,7 @@ body, html {
     padding: 10px 20px;
     text-align: left;
     cursor: pointer;
-    color: #212121;
+    color: var(--primary-text);
     display: flex;
     align-items: center;
 }
@@ -170,7 +386,7 @@ body, html {
 }
 
 .suggestion-item.selected {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: var(--highlight-bg);
 }
 
 .suggestion-item img {
@@ -184,7 +400,7 @@ body, html {
 }
 
 .suggestion-item .url {
-    color: #555;
+    color: var(--secondary-text);
     margin-left: 10px;
     font-size: 14px;
     white-space: nowrap;

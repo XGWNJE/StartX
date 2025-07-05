@@ -2,9 +2,102 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     const suggestionsContainer = document.getElementById('suggestions');
     const searchWrapper = document.querySelector('.search-wrapper');
-    const defaultSearchEngine = 'https://www.google.com/search?q=';
+    
+    const searchEngines = {
+        google: 'https://www.google.com/search?q=',
+        bing: 'https://www.bing.com/search?q=',
+        baidu: 'https://www.baidu.com/s?wd='
+    };
+    let currentSearchEngine = searchEngines.google;
+
     const faviconUrl = (url) => `https://www.google.com/s2/favicons?sz=32&domain_url=${encodeURIComponent(url)}`;
     let selectedIndex = -1;
+
+    // Settings Panel
+    const settingsPanel = document.getElementById('settings-panel');
+    const openSettingsBtn = document.getElementById('open-settings');
+    const closeSettingsBtn = document.getElementById('close-settings');
+    const searchEngineGroup = document.getElementById('search-engine-group');
+    const themeSwitch = document.getElementById('theme-switch');
+    const themeName = document.getElementById('theme-name');
+
+    openSettingsBtn.addEventListener('click', () => settingsPanel.classList.add('open'));
+    closeSettingsBtn.addEventListener('click', () => settingsPanel.classList.remove('open'));
+
+    // Load settings and initialize
+    function loadSettings() {
+        chrome.storage.local.get(['searchEngine', 'theme'], (data) => {
+            // Search engine
+            const savedEngine = data.searchEngine || 'google';
+            currentSearchEngine = searchEngines[savedEngine];
+            const radio = document.querySelector(`input[name="searchEngine"][value="${savedEngine}"]`);
+            if (radio) {
+                radio.checked = true;
+                updatePillBackground(radio);
+                updateLabelColors();
+            }
+
+            // Theme
+            const savedTheme = data.theme || 'dark';
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-theme');
+                themeSwitch.checked = true;
+            }
+            updateThemeName();
+        });
+    }
+
+    searchEngineGroup.addEventListener('change', (e) => {
+        const selectedEngine = e.target.value;
+        currentSearchEngine = searchEngines[selectedEngine];
+        chrome.storage.local.set({ searchEngine: selectedEngine });
+        updatePillBackground(e.target);
+        updateLabelColors();
+    });
+    
+    themeSwitch.addEventListener('change', (e) => {
+        if (e.target.checked) {
+            document.body.classList.add('light-theme');
+            chrome.storage.local.set({ theme: 'light' });
+        } else {
+            document.body.classList.remove('light-theme');
+            chrome.storage.local.set({ theme: 'dark' });
+        }
+        updateThemeName();
+    });
+
+    function updateThemeName() {
+        themeName.textContent = document.body.classList.contains('light-theme') ? '浅色模式' : '深色模式';
+    }
+    
+    function updatePillBackground(radio) {
+        const selectedLabel = radio.parentNode;
+        const background = document.querySelector('.radio-pill-background');
+        if (background && selectedLabel && selectedLabel.parentElement.classList.contains('pill-style')) {
+            const labelIndex = Array.from(selectedLabel.parentElement.children).indexOf(selectedLabel) - 1;
+            if (labelIndex > -1) {
+                 background.style.transform = `translateX(${labelIndex * 100}%)`;
+            }
+        }
+    }
+
+    function updateLabelColors() {
+        const labels = searchEngineGroup.querySelectorAll('.radio-label');
+        labels.forEach(label => {
+            if (label.querySelector('input').checked) {
+                label.classList.add('selected-label');
+            } else {
+                label.classList.remove('selected-label');
+            }
+        });
+    }
+
+    loadSettings();
+
+    suggestionsContainer.addEventListener('mouseleave', () => {
+        selectedIndex = -1;
+        updateSelectionHighlight(suggestionsContainer.querySelectorAll('.suggestion-item'));
+    });
 
     searchInput.addEventListener('input', handleInputChange);
     searchInput.addEventListener('keydown', handleKeydown);
@@ -35,6 +128,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (selectedIndex > -1 && suggestions.length > 0) {
+                suggestions[selectedIndex].click();
+            } else {
+                performSearch();
+            }
+            return;
+        }
+
         if (suggestions.length === 0) return;
 
         if (e.key === 'ArrowDown') {
@@ -45,13 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             selectedIndex = (selectedIndex - 1 + suggestions.length) % suggestions.length;
             updateSelectionHighlight(suggestions);
-        } else if (e.key === 'Enter') {
-            e.preventDefault();
-            if (selectedIndex > -1) {
-                suggestions[selectedIndex].click();
-            } else {
-                performSearch();
-            }
         }
     }
     
@@ -62,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const url = query.startsWith('http') ? query : `http://${query}`;
                 window.location.href = url;
             } else {
-                window.location.href = `${defaultSearchEngine}${encodeURIComponent(query)}`;
+                window.location.href = `${currentSearchEngine}${encodeURIComponent(query)}`;
             }
         }
     }
