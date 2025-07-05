@@ -7,11 +7,20 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="help-container">
+        <div class="help-button">?</div>
+        <div class="tooltip">
+            <p><strong>键盘快捷键</strong></p>
+            <span>↑ / ↓ : 选择</span><br>
+            <span>↵ Enter : 打开</span><br>
+            <span>Esc : 取消选择</span>
+        </div>
+    </div>
     <div class="background-container"></div>
     <main class="main-content">
         <div class="search-wrapper">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="搜索或输入网址" autocomplete="off">
+                <input type="text" id="searchInput" placeholder="搜索书签和网页" autocomplete="off">
             </div>
             <div id="suggestions" class="suggestions-container"></div>
         </div>

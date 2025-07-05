@@ -4,9 +4,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchWrapper = document.querySelector('.search-wrapper');
     const defaultSearchEngine = 'https://www.google.com/search?q=';
     const faviconUrl = (url) => `https://www.google.com/s2/favicons?sz=32&domain_url=${encodeURIComponent(url)}`;
+    let selectedIndex = -1;
 
     searchInput.addEventListener('input', handleInputChange);
-    searchInput.addEventListener('keydown', handleEnterKey);
+    searchInput.addEventListener('keydown', handleKeydown);
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.search-wrapper')) {
             hideSuggestions();
@@ -21,20 +22,60 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             hideSuggestions();
         }
+        selectedIndex = -1;
     }
 
-    function handleEnterKey(e) {
-        if (e.key === 'Enter') {
-            const query = searchInput.value.trim();
-            if (query) {
-                if (isUrl(query)) {
-                    const url = query.startsWith('http') ? query : `http://${query}`;
-                    window.location.href = url;
-                } else {
-                    window.location.href = `${defaultSearchEngine}${encodeURIComponent(query)}`;
-                }
+    function handleKeydown(e) {
+        const suggestions = suggestionsContainer.querySelectorAll('.suggestion-item');
+
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            selectedIndex = -1;
+            updateSelectionHighlight(suggestions);
+            return;
+        }
+
+        if (suggestions.length === 0) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedIndex = (selectedIndex + 1) % suggestions.length;
+            updateSelectionHighlight(suggestions);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedIndex = (selectedIndex - 1 + suggestions.length) % suggestions.length;
+            updateSelectionHighlight(suggestions);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (selectedIndex > -1) {
+                suggestions[selectedIndex].click();
+            } else {
+                performSearch();
             }
         }
+    }
+    
+    function performSearch() {
+        const query = searchInput.value.trim();
+        if (query) {
+            if (isUrl(query)) {
+                const url = query.startsWith('http') ? query : `http://${query}`;
+                window.location.href = url;
+            } else {
+                window.location.href = `${defaultSearchEngine}${encodeURIComponent(query)}`;
+            }
+        }
+    }
+    
+    function updateSelectionHighlight(suggestions) {
+        suggestions.forEach((item, index) => {
+            if (index === selectedIndex) {
+                item.classList.add('selected');
+                item.scrollIntoView({ block: 'nearest' });
+            } else {
+                item.classList.remove('selected');
+            }
+        });
     }
 
     function searchBookmarks(query) {
@@ -53,11 +94,16 @@ document.addEventListener('DOMContentLoaded', () => {
         suggestionsContainer.innerHTML = '';
         if (bookmarks.length > 0) {
             searchWrapper.classList.add('suggestions-active');
-            bookmarks.forEach(bookmark => {
+            bookmarks.forEach((bookmark, index) => {
                 const item = document.createElement('div');
                 item.className = 'suggestion-item';
                 item.addEventListener('click', () => {
                     window.location.href = bookmark.url;
+                });
+
+                item.addEventListener('mouseenter', () => {
+                    selectedIndex = index;
+                    updateSelectionHighlight(suggestionsContainer.querySelectorAll('.suggestion-item'));
                 });
 
                 const img = document.createElement('img');
@@ -85,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function hideSuggestions() {
         searchWrapper.classList.remove('suggestions-active');
+        selectedIndex = -1;
     }
 
     function isUrl(text) {
