@@ -147,4 +147,205 @@ export function hslToHex(h, s, l) {
   let bHex = b.toString(16).padStart(2, '0');
   
   return `#${rHex}${gHex}${bHex}`;
+}
+
+/**
+ * UI工具函数模块
+ */
+
+/**
+ * 节流函数 - 限制函数执行频率
+ * @param {Function} func - 要执行的函数
+ * @param {number} delay - 延迟时间（毫秒）
+ * @returns {Function} - 节流后的函数
+ */
+export function throttle(func, delay) {
+  let lastCall = 0;
+  return function(...args) {
+    const now = new Date().getTime();
+    if (now - lastCall < delay) {
+      return;
+    }
+    lastCall = now;
+    return func(...args);
+  };
+}
+
+/**
+ * 防抖函数 - 延迟函数执行，直到一段时间内没有再次调用
+ * @param {Function} func - 要执行的函数
+ * @param {number} delay - 延迟时间（毫秒）
+ * @returns {Function} - 防抖后的函数
+ */
+export function debounce(func, delay) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+}
+
+/**
+ * 计算颜色的亮度
+ * @param {string} color - RGB颜色字符串，格式为 "rgb(r, g, b)" 或 "rgba(r, g, b, a)"
+ * @returns {number} - 颜色的亮度值 (0-255)
+ */
+export function getColorBrightness(color) {
+  // 提取RGB值
+  const rgbMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/i);
+  if (!rgbMatch) return 127; // 默认中等亮度
+  
+  const r = parseInt(rgbMatch[1], 10);
+  const g = parseInt(rgbMatch[2], 10);
+  const b = parseInt(rgbMatch[3], 10);
+  
+  // 使用感知亮度公式: (0.299*R + 0.587*G + 0.114*B)
+  return 0.299 * r + 0.587 * g + 0.114 * b;
+}
+
+/**
+ * 设置按钮自适应对比度
+ * 根据背景颜色动态调整设置按钮的样式，确保在不同背景下都有良好的可见性
+ */
+export function adaptSettingsButtonContrast() {
+  // 获取设置按钮元素
+  const settingsButton = document.querySelector('.settings-button');
+  if (!settingsButton) return;
+
+  // 创建一个观察器实例，用于检测背景变化
+  const observer = new MutationObserver(throttle(() => {
+    updateSettingsButtonStyle();
+  }, 200));
+
+  // 开始观察文档根元素的样式变化
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['style', 'class']
+  });
+
+  // 初始化按钮样式
+  updateSettingsButtonStyle();
+
+  // 每当窗口滚动或调整大小时重新计算
+  window.addEventListener('scroll', throttle(updateSettingsButtonStyle, 200));
+  window.addEventListener('resize', throttle(updateSettingsButtonStyle, 200));
+
+  /**
+   * 更新设置按钮样式
+   * 通过采样按钮位置的背景颜色来决定按钮应该使用亮色还是暗色样式
+   */
+  function updateSettingsButtonStyle() {
+    try {
+      // 获取按钮位置
+      const rect = settingsButton.getBoundingClientRect();
+      
+      // 获取文档背景颜色
+      const bodyBackgroundColor = getComputedStyle(document.body).backgroundColor;
+      const htmlBackgroundColor = getComputedStyle(document.documentElement).backgroundColor;
+      
+      // 获取--theme-background变量值
+      const themeBackground = getComputedStyle(document.documentElement).getPropertyValue('--theme-background').trim();
+      
+      // 获取--accent-primary变量值
+      const accentPrimary = getComputedStyle(document.documentElement).getPropertyValue('--accent-primary').trim();
+      
+      // 使用可用的颜色计算亮度
+      let avgBrightness = 0;
+      let colorCount = 0;
+      
+      // 检查并计算每个可用颜色的亮度
+      if (bodyBackgroundColor && bodyBackgroundColor !== 'rgba(0, 0, 0, 0)') {
+        avgBrightness += getColorBrightness(bodyBackgroundColor);
+        colorCount++;
+      }
+      
+      if (htmlBackgroundColor && htmlBackgroundColor !== 'rgba(0, 0, 0, 0)') {
+        avgBrightness += getColorBrightness(htmlBackgroundColor);
+        colorCount++;
+      }
+      
+      if (themeBackground && themeBackground !== 'transparent') {
+        // 如果是十六进制颜色，转换为rgb
+        if (themeBackground.startsWith('#')) {
+          const rgb = hexToRgb(themeBackground);
+          if (rgb) {
+            const rgbColor = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+            avgBrightness += getColorBrightness(rgbColor);
+            colorCount++;
+          }
+        } else {
+          avgBrightness += getColorBrightness(themeBackground);
+          colorCount++;
+        }
+      }
+      
+      // 如果没有有效的背景颜色，使用强调色作为参考
+      if (colorCount === 0 && accentPrimary && accentPrimary !== 'transparent') {
+        if (accentPrimary.startsWith('#')) {
+          const rgb = hexToRgb(accentPrimary);
+          if (rgb) {
+            const rgbColor = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+            avgBrightness += getColorBrightness(rgbColor);
+            colorCount++;
+          }
+        } else {
+          avgBrightness += getColorBrightness(accentPrimary);
+          colorCount++;
+        }
+      }
+      
+      // 如果仍然没有有效的颜色，使用默认亮度
+      if (colorCount === 0) {
+        avgBrightness = 127; // 默认中等亮度
+        colorCount = 1;
+      }
+      
+      // 计算平均亮度
+      avgBrightness = avgBrightness / colorCount;
+      
+      // 根据亮度决定按钮样式
+      const brightnessThreshold = 128; // 0-255之间的阈值
+      
+      // 移除所有可能的类
+      settingsButton.classList.remove('light-mode', 'dark-mode');
+      
+      // 添加适当的类
+      if (avgBrightness > brightnessThreshold) {
+        // 背景较亮，使用暗色按钮
+        settingsButton.classList.add('dark-mode');
+      } else {
+        // 背景较暗，使用亮色按钮
+        settingsButton.classList.add('light-mode');
+      }
+    } catch (error) {
+      console.error('更新设置按钮样式时出错:', error);
+      // 出错时使用默认样式
+      settingsButton.classList.remove('light-mode', 'dark-mode');
+    }
+  }
+}
+
+/**
+ * 格式化日期
+ * @param {Date} date - 日期对象
+ * @returns {string} - 格式化后的日期字符串
+ */
+export function formatDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  
+  return `${year}-${month}-${day} ${hours}:${minutes}`;
+}
+
+/**
+ * 生成唯一ID
+ * @returns {string} - 唯一ID
+ */
+export function generateUniqueId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
 } 

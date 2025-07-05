@@ -997,4 +997,80 @@
 
 .folder-path-input .btn:hover {
   background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 壁纸文件夹控制 */
+.wallpaper-folder-control {
+  margin-top: 15px;
+  width: 100%;
+}
+
+.wallpaper-folder-control label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.folder-input-group {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.folder-input-group input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 8px 12px;
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.folder-input-group button {
+  padding: 8px 12px;
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.folder-input-group button:hover {
+  background: var(--accent-color-hover);
+}
+
+/* 自动切换壁纸 */
+.wallpaper-auto-change {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.wallpaper-auto-change label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 0;
+}
+
+.wallpaper-auto-change input[type="checkbox"] {
+  margin: 0;
+}
+
+.wallpaper-auto-change select {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 5px 8px;
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.wallpaper-auto-change select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 } 

@@ -19,7 +19,6 @@
   --accent-primary: #7d6aff;
   --accent-secondary: #ff7eb3;
   --accent-tertiary: #5ce1e6;
-  --accent-gradient: linear-gradient(to right, var(--accent-secondary), var(--accent-primary));
   
   /* 强调色RGB格式（用于rgba函数） */
   --accent-primary-rgb: 125, 106, 255;
@@ -145,9 +144,7 @@ input::-webkit-credentials-auto-fill-button {
 }
 
 /* 强调色渐变 */
-.accent-gradient {
-  background: var(--accent-gradient);
-}
+/* 移除强调色渐变样式 */
 
 /* 主题颜色样式类 */
 .theme-bg {
@@ -182,7 +179,7 @@ body.extracting-colors::after {
   left: 0;
   right: 0;
   height: 3px;
-  background: var(--accent-gradient);
+  background: var(--accent-primary);
   z-index: 1000;
   animation: colorExtractingProgress 2s infinite linear;
 }

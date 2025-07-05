@@ -2,6 +2,31 @@
 import { themePresets } from '../config.js';
 
 /**
+ * 初始化主题模块
+ * @param {Object} domElements - DOM元素对象
+ */
+export async function initTheme(domElements) {
+  console.log("初始化主题模块...");
+  
+  // 获取主题预览元素
+  const previewElements = {
+    header: document.querySelector('.theme-preview-header'),
+    body: document.querySelector('.theme-preview-body'),
+    text: document.querySelector('.theme-preview-text'),
+    textSecondary: document.querySelector('.theme-preview-text-secondary'),
+    button: document.querySelector('.theme-preview-button')
+  };
+  
+  // 更新主题预览
+  if (previewElements.header) {
+    updateThemePreview();
+  }
+  
+  console.log("主题模块初始化完成");
+  return true;
+}
+
+/**
  * 应用主题颜色设置
  * @param {Object} settings - 用户设置
  */

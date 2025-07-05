@@ -1,13 +1,12 @@
 // 事件处理模块
 import { loadSettings, saveSettings } from '../settings.js';
-import { searchEngines, defaultSettings, themePresets } from '../config.js';
+import { searchEngines, DEFAULT_SETTINGS, themePresets } from '../config.js';
 import { handleSettingsChange } from './state.js';
 import { 
   processBackgroundImage, 
   loadWallpaperHistory, 
   applyWallpaperFromHistory, 
   deleteWallpaperFromHistory,
-  nextWallpaper,
   previousWallpaper,
   startWallpaperAutoChange,
   stopWallpaperAutoChange,
@@ -16,7 +15,8 @@ import {
   setWallpaperFolderPath,
   ensureWallpaperFolderExists,
   createThumbnail,
-  addToWallpaperHistory
+  addToWallpaperHistory,
+  renderWallpaperHistory
 } from './background.js';
 import { 
   handleBookmarkSearch, 
@@ -46,7 +46,7 @@ export function initEvents(domElements) {
     primarySwatch, secondarySwatch, tertiarySwatch, gradientSwatch,
     themeModeBtns, themePresetBtns, customThemeControls,
     searchEngineBtns,
-    prevWallpaper, nextWallpaper, autoChangeWallpaper, autoChangeInterval,
+    prevWallpaper, autoChangeWallpaper, autoChangeInterval,
     wallpaperHistoryGrid,
     wallpaperFolderPath,
     saveWallpaperFolder
@@ -135,7 +135,7 @@ export function initEvents(domElements) {
         console.log("重置所有设置为默认值");
         
         // 创建默认设置的副本
-        const defaultSettingsCopy = { ...defaultSettings };
+        const defaultSettingsCopy = { ...DEFAULT_SETTINGS };
         
         // 应用所有默认设置
         await handleSettingsChange(defaultSettingsCopy, domElements);
@@ -184,11 +184,34 @@ export function initEvents(domElements) {
         
         // 创建新的设置对象
         const newSettings = {
-          bgType: bgName === 'default' ? 'default' : 'preset',
+          bgType: bgName === 'default' ? 'default' : 'wallpaper',
           presetName: bgName,
           customBgData: null, // 清除自定义背景
           accentColorMode: 'auto' // 预设背景时自动应用强调色
         };
+        
+        // 根据预设名称选择对应的内置壁纸
+        if (bgName !== 'default') {
+          let wallpaperIndex = 0;
+          switch(bgName) {
+            case 'blue': wallpaperIndex = 0; break;
+            case 'purple': wallpaperIndex = 1; break;
+            case 'sunset': wallpaperIndex = 2; break;
+            case 'night': wallpaperIndex = 3; break;
+            case 'forest': wallpaperIndex = 0; break;
+            default: wallpaperIndex = 0;
+          }
+          
+          const bizhiFiles = [
+            'wallhaven-6lkq5l.png',
+            'wallhaven-gwjovl.png',
+            'wallhaven-k89v5d.jpg',
+            'wallhaven-po8k5m.jpg'
+          ];
+          
+          const bizhiFile = bizhiFiles[wallpaperIndex];
+          newSettings.currentWallpaperFile = `wallpaper-${wallpaperIndex+1}.${bizhiFile.split('.').pop()}`;
+        }
         
         // 应用设置
         await handleSettingsChange(newSettings, domElements);
@@ -597,7 +620,7 @@ async function initWallpaperHistory(domElements) {
     
     // 设置壁纸文件夹路径输入框的初始值
     if (wallpaperFolderPath) {
-      wallpaperFolderPath.value = settings.wallpaperFolderPath || 'startx-wallpapers';
+      wallpaperFolderPath.value = settings.wallpaperFolderPath || 'bizhi';
     }
     
     // 添加保存壁纸文件夹路径按钮事件
@@ -606,6 +629,12 @@ async function initWallpaperHistory(domElements) {
         try {
           if (!wallpaperFolderPath || !wallpaperFolderPath.value) {
             alert('请输入有效的文件夹名称');
+            return;
+          }
+          
+          // 如果用户输入了"bizhi"，提示这是内置文件夹
+          if (wallpaperFolderPath.value.toLowerCase() === 'bizhi') {
+            alert('bizhi 是扩展的内置壁纸文件夹，已自动加载内置壁纸。如需使用自定义文件夹，请使用其他名称。');
             return;
           }
           
@@ -621,6 +650,13 @@ async function initWallpaperHistory(domElements) {
               folderPath: folderPath,
               placeholderContent: `此文件夹用于存储StartX扩展的壁纸图片。\n请勿删除此文件夹。`
             }, response => {
+              // 检查是否有错误
+              if (chrome.runtime.lastError) {
+                console.warn('发送消息时出错:', chrome.runtime.lastError.message);
+                alert(`壁纸文件夹路径已更新为: ${folderPath}\n但无法确认文件夹是否已创建。`);
+                return;
+              }
+              
               if (response && response.success) {
                 alert(`壁纸文件夹路径已更新为: ${folderPath}\n文件夹已成功创建。`);
               } else {
@@ -649,6 +685,13 @@ async function initWallpaperHistory(domElements) {
             folderPath: folderPath,
             placeholderContent: `此文件夹用于存储StartX扩展的壁纸图片。\n请勿删除此文件夹。`
           }, response => {
+            // 检查是否有错误
+            if (chrome.runtime.lastError) {
+              console.warn('发送消息时出错:', chrome.runtime.lastError.message);
+              alert(`无法打开壁纸文件夹: ${folderPath}\n错误: ${chrome.runtime.lastError.message}`);
+              return;
+            }
+            
             if (response && response.success) {
               alert(`壁纸文件夹已打开: ${folderPath}`);
             } else {
@@ -673,6 +716,13 @@ async function initWallpaperHistory(domElements) {
             action: 'importWallpapers',
             folderPath: folderPath
           }, async response => {
+            // 检查是否有错误
+            if (chrome.runtime.lastError) {
+              console.warn('发送消息时出错:', chrome.runtime.lastError.message);
+              alert(`导入壁纸失败: ${chrome.runtime.lastError.message}`);
+              return;
+            }
+            
             if (response && response.success) {
               const wallpapers = response.wallpapers;
               if (wallpapers && wallpapers.length > 0) {
@@ -687,7 +737,9 @@ async function initWallpaperHistory(domElements) {
                 
                 // 刷新壁纸历史
                 const updatedHistory = await loadWallpaperHistory();
-                renderWallpaperHistory(updatedHistory, 0, wallpaperHistoryGrid);
+                if (wallpaperHistoryGrid) {
+                  renderWallpaperHistory(updatedHistory, 0, wallpaperHistoryGrid);
+                }
                 
                 alert(`成功导入 ${wallpapers.length} 个壁纸`);
               } else {
@@ -710,7 +762,9 @@ async function initWallpaperHistory(domElements) {
         try {
           // 刷新壁纸历史
           const updatedHistory = await loadWallpaperHistory();
-          renderWallpaperHistory(updatedHistory, 0, wallpaperHistoryGrid);
+          if (wallpaperHistoryGrid) {
+            renderWallpaperHistory(updatedHistory, 0, wallpaperHistoryGrid);
+          }
           
           alert('壁纸列表已刷新');
         } catch (error) {
@@ -721,227 +775,66 @@ async function initWallpaperHistory(domElements) {
     }
     
     // 渲染壁纸历史
-    renderWallpaperHistory(history, settings.currentWallpaperIndex, wallpaperHistoryGrid);
-    
-    // 设置自动切换状态
-    autoChangeWallpaper.checked = settings.wallpaperAutoChange || false;
-    autoChangeInterval.disabled = !settings.wallpaperAutoChange;
-    autoChangeInterval.value = settings.wallpaperChangeInterval || '30';
-    
-    // 如果启用了自动切换，启动定时器
-    if (settings.wallpaperAutoChange) {
-      startWallpaperAutoChange(settings.wallpaperChangeInterval);
+    if (wallpaperHistoryGrid) {
+      renderWallpaperHistory(history, settings.currentWallpaperIndex, wallpaperHistoryGrid);
     }
     
-    // 自动切换复选框事件
-    autoChangeWallpaper.addEventListener('change', async () => {
-      const isChecked = autoChangeWallpaper.checked;
-      autoChangeInterval.disabled = !isChecked;
-      
-      // 更新设置
-      const newSettings = {
-        wallpaperAutoChange: isChecked,
-        wallpaperChangeInterval: parseInt(autoChangeInterval.value)
-      };
-      
-      await handleSettingsChange(newSettings, domElements);
-      
-      // 启动或停止自动切换
-      if (isChecked) {
-        startWallpaperAutoChange(parseInt(autoChangeInterval.value));
-      } else {
-        stopWallpaperAutoChange();
+    // 设置自动切换状态
+    if (autoChangeWallpaper) {
+      autoChangeWallpaper.checked = settings.wallpaperAutoChange || false;
+      if (autoChangeInterval) {
+        autoChangeInterval.disabled = !settings.wallpaperAutoChange;
+        autoChangeInterval.value = settings.wallpaperChangeInterval || '30';
       }
-    });
+      
+      // 如果启用了自动切换，启动定时器
+      if (settings.wallpaperAutoChange) {
+        startWallpaperAutoChange(settings.wallpaperChangeInterval);
+      }
+      
+      // 自动切换复选框事件
+      autoChangeWallpaper.addEventListener('change', async () => {
+        const isChecked = autoChangeWallpaper.checked;
+        if (autoChangeInterval) {
+          autoChangeInterval.disabled = !isChecked;
+        }
+        
+        // 更新设置
+        const newSettings = {
+          wallpaperAutoChange: isChecked,
+          wallpaperChangeInterval: parseInt(autoChangeInterval ? autoChangeInterval.value : '30')
+        };
+        
+        await handleSettingsChange(newSettings, domElements);
+        
+        // 启动或停止自动切换
+        if (isChecked) {
+          startWallpaperAutoChange(parseInt(autoChangeInterval ? autoChangeInterval.value : '30'));
+        } else {
+          stopWallpaperAutoChange();
+        }
+      });
+    }
     
     // 自动切换间隔选择事件
-    autoChangeInterval.addEventListener('change', async () => {
-      const interval = parseInt(autoChangeInterval.value);
-      
-      // 更新设置
-      const newSettings = {
-        wallpaperChangeInterval: interval
-      };
-      
-      await handleSettingsChange(newSettings, domElements);
-      
-      // 如果已启用自动切换，重新启动定时器
-      if (autoChangeWallpaper.checked) {
-        startWallpaperAutoChange(interval);
-      }
-    });
+    if (autoChangeInterval) {
+      autoChangeInterval.addEventListener('change', async () => {
+        const interval = parseInt(autoChangeInterval.value);
+        
+        // 更新设置
+        const newSettings = {
+          wallpaperChangeInterval: interval
+        };
+        
+        await handleSettingsChange(newSettings, domElements);
+        
+        // 如果已启用自动切换，重新启动定时器
+        if (autoChangeWallpaper && autoChangeWallpaper.checked) {
+          startWallpaperAutoChange(interval);
+        }
+      });
+    }
   } catch (error) {
     console.error('初始化壁纸历史时出错:', error);
   }
-}
-
-/**
- * 渲染壁纸历史
- * @param {Object} historyObj - 壁纸历史记录对象
- * @param {number} currentIndex - 当前壁纸索引
- * @param {HTMLElement} container - 容器元素
- */
-function renderWallpaperHistory(historyObj, currentIndex, container) {
-  // 清空容器
-  if (!container) return;
-  container.innerHTML = '';
-  
-  // 确保历史对象格式正确
-  if (!historyObj || !historyObj.items) {
-    console.warn('壁纸历史记录格式不正确，使用空数组');
-    historyObj = { items: [], currentIndex: -1 };
-  }
-  
-  const history = historyObj.items;
-  
-  // 如果历史记录为空，显示提示信息
-  if (!history || !Array.isArray(history) || history.length === 0) {
-    const emptyMsg = document.createElement('div');
-    emptyMsg.className = 'wallpaper-empty-msg';
-    emptyMsg.textContent = '尚无壁纸';
-    container.appendChild(emptyMsg);
-    return;
-  }
-  
-  // 分页设置
-  const itemsPerPage = 8; // 每页显示8个壁纸
-  const totalPages = Math.ceil(history.length / itemsPerPage);
-  
-  // 获取或初始化当前页码
-  let currentPage = container.dataset.currentPage ? parseInt(container.dataset.currentPage) : 1;
-  
-  // 确保当前页码在有效范围内
-  if (currentPage < 1) currentPage = 1;
-  if (currentPage > totalPages) currentPage = totalPages;
-  
-  // 计算当前页的壁纸范围
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage, history.length);
-  const currentPageItems = history.slice(startIndex, endIndex);
-  
-  // 创建壁纸项
-  currentPageItems.forEach((wallpaper, index) => {
-    const actualIndex = startIndex + index;
-    const wallpaperItem = document.createElement('div');
-    wallpaperItem.className = 'wallpaper-item';
-    if (actualIndex === currentIndex) {
-      wallpaperItem.classList.add('active');
-    }
-    wallpaperItem.dataset.id = wallpaper.id;
-    
-    // 缩略图
-    const thumbnail = document.createElement('img');
-    thumbnail.className = 'wallpaper-thumbnail';
-    thumbnail.src = wallpaper.thumbnail;
-    thumbnail.alt = wallpaper.name;
-    thumbnail.onerror = function() {
-      // 图片加载失败时显示替代内容
-      this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>';
-      this.style.padding = '10px';
-      this.style.opacity = '0.5';
-    };
-    
-    // 信息
-    const info = document.createElement('div');
-    info.className = 'wallpaper-info';
-    
-    const name = document.createElement('div');
-    name.className = 'wallpaper-name';
-    name.textContent = wallpaper.name;
-    
-    const date = document.createElement('div');
-    date.className = 'wallpaper-date';
-    date.textContent = new Date(wallpaper.date).toLocaleDateString();
-    
-    info.appendChild(name);
-    info.appendChild(date);
-    
-    // 操作按钮
-    const actions = document.createElement('div');
-    actions.className = 'wallpaper-actions';
-    
-    const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'wallpaper-action-btn';
-    deleteBtn.title = '删除壁纸';
-    deleteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>';
-    
-    // 删除按钮事件
-    deleteBtn.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      if (confirm('确定要删除此壁纸吗？')) {
-        await deleteWallpaperFromHistory(wallpaper.id);
-        
-        // 重新加载历史和设置
-        const updatedSettings = await loadSettings();
-        const updatedHistory = await loadWallpaperHistory();
-        
-        // 更新UI
-        renderWallpaperHistory(updatedHistory, updatedSettings.currentWallpaperIndex, container);
-      }
-    });
-    
-    actions.appendChild(deleteBtn);
-    
-    // 点击壁纸项应用壁纸
-    wallpaperItem.addEventListener('click', async () => {
-      await applyWallpaperFromHistory(wallpaper.id);
-      
-      // 更新激活状态
-      const items = container.querySelectorAll('.wallpaper-item');
-      items.forEach(item => item.classList.remove('active'));
-      wallpaperItem.classList.add('active');
-    });
-    
-    // 组装DOM
-    wallpaperItem.appendChild(thumbnail);
-    wallpaperItem.appendChild(info);
-    wallpaperItem.appendChild(actions);
-    
-    container.appendChild(wallpaperItem);
-  });
-  
-  // 如果有多页，添加分页控制
-  if (totalPages > 1) {
-    const paginationContainer = document.createElement('div');
-    paginationContainer.className = 'wallpaper-pagination';
-    
-    // 上一页按钮
-    const prevPageBtn = document.createElement('button');
-    prevPageBtn.className = 'pagination-btn';
-    prevPageBtn.disabled = currentPage === 1;
-    prevPageBtn.innerHTML = '上一页';
-    prevPageBtn.addEventListener('click', () => {
-      if (currentPage > 1) {
-        container.dataset.currentPage = currentPage - 1;
-        renderWallpaperHistory(historyObj, currentIndex, container);
-      }
-    });
-    
-    // 页码指示器
-    const pageIndicator = document.createElement('span');
-    pageIndicator.className = 'page-indicator';
-    pageIndicator.textContent = `${currentPage} / ${totalPages}`;
-    
-    // 下一页按钮
-    const nextPageBtn = document.createElement('button');
-    nextPageBtn.className = 'pagination-btn';
-    nextPageBtn.disabled = currentPage === totalPages;
-    nextPageBtn.innerHTML = '下一页';
-    nextPageBtn.addEventListener('click', () => {
-      if (currentPage < totalPages) {
-        container.dataset.currentPage = parseInt(currentPage) + 1;
-        renderWallpaperHistory(historyObj, currentIndex, container);
-      }
-    });
-    
-    // 添加分页控件
-    paginationContainer.appendChild(prevPageBtn);
-    paginationContainer.appendChild(pageIndicator);
-    paginationContainer.appendChild(nextPageBtn);
-    
-    container.appendChild(paginationContainer);
-  }
-  
-  // 保存当前页码
-  container.dataset.currentPage = currentPage;
 } 

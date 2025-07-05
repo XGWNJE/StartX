@@ -1,19 +1,19 @@
 // Default settings for the extension
-export const defaultSettings = {
-  // 背景设置
-  bgType: 'default',
+export const DEFAULT_SETTINGS = {
+  version: '1.0.0',
+  theme: 'dark',
+  accentColor: '#007bff',
+  accentColorMode: 'auto', // 'auto' or 'custom'
+  bgType: 'wallpaper', // 'default', 'custom', 'wallpaper'
   presetName: 'default',
+  blur: 0, // 0-10
+  opacity: 80, // 0-100
+  wallpaperFolderPath: 'bizhi', // 默认壁纸文件夹名称
+  currentWallpaperFile: 'wallpaper-1.png', // 默认使用内置壁纸
+  searchEngine: 'baidu',
+  searchBarWidth: 600,
+  searchBarHeight: 70,
   customBgData: null,
-  opacity: 100,
-  blur: 0,
-  
-  // 壁纸设置
-  wallpaperHistory: [],
-  currentWallpaperIndex: -1,
-  wallpaperAutoChange: false,
-  wallpaperChangeInterval: 30, // 分钟
-  wallpaperFolderPath: 'startx-wallpapers', // 默认壁纸文件夹名称
-  wallpaperFolderCreated: false, // 是否已创建壁纸文件夹
   
   // 搜索栏设置
   searchWidth: 600,
@@ -24,16 +24,16 @@ export const defaultSettings = {
   textSize: 18,
   placeholder: '搜索网页、书签',
   
-  // 搜索引擎设置
-  searchEngine: 'google',
-  
-  // 强调色设置
-  accentColorMode: 'auto', // 仅支持'auto'模式
-  
   // UI主题颜色设置
   themeMode: 'default', // 'default', 'preset' 或 'custom'
   themePreset: 'dark', // 预设主题名称
-  customThemeColors: null // 用户自定义主题颜色
+  customThemeColors: null, // 用户自定义主题颜色
+  
+  // 壁纸设置
+  wallpapersImported: false, // 是否已导入壁纸
+  useBuiltInWallpapers: true, // 默认使用内置壁纸
+  wallpaperAutoChange: false, // 是否自动切换壁纸
+  wallpaperChangeInterval: 30 // 切换间隔（分钟）
 };
 
 // Background presets configuration

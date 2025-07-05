@@ -2,6 +2,31 @@
 import { searchBookmarks, getBookmarkIconUrl, formatBookmarkPath } from '../bookmarks.js';
 
 /**
+ * 初始化搜索模块
+ * @param {Object} domElements - DOM元素对象
+ */
+export async function initSearch(domElements) {
+  console.log("初始化搜索模块...");
+  
+  const { searchInput } = domElements;
+  
+  // 禁用搜索框的自动填充历史记录
+  if (searchInput) {
+    disableAutofillHistory(searchInput);
+    
+    // 自动聚焦搜索框
+    setTimeout(() => {
+      searchInput.focus();
+    }, 100);
+  } else {
+    console.warn("搜索输入框不存在，无法初始化搜索功能");
+  }
+  
+  console.log("搜索模块初始化完成");
+  return true;
+}
+
+/**
  * 应用搜索栏设置
  * @param {Object} settings - 用户设置
  */
@@ -20,7 +45,7 @@ export function applySearchSettings(settings) {
   document.documentElement.style.setProperty('--text-size', `${settings.textSize}px`);
   
   // 设置搜索框占位符
-  document.getElementById('search-input').placeholder = settings.placeholder || '｜';
+  document.getElementById('search-input').placeholder = settings.placeholder || '搜索网页、书签';
   
   // 强制应用边框半径到所有相关元素，确保一致性
   const elements = document.querySelectorAll('.search-background, .liquid-glass-effect, .search-edge-highlight, .search-bar');

@@ -8,6 +8,32 @@ import { updateColorSwatches } from './accent.js';
 import { updateThemePreview } from './theme.js';
 
 /**
+ * 初始化状态管理模块
+ * @param {Object} domElements - DOM元素对象
+ */
+export async function initState(domElements) {
+  console.log("初始化状态管理模块...");
+  
+  try {
+    // 加载当前设置
+    const settings = await loadSettings();
+    console.log("加载当前设置:", settings);
+    
+    // 应用所有设置
+    applyAllSettings(settings);
+    
+    // 更新UI状态
+    updateUIState(settings, domElements);
+    
+    console.log("状态管理模块初始化完成");
+    return true;
+  } catch (error) {
+    console.error("状态管理模块初始化失败:", error);
+    throw error;
+  }
+}
+
+/**
  * 更新UI状态以反映当前设置
  * @param {Object} settings - 用户设置
  * @param {Object} domElements - DOM元素对象
@@ -15,43 +41,19 @@ import { updateThemePreview } from './theme.js';
 export function updateUIState(settings, domElements) {
   console.log("更新UI状态，当前背景类型:", settings.bgType, "预设名称:", settings.presetName);
   
-  // 确保domElements存在
-  if (!domElements) {
-    console.error("updateUIState: domElements对象为空");
-    return;
-  }
-  
   const {
-    bgPresets, bgOpacity, bgBlur, opacityValue, blurValue,
+    searchEngineBtns,
+    accentModeBtns, primarySwatch, secondarySwatch, tertiarySwatch,
+    themeModeBtns, themePresetBtns, customThemeControls,
+    bgOpacity, bgBlur, opacityValue, blurValue,
     searchWidth, searchHeight, searchRadius, widthValue, heightValue, radiusValue,
     glassOpacity, glassBlur, glassOpacityValue, glassBlurValue,
     textSize, textSizeValue,
-    placeholderText, removeCustomBg,
-    searchEngineBtns,
-    accentModeBtns, customAccentColor, customSecondaryColor, useCustomGradient, gradientDirectionSelect,
-    primarySwatch, secondarySwatch, tertiarySwatch, gradientSwatch,
-    themeModeBtns, themePresetBtns, customThemeControls
-  } = domElements;
-
-  // 更新背景预设的激活状态
-  if (bgPresets) {
-    bgPresets.forEach(preset => {
-      const presetName = preset.getAttribute('data-bg');
-      preset.classList.remove('active');
-      
-      if (settings.bgType === 'preset' && presetName === settings.presetName) {
-        // 预设背景匹配
-        preset.classList.add('active');
-      } else if (settings.bgType === 'default' && presetName === 'default') {
-        // 默认背景
-        preset.classList.add('active');
-      }
-    });
-  } else {
-    console.warn("updateUIState: bgPresets不存在");
-  }
+    placeholderText,
+    removeCustomBg
+  } = domElements || {};
   
-  // 更新搜索引擎选择按钮的激活状态
+  // 更新搜索引擎按钮的激活状态
   if (searchEngineBtns) {
     searchEngineBtns.forEach(btn => {
       const engineName = btn.getAttribute('data-engine');
@@ -61,61 +63,22 @@ export function updateUIState(settings, domElements) {
         btn.classList.add('active');
       }
     });
-  } else {
-    console.warn("updateUIState: searchEngineBtns不存在");
   }
   
-  // 更新强调色模式按钮的激活状态
+  // 更新强调色模式
   if (accentModeBtns) {
+    // 确保"自动匹配"按钮处于激活状态
     accentModeBtns.forEach(btn => {
-      const modeName = btn.getAttribute('data-mode');
       btn.classList.remove('active');
-      
-      if (settings.accentColorMode === modeName) {
+      if (btn.getAttribute('data-mode') === 'auto') {
         btn.classList.add('active');
       }
     });
     
-    // 更新自定义颜色输入框
-    if (customAccentColor) {
-      customAccentColor.value = settings.customAccentColor || '#7d6aff';
-      customAccentColor.disabled = settings.accentColorMode !== 'custom';
-    } else {
-      console.warn("updateUIState: customAccentColor不存在");
-    }
-    
-    // 更新辅助颜色输入框
-    if (customSecondaryColor) {
-      customSecondaryColor.value = settings.customSecondaryColor || '#ff7eb3';
-      customSecondaryColor.disabled = !settings.useCustomGradient || settings.accentColorMode !== 'custom';
-    } else {
-      console.warn("updateUIState: customSecondaryColor不存在");
-    }
-    
-    // 更新自定义渐变复选框
-    if (useCustomGradient) {
-      useCustomGradient.checked = settings.useCustomGradient || false;
-      useCustomGradient.disabled = settings.accentColorMode !== 'custom';
-    } else {
-      console.warn("updateUIState: useCustomGradient不存在");
-    }
-    
-    // 更新渐变方向选择器
-    if (gradientDirectionSelect) {
-      gradientDirectionSelect.value = settings.gradientDirection || 'to right';
-      gradientDirectionSelect.disabled = settings.accentColorMode !== 'custom';
-    } else {
-      console.warn("updateUIState: gradientDirectionSelect不存在");
-    }
-    
     // 更新颜色预览
-    if (primarySwatch && secondarySwatch && tertiarySwatch && gradientSwatch) {
-      updateColorSwatches(primarySwatch, secondarySwatch, tertiarySwatch, gradientSwatch);
-    } else {
-      console.warn("updateUIState: 颜色样本元素不存在");
+    if (primarySwatch && secondarySwatch && tertiarySwatch) {
+      updateColorSwatches(primarySwatch, secondarySwatch, tertiarySwatch);
     }
-  } else {
-    console.warn("updateUIState: accentModeBtns不存在");
   }
   
   // 更新主题模式按钮的激活状态
@@ -128,8 +91,6 @@ export function updateUIState(settings, domElements) {
         btn.classList.add('active');
       }
     });
-  } else {
-    console.warn("updateUIState: themeModeBtns不存在");
   }
   
   // 更新主题预设按钮的激活状态
@@ -142,8 +103,6 @@ export function updateUIState(settings, domElements) {
         btn.classList.add('active');
       }
     });
-  } else {
-    console.warn("updateUIState: themePresetBtns不存在");
   }
   
   // 更新自定义主题控件状态
@@ -165,8 +124,6 @@ export function updateUIState(settings, domElements) {
     
     // 更新主题预览
     updateThemePreview(settings);
-  } else {
-    console.warn("updateUIState: customThemeControls不存在");
   }
   
   // 更新其他UI控件状态
@@ -175,8 +132,6 @@ export function updateUIState(settings, domElements) {
     bgBlur.value = settings.blur;
     opacityValue.textContent = `${settings.opacity}%`;
     blurValue.textContent = `${settings.blur}px`;
-  } else {
-    console.warn("updateUIState: 背景不透明度或模糊度控件不存在");
   }
   
   if (searchWidth && searchHeight && searchRadius && widthValue && heightValue && radiusValue) {
@@ -186,8 +141,6 @@ export function updateUIState(settings, domElements) {
     widthValue.textContent = `${settings.searchWidth}px`;
     heightValue.textContent = `${settings.searchHeight}px`;
     radiusValue.textContent = `${settings.searchRadius}px`;
-  } else {
-    console.warn("updateUIState: 搜索栏尺寸控件不存在");
   }
   
   if (glassOpacity && glassBlur && glassOpacityValue && glassBlurValue) {
@@ -195,28 +148,20 @@ export function updateUIState(settings, domElements) {
     glassBlur.value = settings.glassBlur;
     glassOpacityValue.textContent = (settings.glassOpacity / 100).toFixed(2);
     glassBlurValue.textContent = `${settings.glassBlur}px`;
-  } else {
-    console.warn("updateUIState: 玻璃效果控件不存在");
   }
   
   if (textSize && textSizeValue) {
     textSize.value = settings.textSize;
     textSizeValue.textContent = `${settings.textSize}px`;
-  } else {
-    console.warn("updateUIState: 文本大小控件不存在");
   }
   
   if (placeholderText) {
-    placeholderText.value = settings.placeholder || '｜';
-  } else {
-    console.warn("updateUIState: 占位符文本控件不存在");
+    placeholderText.value = settings.placeholder || '搜索网页、书签';
   }
   
   // 更新自定义背景移除按钮状态
   if (removeCustomBg) {
     removeCustomBg.disabled = !(settings.bgType === 'custom' && settings.customBgData);
-  } else {
-    console.warn("updateUIState: 移除自定义背景按钮不存在");
   }
 }
 
@@ -283,6 +228,9 @@ export async function handleSettingsChange(newSettings, domElements) {
  * @param {Object} settings - 用户设置
  */
 export function applyAllSettings(settings) {
+  // 强制设置accentColorMode为auto
+  settings.accentColorMode = 'auto';
+  
   // 应用背景设置
   applyBackgroundSettings(settings);
   

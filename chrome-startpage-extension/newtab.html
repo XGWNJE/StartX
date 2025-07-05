@@ -111,20 +111,29 @@
           </div>
           
           <div class="settings-section">
-            <h4>壁纸管理</h4>
+            <h4>壁纸设置</h4>
             <div class="wallpaper-history-controls">
-              <button id="import-wallpapers" class="wallpaper-nav-btn" title="导入壁纸">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              <button id="select-wallpaper-folder" class="wallpaper-nav-btn" title="选择壁纸文件夹">
+                <i data-lucide="folder-open"></i>
               </button>
-              <button id="refresh-wallpapers" class="wallpaper-nav-btn" title="刷新壁纸列表">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path><path d="M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+              <button id="add-wallpaper" class="wallpaper-nav-btn" title="添加壁纸">
+                <i data-lucide="plus"></i>
               </button>
-              <button id="open-wallpaper-folder" class="wallpaper-nav-btn" title="打开壁纸文件夹">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              <button id="load-wallpapers" class="wallpaper-nav-btn" title="刷新壁纸列表">
+                <i data-lucide="refresh-cw"></i>
               </button>
-              <div class="auto-change-control">
-                <input type="checkbox" id="auto-change-wallpaper">
-                <label for="auto-change-wallpaper">自动切换壁纸</label>
+            </div>
+            
+            <div class="wallpaper-folder-control">
+              <label for="wallpaper-folder-path">壁纸文件夹路径</label>
+              <div class="folder-input-group">
+                <input type="text" id="wallpaper-folder-path" placeholder="内置壁纸文件夹" title="默认使用内置壁纸文件夹bizhi">
+                <button id="save-wallpaper-folder" class="small-btn">保存</button>
+              </div>
+              <div class="wallpaper-auto-change">
+                <label>
+                  <input type="checkbox" id="auto-change-wallpaper"> 自动切换壁纸
+                </label>
                 <select id="auto-change-interval" disabled>
                   <option value="5">5分钟</option>
                   <option value="15">15分钟</option>
@@ -137,34 +146,24 @@
                 </select>
               </div>
             </div>
-            
-            <div class="wallpaper-folder-settings">
-              <label for="wallpaper-folder-path">壁纸文件夹路径</label>
-              <div class="folder-path-input">
-                <input type="text" id="wallpaper-folder-path" placeholder="输入壁纸文件夹名称">
-                <button id="save-wallpaper-folder" class="btn" title="保存文件夹路径">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                </button>
-              </div>
+          </div>
+          
+          <div class="wallpaper-effect-controls">
+            <div class="bg-opacity-control">
+              <label for="bg-opacity">背景不透明度</label>
+              <input type="range" id="bg-opacity" min="0" max="100" value="100">
+              <span id="opacity-value">100%</span>
             </div>
-            
-            <div class="wallpaper-effect-controls">
-              <div class="bg-opacity-control">
-                <label for="bg-opacity">背景不透明度</label>
-                <input type="range" id="bg-opacity" min="0" max="100" value="100">
-                <span id="opacity-value">100%</span>
-              </div>
-              <div class="bg-blur-control">
-                <label for="bg-blur">背景模糊</label>
-                <input type="range" id="bg-blur" min="0" max="20" value="0">
-                <span id="blur-value">0px</span>
-              </div>
+            <div class="bg-blur-control">
+              <label for="bg-blur">背景模糊</label>
+              <input type="range" id="bg-blur" min="0" max="20" value="0">
+              <span id="blur-value">0px</span>
             </div>
-            
-            <div class="wallpaper-history-grid" id="wallpaper-history-grid">
-              <!-- 壁纸历史项将由JS动态添加 -->
-              <div class="wallpaper-empty-msg">尚无壁纸</div>
-            </div>
+          </div>
+          
+          <div class="wallpaper-history-grid" id="wallpaper-history-grid">
+            <!-- 壁纸项目将在这里动态生成 -->
+            <div class="wallpaper-empty-msg">请先选择壁纸文件夹</div>
           </div>
         </div>
         
@@ -365,7 +364,10 @@
       <p>StartX - v1.0.0</p>
     </div>
   </div>
-  <!-- 优化脚本加载 -->
+  <!-- 引入主脚本 -->
   <script src="js/main.js" type="module"></script>
+  <!-- 引入并渲染Lucide图标 -->
+  <script src="js/lib/lucide.min.js"></script>
+  <script src="js/icons.js"></script>
 </body>
 </html> 

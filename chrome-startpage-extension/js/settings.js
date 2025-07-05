@@ -1,4 +1,4 @@
-import { defaultSettings, SETTINGS_INFO_KEY, CUSTOM_BG_KEY } from './config.js';
+import { DEFAULT_SETTINGS, SETTINGS_INFO_KEY, CUSTOM_BG_KEY } from './config.js';
 
 // 加载用户设置
 export function loadSettings() {
@@ -20,7 +20,7 @@ export function loadSettings() {
             let settings = {};
             
             // 确保我们有一个完整的设置对象
-            settings = {...defaultSettings, ...infoResult[SETTINGS_INFO_KEY].settings};
+            settings = {...DEFAULT_SETTINGS, ...infoResult[SETTINGS_INFO_KEY].settings};
             
             // 如果有自定义背景，单独加载背景数据
             if (infoResult[SETTINGS_INFO_KEY].hasCustomBg) {
@@ -50,7 +50,7 @@ export function loadSettings() {
             }
           } else {
             console.log('未找到已保存的设置，使用默认设置');
-            resolve({...defaultSettings});
+            resolve({...DEFAULT_SETTINGS});
           }
         });
       } else {
@@ -67,7 +67,7 @@ export function loadSettings() {
             let settings = {};
             
             // 确保我们有一个完整的设置对象
-            settings = {...defaultSettings, ...parsedInfo.settings};
+            settings = {...DEFAULT_SETTINGS, ...parsedInfo.settings};
             
             // 如果有自定义背景，单独加载背景数据
             if (parsedInfo.hasCustomBg) {
@@ -88,7 +88,7 @@ export function loadSettings() {
             }
           } else {
             console.log('未找到已保存的设置，使用默认设置');
-            resolve({...defaultSettings});
+            resolve({...DEFAULT_SETTINGS});
           }
         } catch (e) {
           console.error('解析本地设置时出错:', e);
@@ -109,7 +109,7 @@ export function saveSettings(settings) {
       console.log("开始保存设置:", settings);
       
       // 确保所有设置项都有值（避免丢失设置）
-      const completeSettings = {...defaultSettings, ...settings};
+      const completeSettings = {...DEFAULT_SETTINGS, ...settings};
       
       // 检查是否在Chrome插件环境中
       if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
@@ -158,7 +158,7 @@ export function saveSettings(settings) {
                 console.error('移除旧背景数据时出错:', chrome.runtime.lastError);
                 return reject(chrome.runtime.lastError);
               }
-              console.log('旧的自定义背景数据已从Chrome存储中移除');
+              // 减少日志输出，避免频繁显示相同的消息
               resolve();
             });
           }
