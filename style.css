@@ -1,0 +1,125 @@
+:root {
+    --background-color: #1a1a1a;
+    --text-color: #ffffff;
+    --input-background: #2c2c2c;
+    --input-border-color: #444444;
+    --suggestion-background: #2c2c2c;
+    --suggestion-hover-background: #3c3c3c;
+    --suggestion-text-color: #f0f0f0;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: var(--text-color);
+    overflow: hidden;
+}
+
+.background-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('wallpapers/default1.jpg');
+    background-size: cover;
+    background-position: center;
+    z-index: -1;
+    filter: brightness(0.8);
+}
+
+.main-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+    flex-direction: column;
+}
+
+.search-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+}
+
+.search-box {
+    display: flex;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 15px 20px;
+    border: 1px solid var(--input-border-color);
+    border-radius: 28px;
+    background-color: var(--input-background);
+    color: var(--text-color);
+    font-size: 16px;
+    outline: none;
+    box-sizing: border-box;
+    transition: background-color 0.2s;
+}
+
+#searchInput:focus {
+    background-color: #333;
+}
+
+.search-wrapper.suggestions-active #searchInput {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.suggestions-container {
+    display: none;
+    position: absolute;
+    width: 100%;
+    background: var(--suggestion-background);
+    border-radius: 0 0 28px 28px;
+    margin-top: -1px;
+    overflow: hidden;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--input-border-color);
+    border-top: none;
+    box-sizing: border-box;
+}
+
+.search-wrapper.suggestions-active .suggestions-container {
+    display: block;
+}
+
+.suggestion-item {
+    padding: 10px 20px;
+    text-align: left;
+    cursor: pointer;
+    color: var(--suggestion-text-color);
+    display: flex;
+    align-items: center;
+}
+
+.suggestion-item:hover {
+    background-color: var(--suggestion-hover-background);
+}
+
+.suggestion-item img {
+    width: 16px;
+    height: 16px;
+    margin-right: 10px;
+}
+
+.suggestion-item .title {
+    font-weight: bold;
+}
+
+.suggestion-item .url {
+    color: #a0a0a0;
+    margin-left: 10px;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+} 
