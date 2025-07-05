@@ -1,0 +1,82 @@
+/* Theme variables */
+
+:root {
+  /* Light theme (default) */
+  --color-background: #ffffff;
+  --color-background-alt: #f8f8f8;
+  --color-text: #2c3e50;
+  --color-text-muted: #6c757d;
+  --color-accent: #41b883;
+  --color-accent-hover: #34a574;
+  --color-border: #eaeaea;
+  --color-shadow: rgba(0, 0, 0, 0.1);
+  --color-overlay: rgba(255, 255, 255, 0.8);
+  
+  /* Common variables */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 20px;
+  
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  --color-background: #121212;
+  --color-background-alt: #1e1e1e;
+  --color-text: #f5f5f5;
+  --color-text-muted: #a0a0a0;
+  --color-accent: #41b883;
+  --color-accent-hover: #34a574;
+  --color-border: #2c2c2c;
+  --color-shadow: rgba(0, 0, 0, 0.3);
+  --color-overlay: rgba(30, 30, 30, 0.8);
+}
+
+/* Dark theme with custom accent color */
+[data-theme="dark"][data-accent="blue"] {
+  --color-accent: #4a9ff5;
+  --color-accent-hover: #3a8fe5;
+}
+
+[data-theme="dark"][data-accent="purple"] {
+  --color-accent: #9c5fff;
+  --color-accent-hover: #8c4fef;
+}
+
+/* Light theme with custom accent color */
+[data-theme="light"][data-accent="blue"] {
+  --color-accent: #4a9ff5;
+  --color-accent-hover: #3a8fe5;
+}
+
+[data-theme="light"][data-accent="purple"] {
+  --color-accent: #9c5fff;
+  --color-accent-hover: #8c4fef;
+}
+
+/* Utility classes */
+.bg-primary {
+  background-color: var(--color-background);
+}
+
+.bg-secondary {
+  background-color: var(--color-background-alt);
+}
+
+.text-primary {
+  color: var(--color-text);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+.text-accent {
+  color: var(--color-accent);
+} 
