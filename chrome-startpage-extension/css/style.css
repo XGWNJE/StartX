@@ -7,3 +7,14 @@
 @import 'components/settings.css';
 @import 'components/animations.css';
 @import 'components/responsive.css';
+
+/* 页面加载完成标记 */
+body.loaded {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* 初始状态下页面稍微透明，避免闪烁 */
+body {
+  opacity: 0.95;
+}

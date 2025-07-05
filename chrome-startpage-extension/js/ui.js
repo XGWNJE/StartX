@@ -2,7 +2,7 @@
 // 从各个子模块导入需要的功能
 
 import { initUI } from './ui/index.js';
-import { applyBackgroundSettings, processBackgroundImage } from './ui/background.js';
+import { applyBackgroundSettings, initWallpaperManager } from './ui/background.js';
 import { applySearchSettings, handleBookmarkSearch, hideBookmarksResults, handleKeyNavigation, disableAutofillHistory } from './ui/search.js';
 import { applyThemeSettings } from './ui/theme.js';
 import { applyAccentColors, updateColorSwatches } from './ui/accent.js';
@@ -10,7 +10,6 @@ import { updateUIState, handleSettingsChange, applyAllSettings } from './ui/stat
 import { loadSettings } from './settings.js';
 import { initEvents } from './ui/events.js';
 import { initState } from './ui/state.js';
-import { initBackground } from './ui/background.js';
 import { initSearch } from './ui/search.js';
 import { initTheme } from './ui/theme.js';
 import { initAccent } from './ui/accent.js';
@@ -20,7 +19,6 @@ import { adaptSettingsButtonContrast } from './ui/utils.js';
 export {
   initUI,
   applyBackgroundSettings,
-  processBackgroundImage,
   applySearchSettings,
   applyThemeSettings,
   applyAccentColors,
@@ -47,8 +45,13 @@ export async function initUIApp() {
     // 初始化状态管理
     await initState(domElements);
     
-    // 初始化背景
-    await initBackground(domElements);
+    // 尝试初始化壁纸管理器，但不阻止其他功能初始化
+    try {
+      await initWallpaperManager(domElements);
+    } catch (error) {
+      console.error("壁纸管理器初始化失败:", error);
+      // 继续初始化其他功能
+    }
     
     // 初始化搜索功能
     await initSearch(domElements);
@@ -65,9 +68,15 @@ export async function initUIApp() {
     // 初始化设置按钮自适应对比度
     adaptSettingsButtonContrast();
     
+    // 标记页面已加载完成
+    document.body.classList.add('loaded');
+    
     console.log("UI应用初始化完成");
   } catch (error) {
     console.error("UI应用初始化失败:", error);
+    // 确保页面至少可以显示
+    document.body.classList.add('loaded');
+    document.body.classList.add('bg-default');
   }
 }
 
@@ -174,13 +183,9 @@ function collectDOMElements() {
     customThemeControls: document.querySelector('.custom-theme-controls'),
     
     // 壁纸管理元素
-    importWallpapersBtn: document.getElementById('import-wallpapers'),
-    refreshWallpapersBtn: document.getElementById('refresh-wallpapers'),
-    openWallpaperFolderBtn: document.getElementById('open-wallpaper-folder'),
-    wallpaperFolderPath: document.getElementById('wallpaper-folder-path'),
-    saveWallpaperFolder: document.getElementById('save-wallpaper-folder'),
-    autoChangeWallpaper: document.getElementById('auto-change-wallpaper'),
-    autoChangeInterval: document.getElementById('auto-change-interval'),
+    selectWallpaperFolder: document.getElementById('select-wallpaper-folder'),
+    addWallpaper: document.getElementById('add-wallpaper'),
+    loadWallpapers: document.getElementById('load-wallpapers'),
     wallpaperHistoryGrid: document.getElementById('wallpaper-history-grid')
   };
 }

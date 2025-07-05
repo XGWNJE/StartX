@@ -4,8 +4,76 @@ import { hexToHSL, hslToHex, hexToRgb, deepenColor } from './utils.js';
 import { applyAccentColors } from './accent.js';
 import { loadSettings, saveSettings } from '../settings.js';
 
+const DB_NAME = 'StartXWallpaperDB';
+const STORE_NAME = 'wallpaperStore';
+const HANDLE_KEY = 'directoryHandle';
+
+let directoryHandle = null;
+
+// --- IndexedDB 辅助函数 ---
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, 1);
+    request.onupgradeneeded = () => {
+      request.result.createObjectStore(STORE_NAME);
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function getDBValue(key) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, 'readonly');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.get(key);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function setDBValue(key, value) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, 'readwrite');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.put(value, key);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function selectAndSaveWallpaperFolder() {
+  try {
+    // 防止重复点击
+    const button = document.getElementById('select-wallpaper-folder');
+    if (button) {
+      if (button.disabled) return;
+      button.disabled = true;
+      setTimeout(() => { button.disabled = false; }, 2000); // 2秒后恢复
+    }
+    
+    const handle = await window.showDirectoryPicker({
+      id: 'startx-wallpapers',
+      mode: 'readwrite'
+    });
+    await setDBValue(HANDLE_KEY, handle);
+    directoryHandle = handle;
+    alert('壁纸文件夹已选定！');
+    // 重新加载壁纸
+    await loadAndRenderWallpapers();
+  } catch (error) {
+    console.error('选择文件夹失败:', error);
+    if (error.name !== 'AbortError') {
+      alert('无法访问文件夹，请检查权限。');
+    }
+  }
+}
+
 // 壁纸系统文件夹配置 - 相对于扩展根目录
-const DEFAULT_WALLPAPER_FOLDER = 'wallpapers';
+const DEFAULT_WALLPAPER_FOLDER = 'bizhi';
 
 /**
  * 获取壁纸文件夹路径
@@ -51,45 +119,28 @@ export async function setWallpaperFolderPath(folderPath) {
 
 /**
  * 确保壁纸文件夹存在
- * 在扩展目录中创建壁纸文件夹
- * @returns {Promise<boolean>} 是否成功
+ * @returns {Promise<boolean>} 是否成功确认/创建文件夹
  */
 export async function ensureWallpaperFolderExists() {
   try {
     const folderPath = await getWallpaperFolderPath();
     
-    // 检查文件夹是否存在，如果不存在则创建
-    try {
-      // 使用fetch API检查文件夹是否存在
-      const response = await fetch(chrome.runtime.getURL(`${folderPath}/.exists`));
-      console.log(`壁纸文件夹已存在: ${folderPath}`);
-      return true;
-    } catch (error) {
-      // 文件夹可能不存在，尝试创建
-      console.log(`创建壁纸文件夹: ${folderPath}`);
+    // 在Chrome扩展环境中，我们不能直接检查文件夹是否存在
+    // 因此我们假设文件夹已存在或将被创建
+    console.log(`使用壁纸文件夹路径: ${folderPath}`);
+    
+    // 如果在Chrome扩展环境中，我们可以发送消息给background脚本
+    if (typeof chrome !== 'undefined' && chrome.runtime) {
+      // 检查是否有directoryHandle
+      const handle = await getDBValue(HANDLE_KEY);
+      if (handle) {
+        return true;
+      }
       
-      // 在Chrome扩展中，我们不能直接创建文件夹
-      // 但可以通过创建一个占位文件来实现
-      const placeholderContent = `此文件夹用于存储StartX扩展的壁纸图片。
-请勿删除此文件夹。`;
-      
-      // 使用background页面创建文件夹
-      chrome.runtime.sendMessage({
-        action: 'createFolder',
-        folderPath: folderPath,
-        placeholderContent: placeholderContent
-      }, response => {
-        if (response && response.success) {
-          console.log(`成功创建壁纸文件夹: ${folderPath}`);
-          return true;
-        } else {
-          console.error(`创建壁纸文件夹失败: ${response ? response.error : '未知错误'}`);
-          return false;
-        }
-      });
-      
-      return true;
+      console.log(`未找到文件夹句柄，使用内置壁纸文件夹: ${DEFAULT_WALLPAPER_FOLDER}`);
     }
+    
+    return true;
   } catch (error) {
     console.error('确保壁纸文件夹存在时出错:', error);
     return false;
@@ -100,8 +151,12 @@ export async function ensureWallpaperFolderExists() {
  * 初始化背景模块
  * @param {Object} domElements - DOM元素对象
  */
-export async function initBackground(domElements) {
-  console.log("初始化背景模块...");
+export async function initWallpaperManager(domElements) {
+  console.log("初始化壁纸管理器...");
+
+  document.getElementById('select-wallpaper-folder')?.addEventListener('click', selectAndSaveWallpaperFolder);
+  document.getElementById('add-wallpaper')?.addEventListener('click', addWallpaper);
+  document.getElementById('load-wallpapers')?.addEventListener('click', loadAndRenderWallpapers);
   
   // 确保自定义背景元素存在
   let customBackground = document.getElementById('custom-background');
@@ -119,7 +174,14 @@ export async function initBackground(domElements) {
     // 如果有文件夹路径输入框，设置初始值
     if (domElements.wallpaperFolderPath) {
       const folderPath = await getWallpaperFolderPath();
-      domElements.wallpaperFolderPath.value = folderPath;
+      // 如果是bizhi文件夹，显示提示
+      if (folderPath === 'bizhi') {
+        domElements.wallpaperFolderPath.value = folderPath;
+        domElements.wallpaperFolderPath.setAttribute('placeholder', '内置壁纸文件夹');
+        domElements.wallpaperFolderPath.setAttribute('title', '这是扩展的内置壁纸文件夹');
+      } else {
+        domElements.wallpaperFolderPath.value = folderPath;
+      }
     }
   } catch (error) {
     console.error("初始化壁纸文件夹时出错:", error);
@@ -145,12 +207,6 @@ export async function initBackground(domElements) {
         
         // 渲染壁纸历史记录
         renderWallpaperHistory(history, history.currentIndex, domElements.wallpaperHistoryGrid);
-        
-        // 初始化自动更换壁纸
-        const settings = await loadSettings();
-        if (settings.autoChangeWallpaper && settings.autoChangeInterval > 0) {
-          startWallpaperAutoChange(settings.autoChangeInterval);
-        }
       } else {
         console.warn("壁纸历史记录格式不正确");
         // 初始化空的壁纸历史
@@ -162,6 +218,36 @@ export async function initBackground(domElements) {
   } else {
     console.warn("壁纸历史网格元素不存在");
   }
+  
+  try {
+    directoryHandle = await getDBValue(HANDLE_KEY);
+    if (directoryHandle) {
+      console.log('已从IndexedDB加载壁纸文件夹句柄');
+      // 不立即验证权限，而是使用queryPermission检查
+      const hasPermission = await directoryHandle.queryPermission({ mode: 'readwrite' }) === 'granted';
+      if (hasPermission) {
+        await loadAndRenderWallpapers();
+      } else {
+        console.log('没有文件夹访问权限，加载内置壁纸');
+        await loadAndRenderWallpapers(); // 将加载内置壁纸
+      }
+    } else {
+      const wallpaperGrid = document.getElementById('wallpaper-history-grid');
+      if(wallpaperGrid) {
+        console.log('未找到文件夹句柄，加载内置壁纸');
+        await loadAndRenderWallpapers(); // 这将加载内置壁纸
+      }
+    }
+  } catch (error) {
+    console.error('从IndexedDB加载句柄失败', error);
+    // 尝试加载内置壁纸
+    await loadAndRenderWallpapers();
+  }
+  
+  // 设置页面加载完成标记
+  setTimeout(() => {
+    document.body.classList.add('loaded');
+  }, 500);
   
   console.log("背景模块初始化完成");
   return true;
@@ -182,79 +268,134 @@ export async function initBackground(domElements) {
  * @param {Object} settings - 用户设置
  */
 export function applyBackgroundSettings(settings) {
-  console.log("应用背景设置:", settings.bgType, settings.presetName);
-  
   const customBackground = document.getElementById('custom-background');
   const body = document.body;
-  
-  // 设置CSS变量
+
   document.documentElement.style.setProperty('--bg-opacity', settings.opacity / 100);
   document.documentElement.style.setProperty('--bg-blur', `${settings.blur}px`);
-  
-  // 清除自定义背景
   customBackground.style.backgroundImage = '';
-  
-  // 添加临时类，触发重绘
-  body.classList.add('bg-transition');
-  
-  // 应用背景类型
-  if (settings.bgType === 'preset' && settings.presetName) {
-    const presetName = settings.presetName;
-    console.log(`应用预设背景: ${presetName}`);
+  body.classList.remove('bg-default', 'bg-preset');
+
+  if (settings.bgType === 'wallpaper' && settings.currentWallpaperFile) {
+    // 使用IIFE异步执行
+    (async () => {
+      try {
+        // 首先尝试从用户选择的文件夹中加载壁纸
+        if (!directoryHandle) {
+          directoryHandle = await getDBValue(HANDLE_KEY);
+        }
+        
+        // 检查权限但不主动请求
+        const hasPermission = directoryHandle && 
+          await directoryHandle.queryPermission({ mode: 'readwrite' }) === 'granted';
+        
+        if (directoryHandle && hasPermission) {
+          try {
+            const fileHandle = await directoryHandle.getFileHandle(settings.currentWallpaperFile);
+            const file = await fileHandle.getFile();
+            const objectURL = URL.createObjectURL(file);
+            customBackground.style.backgroundImage = `url('${objectURL}')`;
+            return;
+          } catch (error) {
+            console.warn(`无法从用户文件夹加载壁纸: ${error.message}`);
+            // 继续尝试从内置文件夹加载
+          }
+        }
+        
+        // 如果无法从用户文件夹加载，尝试从内置bizhi文件夹加载
+        if (settings.currentWallpaperFile.startsWith('wallpaper-')) {
+          // 这是内置壁纸，直接从bizhi文件夹加载
+          const bizhiFiles = [
+            'wallhaven-6lkq5l.png',
+            'wallhaven-gwjovl.png',
+            'wallhaven-k89v5d.jpg',
+            'wallhaven-po8k5m.jpg'
+          ];
+          
+          // 根据文件名确定索引
+          const index = parseInt(settings.currentWallpaperFile.replace('wallpaper-', '').split('.')[0]) - 1;
+          if (index >= 0 && index < bizhiFiles.length) {
+            const bizhiFile = bizhiFiles[index];
+            try {
+              const response = await fetch(`bizhi/${bizhiFile}`);
+              if (response.ok) {
+                const blob = await response.blob();
+                const objectURL = URL.createObjectURL(blob);
+                customBackground.style.backgroundImage = `url('${objectURL}')`;
+                return;
+              }
+            } catch (error) {
+              console.error(`加载内置壁纸失败: ${error.message}`);
+            }
+          }
+        }
+        
+        // 如果上述方法都失败，使用默认背景
+        console.warn('无法加载壁纸，使用默认背景');
+        body.classList.add('bg-default');
+      } catch (error) {
+        console.error('恢复壁纸失败:', error);
+        body.classList.add('bg-default');
+      }
+    })();
+  } else if (settings.bgType === 'preset') {
+    // 预设背景改为使用默认壁纸
+    const presetName = settings.presetName || 'default';
     
-    const preset = bgConfigs[presetName];
-    if (preset) {
-      console.log(`应用预设颜色: ${presetName}`, preset.colors);
-      
-      // 移除所有预设背景类
-      body.classList.remove('bg-default', 'bg-blue', 'bg-purple', 'bg-sunset', 'bg-night', 'bg-forest');
-      
-      // 添加当前预设背景类
-      body.classList.add(`bg-${presetName}`);
-      
-      if (preset.colors.length === 2) {
-        document.documentElement.style.setProperty('--bg-color-1', preset.colors[0]);
-        document.documentElement.style.setProperty('--bg-color-2', preset.colors[1]);
-        document.documentElement.style.setProperty('--bg-color-3', preset.colors[1]);
-      } else if (preset.colors.length >= 3) {
-        document.documentElement.style.setProperty('--bg-color-1', preset.colors[0]);
-        document.documentElement.style.setProperty('--bg-color-2', preset.colors[1]);
-        document.documentElement.style.setProperty('--bg-color-3', preset.colors[2]);
+    // 尝试加载对应预设名称的壁纸
+    (async () => {
+      try {
+        // 根据预设名称选择对应的内置壁纸
+        let wallpaperIndex = 0;
+        switch(presetName) {
+          case 'blue': wallpaperIndex = 0; break;
+          case 'purple': wallpaperIndex = 1; break;
+          case 'sunset': wallpaperIndex = 2; break;
+          case 'night': wallpaperIndex = 3; break;
+          case 'forest': wallpaperIndex = 0; break;
+          default: wallpaperIndex = 0;
+        }
+        
+        const bizhiFiles = [
+          'wallhaven-6lkq5l.png',
+          'wallhaven-gwjovl.png',
+          'wallhaven-k89v5d.jpg',
+          'wallhaven-po8k5m.jpg'
+        ];
+        
+        const bizhiFile = bizhiFiles[wallpaperIndex];
+        try {
+          const response = await fetch(`bizhi/${bizhiFile}`);
+          if (response.ok) {
+            const blob = await response.blob();
+            const objectURL = URL.createObjectURL(blob);
+            customBackground.style.backgroundImage = `url('${objectURL}')`;
+            
+            // 更新设置以保持一致性
+            const updatedSettings = {...settings};
+            updatedSettings.bgType = 'wallpaper';
+            updatedSettings.currentWallpaperFile = `wallpaper-${wallpaperIndex+1}.${bizhiFile.split('.').pop()}`;
+            
+            // 异步保存设置，不等待完成
+            saveSettings(updatedSettings).catch(err => console.error('保存设置失败:', err));
+            return;
+          }
+        } catch (error) {
+          console.error(`加载预设对应的壁纸失败: ${error.message}`);
+        }
+        
+        // 如果加载失败，使用CSS预设背景
+        body.classList.add(`bg-${presetName}`);
+      } catch (error) {
+        console.error('应用预设背景失败:', error);
+        body.classList.add('bg-default');
       }
-      
-      // 自动应用强调色
-      if (settings.accentColorMode === 'auto') {
-        // 从预设背景中提取主要颜色
-        extractAccentColorsFromPreset(preset);
-      }
-    } else {
-      console.warn(`预设 "${presetName}" 未找到，使用默认预设`);
-      applyDefaultBackground();
-    }
+    })();
   } else if (settings.bgType === 'custom' && settings.customBgData) {
-    // 应用自定义背景
-    customBackground.style.backgroundImage = `url(${settings.customBgData})`;
-    
-    // 移除所有预设背景类
-    body.classList.remove('bg-default', 'bg-blue', 'bg-purple', 'bg-sunset', 'bg-night', 'bg-forest');
-    
-    // 对于自定义背景，从图像提取主要颜色
-    if (settings.accentColorMode === 'auto') {
-      extractAccentColorsFromImage(settings.customBgData);
-    }
+    customBackground.style.backgroundImage = `url('${settings.customBgData}')`;
   } else {
-    // 应用默认背景
-    applyDefaultBackground();
+    body.classList.add('bg-default');
   }
-  
-  // 强调色现在只支持自动模式
-  
-  // 强制重绘
-  setTimeout(() => {
-    body.classList.remove('bg-transition');
-    // 触发回流和重绘
-    void body.offsetHeight;
-  }, 50);
 }
 
 /**
@@ -990,116 +1131,12 @@ export async function deleteWallpaperFromHistory(wallpaperId) {
 }
 
 /**
- * 切换到下一个壁纸
- */
-export async function nextWallpaper() {
-  try {
-    // 加载当前设置
-    const settings = await loadSettings();
-    
-    // 加载壁纸历史
-    const history = await loadWallpaperHistory();
-    
-    // 确保history.items存在
-    if (!history.items || !Array.isArray(history.items)) {
-      console.error('壁纸历史记录格式无效');
-      return false;
-    }
-    
-    if (history.items.length <= 1) {
-      console.log('壁纸历史记录为空或只有一张壁纸，无法切换');
-      return false;
-    }
-    
-    // 计算下一个索引
-    let nextIndex = (history.currentIndex >= 0 ? history.currentIndex : 0) + 1;
-    if (nextIndex >= history.items.length) {
-      nextIndex = 0;
-    }
-    
-    // 应用下一个壁纸
-    await applyWallpaperFromHistory(history.items[nextIndex].id);
-    
-    return true;
-  } catch (error) {
-    console.error('切换到下一个壁纸时出错:', error);
-    return false;
-  }
-}
-
-/**
- * 切换到上一个壁纸
- */
-export async function previousWallpaper() {
-  try {
-    // 加载当前设置
-    const settings = await loadSettings();
-    
-    // 加载壁纸历史
-    const history = await loadWallpaperHistory();
-    
-    // 确保history.items存在
-    if (!history.items || !Array.isArray(history.items)) {
-      console.error('壁纸历史记录格式无效');
-      return false;
-    }
-    
-    if (history.items.length <= 1) {
-      console.log('壁纸历史记录为空或只有一张壁纸，无法切换');
-      return false;
-    }
-    
-    // 计算上一个索引
-    let prevIndex = (history.currentIndex >= 0 ? history.currentIndex : 0) - 1;
-    if (prevIndex < 0) {
-      prevIndex = history.items.length - 1;
-    }
-    
-    // 应用上一个壁纸
-    await applyWallpaperFromHistory(history.items[prevIndex].id);
-    
-    return true;
-  } catch (error) {
-    console.error('切换到上一个壁纸时出错:', error);
-    return false;
-  }
-}
-
-/**
- * 启动壁纸自动切换
- * @param {number} intervalMinutes - 切换间隔（分钟）
- */
-export function startWallpaperAutoChange(intervalMinutes = 30) {
-  // 清除可能存在的旧定时器
-  stopWallpaperAutoChange();
-  
-  // 设置新定时器
-  const intervalMs = intervalMinutes * 60 * 1000;
-  window.wallpaperAutoChangeTimer = setInterval(() => {
-    nextWallpaper();
-  }, intervalMs);
-  
-  console.log(`已启动壁纸自动切换，间隔: ${intervalMinutes} 分钟`);
-}
-
-/**
- * 停止壁纸自动切换
- */
-export function stopWallpaperAutoChange() {
-  if (window.wallpaperAutoChangeTimer) {
-    clearInterval(window.wallpaperAutoChangeTimer);
-    window.wallpaperAutoChangeTimer = null;
-    console.log('已停止壁纸自动切换');
-  }
-}
-
-/**
  * 渲染壁纸历史记录
  * @param {Array<WallpaperHistoryItem>} items - 壁纸历史项目数组
  * @param {number} currentIndex - 当前选中的索引
  * @param {HTMLElement} container - 容器元素
  */
-function renderWallpaperHistory(items, currentIndex, container) {
+export function renderWallpaperHistory(items, currentIndex, container) {
   if (!container) return;
   
   // 清空容器
@@ -1417,4 +1454,390 @@ export async function createThumbnail(imageData) {
     
     img.src = imageData;
   });
+}
+
+async function verifyPermission() {
+  if (!directoryHandle) return false;
+  const options = { mode: 'readwrite' };
+  
+  // 首先检查是否已经有权限，避免触发权限请求
+  if ((await directoryHandle.queryPermission(options)) === 'granted') {
+    return true;
+  }
+  
+  // 在初始化阶段，不请求权限，等待用户交互
+  if (!document.hasFocus() || !document.body.classList.contains('loaded')) {
+    console.log('页面未激活或未完成加载，跳过权限请求');
+    return false;
+  }
+  
+  try {
+    // 只在用户交互后请求权限
+    if ((await directoryHandle.requestPermission(options)) === 'granted') {
+      return true;
+    }
+  } catch (error) {
+    console.warn('请求文件系统权限失败:', error.message);
+    // 如果是因为用户激活问题，不显示错误
+    if (error.name === 'SecurityError' && error.message.includes('User activation')) {
+      return false;
+    }
+  }
+  
+  console.error('无法获取壁纸文件夹的读写权限。');
+  directoryHandle = null;
+  await setDBValue(HANDLE_KEY, null);
+  return false;
+}
+
+async function loadAndRenderWallpapers() {
+    const wallpaperGrid = document.getElementById('wallpaper-history-grid');
+    if (!wallpaperGrid) return;
+
+    // 如果有用户选择的文件夹，使用它
+    if (directoryHandle) {
+        // 检查权限但不主动请求
+        const hasPermission = await directoryHandle.queryPermission({ mode: 'readwrite' }) === 'granted';
+        if (hasPermission) {
+            wallpaperGrid.innerHTML = '';
+            let hasWallpapers = false;
+
+            try {
+                for await (const entry of directoryHandle.values()) {
+                    if (entry.kind === 'file' && entry.name.match(/\.(jpe?g|png|gif|webp)$/i)) {
+                        hasWallpapers = true;
+                        const file = await entry.getFile();
+                        const item = createWallpaperItem(file, entry.name);
+                        wallpaperGrid.appendChild(item);
+                    }
+                }
+                if (!hasWallpapers) {
+                    wallpaperGrid.innerHTML = `<div class="wallpaper-empty-msg">文件夹中没有支持的图片文件 (jpg, png, gif, webp)</div>`;
+                }
+                return;
+            } catch (error) {
+                console.error('加载壁纸时出错:', error);
+                wallpaperGrid.innerHTML = `<div class="wallpaper-empty-msg">加载壁纸时出错，请检查控制台</div>`;
+            }
+        } else {
+            console.log('没有文件夹访问权限，使用内置壁纸');
+        }
+    }
+    
+    // 如果没有用户选择的文件夹或没有权限，尝试使用扩展自带的bizhi文件夹
+    try {
+        wallpaperGrid.innerHTML = '';
+        let hasWallpapers = false;
+        
+        // 获取bizhi文件夹中的图片
+        const folderPath = 'bizhi';
+        const bizhiFiles = [
+            'wallhaven-6lkq5l.png',
+            'wallhaven-gwjovl.png',
+            'wallhaven-k89v5d.jpg',
+            'wallhaven-po8k5m.jpg'
+        ];
+        
+        // 创建一个加载图片的Promise数组
+        const loadPromises = bizhiFiles.map((filename, index) => {
+            return fetch(`${folderPath}/${filename}`)
+                .then(r => r.blob())
+                .then(blob => ({
+                    blob,
+                    fileName: `wallpaper-${index+1}.${filename.split('.').pop()}`,
+                    originalName: filename
+                }));
+        });
+        
+        // 等待所有图片加载完成
+        const results = await Promise.allSettled(loadPromises);
+        
+        // 处理成功加载的图片
+        results.forEach((result) => {
+            if (result.status === 'fulfilled') {
+                hasWallpapers = true;
+                const { blob, fileName, originalName } = result.value;
+                const file = new File([blob], fileName, { type: blob.type });
+                const item = createWallpaperItem(file, fileName, true, originalName);
+                wallpaperGrid.appendChild(item);
+            }
+        });
+        
+        if (!hasWallpapers) {
+            wallpaperGrid.innerHTML = `<div class="wallpaper-empty-msg">未找到内置壁纸，请选择一个文件夹作为壁纸库</div>`;
+        }
+    } catch (error) {
+        console.error('加载内置壁纸时出错:', error);
+        wallpaperGrid.innerHTML = `<div class="wallpaper-empty-msg">请选择一个文件夹作为你的壁纸库</div>`;
+    }
+}
+
+function createWallpaperItem(file, fileName, isBuiltIn = false, originalName = '') {
+    const item = document.createElement('div');
+    item.className = 'wallpaper-item';
+    item.dataset.filename = fileName;
+    if (isBuiltIn) {
+        item.dataset.builtin = 'true';
+        item.dataset.originalname = originalName;
+    }
+
+    const thumbnail = document.createElement('img');
+    thumbnail.className = 'wallpaper-thumbnail';
+    thumbnail.src = URL.createObjectURL(file);
+    thumbnail.alt = fileName;
+
+    const info = document.createElement('div');
+    info.className = 'wallpaper-info';
+    info.textContent = isBuiltIn ? `内置壁纸 ${fileName.split('-')[1].split('.')[0]}` : fileName;
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'wallpaper-delete-btn';
+    deleteBtn.innerHTML = '<i data-lucide="trash-2"></i>';
+    deleteBtn.title = '删除壁纸';
+    deleteBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (isBuiltIn) {
+            alert('内置壁纸不能被删除');
+            return;
+        }
+        if (confirm(`确定要删除壁纸 "${fileName}" 吗？此操作会从你的文件夹中删除文件，且无法撤销。`)) {
+            deleteWallpaper(fileName);
+        }
+    };
+
+    item.append(thumbnail, info, deleteBtn);
+    item.onclick = () => applyWallpaper(file, fileName, isBuiltIn);
+
+    // 重新渲染图标
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+
+    return item;
+}
+
+async function applyWallpaper(file, fileName, isBuiltIn = false) {
+    try {
+        const customBackground = document.getElementById('custom-background');
+        if (!customBackground) return;
+
+        const objectURL = URL.createObjectURL(file);
+        customBackground.style.backgroundImage = `url('${objectURL}')`;
+
+        const settings = await loadSettings();
+        settings.bgType = 'wallpaper';
+        settings.currentWallpaperFile = fileName;
+        await saveSettings(settings);
+
+        document.querySelectorAll('.wallpaper-item.active').forEach(el => el.classList.remove('active'));
+        document.querySelector(`.wallpaper-item[data-filename="${fileName}"]`)?.classList.add('active');
+        
+        // 记录到壁纸历史
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const thumbnail = await createThumbnail(e.target.result);
+                await addToWallpaperHistory(e.target.result, thumbnail, fileName);
+            } catch (error) {
+                console.error('添加壁纸到历史记录时出错:', error);
+            }
+        };
+        reader.readAsDataURL(file);
+    } catch (error) {
+        console.error('应用壁纸失败:', error);
+    }
+}
+
+async function deleteWallpaper(fileName) {
+    // 如果是从用户文件夹中删除
+    const hasPermission = directoryHandle && 
+      await directoryHandle.queryPermission({ mode: 'readwrite' }) === 'granted';
+      
+    if (directoryHandle && hasPermission) {
+        try {
+            await directoryHandle.removeEntry(fileName);
+            
+            // 检查当前设置中是否正在使用这个壁纸
+            const settings = await loadSettings();
+            if (settings.currentWallpaperFile === fileName) {
+                // 如果正在使用，切换到默认背景
+                settings.bgType = 'default';
+                settings.currentWallpaperFile = null;
+                await saveSettings(settings);
+                
+                // 应用默认背景
+                const customBackground = document.getElementById('custom-background');
+                if (customBackground) {
+                    customBackground.style.backgroundImage = '';
+                }
+                document.body.classList.add('bg-default');
+            }
+            
+            // 从壁纸历史中也删除
+            const history = await loadWallpaperHistory();
+            if (history && history.items) {
+                const index = history.items.findIndex(item => item.name === fileName);
+                if (index !== -1) {
+                    history.items.splice(index, 1);
+                    await saveWallpaperHistory(history);
+                }
+            }
+            
+            // 重新加载壁纸列表
+            await loadAndRenderWallpapers();
+            alert(`壁纸 ${fileName} 已成功删除`);
+        } catch (error) {
+            console.error(`删除壁纸 ${fileName} 失败:`, error);
+            alert(`删除壁纸 ${fileName} 失败: ${error.message}`);
+        }
+    } else {
+        // 如果没有文件夹访问权限
+        alert('无法访问壁纸文件夹，请先选择壁纸文件夹并授予权限。');
+    }
+}
+
+async function addWallpaper() {
+    // 防止重复点击
+    const button = document.getElementById('add-wallpaper');
+    if (button) {
+        if (button.disabled) return;
+        button.disabled = true;
+        setTimeout(() => { button.disabled = false; }, 2000); // 2秒后恢复
+    }
+    
+    try {
+        // 检查是否有文件夹访问权限
+        const hasPermission = directoryHandle && 
+          document.hasFocus() && 
+          document.body.classList.contains('loaded') && 
+          await directoryHandle.queryPermission({ mode: 'readwrite' }) === 'granted';
+          
+        if (directoryHandle && hasPermission) {
+            // 用户已选择文件夹，使用文件选择器添加壁纸
+            const files = await window.showOpenFilePicker({
+                types: [{ description: 'Images', accept: { 'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp'] } }],
+                multiple: true
+            });
+
+            for (const fileHandle of files) {
+                const file = await fileHandle.getFile();
+                const newFileHandle = await directoryHandle.getFileHandle(file.name, { create: true });
+                const writable = await newFileHandle.createWritable();
+                await writable.write(file);
+                await writable.close();
+            }
+            await loadAndRenderWallpapers(); // 重新加载
+        } else {
+            // 用户未选择文件夹或没有权限，提示选择
+            alert('请先选择壁纸文件夹并授予权限，然后再添加壁纸。');
+            await selectAndSaveWallpaperFolder();
+        }
+    } catch (error) {
+        console.error('添加壁纸失败:', error);
+        if (error.name !== 'AbortError') {
+            alert('添加壁纸时出错，请检查权限或文件是否有效。');
+        }
+    }
+}
+
+/**
+ * 切换到下一张壁纸
+ * @returns {Promise<boolean>} 是否成功切换
+ */
+export async function nextWallpaper() {
+  try {
+    const history = await loadWallpaperHistory();
+    if (!history || !history.items || history.items.length === 0) {
+      console.warn('壁纸历史记录为空，无法切换到下一张');
+      return false;
+    }
+    
+    // 计算下一张壁纸的索引
+    const currentIndex = history.currentIndex || 0;
+    const nextIndex = (currentIndex + 1) % history.items.length;
+    
+    // 应用下一张壁纸
+    const nextWallpaper = history.items[nextIndex];
+    if (nextWallpaper) {
+      await applyWallpaperFromHistory(nextWallpaper.id);
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('切换到下一张壁纸时出错:', error);
+    return false;
+  }
+}
+
+/**
+ * 切换到上一张壁纸
+ * @returns {Promise<boolean>} 是否成功切换
+ */
+export async function previousWallpaper() {
+  try {
+    const history = await loadWallpaperHistory();
+    if (!history || !history.items || history.items.length === 0) {
+      console.warn('壁纸历史记录为空，无法切换到上一张');
+      return false;
+    }
+    
+    // 计算上一张壁纸的索引
+    const currentIndex = history.currentIndex || 0;
+    const prevIndex = (currentIndex - 1 + history.items.length) % history.items.length;
+    
+    // 应用上一张壁纸
+    const prevWallpaper = history.items[prevIndex];
+    if (prevWallpaper) {
+      await applyWallpaperFromHistory(prevWallpaper.id);
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('切换到上一张壁纸时出错:', error);
+    return false;
+  }
+}
+
+// 壁纸自动切换定时器
+let wallpaperAutoChangeTimer = null;
+
+/**
+ * 启动壁纸自动切换
+ * @param {number} intervalMinutes - 切换间隔（分钟）
+ */
+export function startWallpaperAutoChange(intervalMinutes) {
+  // 停止已有的定时器
+  stopWallpaperAutoChange();
+  
+  // 验证参数
+  const interval = parseInt(intervalMinutes) || 30;
+  if (interval <= 0) {
+    console.warn('自动切换间隔必须大于0，使用默认值30分钟');
+    interval = 30;
+  }
+  
+  // 转换为毫秒
+  const intervalMs = interval * 60 * 1000;
+  
+  // 启动定时器
+  wallpaperAutoChangeTimer = setInterval(() => {
+    nextWallpaper().catch(error => {
+      console.error('自动切换壁纸时出错:', error);
+    });
+  }, intervalMs);
+  
+  console.log(`已启动壁纸自动切换，间隔: ${interval}分钟`);
+}
+
+/**
+ * 停止壁纸自动切换
+ */
+export function stopWallpaperAutoChange() {
+  if (wallpaperAutoChangeTimer) {
+    clearInterval(wallpaperAutoChangeTimer);
+    wallpaperAutoChangeTimer = null;
+    console.log('已停止壁纸自动切换');
+  }
 } 
