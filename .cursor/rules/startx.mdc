@@ -1,0 +1,41 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# StartX Chrome Extension Development Guidelines
+
+## Simplified Project Structure
+- `/public`: Static assets and extension manifest
+- `/src`: Source code
+  - `/components`: Core React components (Search, Bookmarks, Settings)
+  - `/hooks`: Custom React hooks
+  - `/services`: Browser API services
+  - `store.ts`: Centralized state management
+  - `types.ts`: TypeScript type definitions
+  - `utils.ts`: Utility functions
+
+## Core Development Principles
+1. Focus on user-facing functionality over complexity
+2. Prioritize performance and stability of search/bookmark features
+3. Use functional React components with proper TypeScript types
+4. Keep code modular and maintainable
+5. Implement appropriate error handling
+
+## Feature Requirements
+1. Search component with multiple engine support and bookmark integration
+2. Theme system with light/dark modes and wallpaper customization
+3. Settings persistence using Chrome Storage API
+4. Responsive and accessible UI
+
+## Development Process
+1. Implement core functionality before adding enhancements
+2. Test thoroughly on Chrome browser environments
+3. Optimize for performance and resource usage
+4. Document critical functions and components
+
+## Quality Assurance
+1. Ensure fast startup and response time
+2. Handle common error scenarios gracefully
+3. Protect user privacy and data
+4. Maintain compatibility with Chrome's extension policies
