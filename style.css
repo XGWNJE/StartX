@@ -386,7 +386,7 @@ input:checked + .slider:before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('wallpapers/default1.jpg');
+    background-image: url('wallpapers/blurry-background.svg');
     background-size: cover;
     background-position: center;
     z-index: -1;

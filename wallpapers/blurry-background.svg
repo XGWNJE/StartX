@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080">
+    <rect width="100%" height="100%" fill="#f8f7ff"/>
+    <path d="M0 550 Q 240 450, 480 580 T 960 560 T 1440 650 T 1920 600 V 1080 H 0 Z" fill="#c9def4" opacity="0.6"/>
+    <path d="M0 600 Q 320 480, 640 620 T 1280 580 T 1920 700 V 1080 H 0 Z" fill="#d8e2dc" opacity="0.6"/>
+    <path d="M0 650 Q 400 750, 800 680 T 1600 750 T 1920 700 V 1080 H 0 Z" fill="#e5dcf5" opacity="0.5"/>
+    <path d="M0 700 Q 480 800, 960 750 T 1920 650 V 1080 H 0 Z" fill="#ffcad4" opacity="0.7"/>
+    <path d="M0 750 Q 400 650, 800 780 T 1600 720 T 1920 850 V 1080 H 0 Z" fill="#a2d2ff" opacity="0.5"/>
+    <path d="M0 800 Q 500 900, 1000 820 T 1920 900 V 1080 H 0 Z" fill="#bde0fe" opacity="0.6"/>
+    <path d="M0 850 Q 300 700, 700 850 T 1500 800 T 1920 920 V 1080 H 0 Z" fill="#fde4cf" opacity="0.5"/>
+    <path d="M0 900 Q 480 800, 960 920 T 1920 850 V 1080 H 0 Z" fill="#fcf6bd" opacity="0.5"/>
+</svg> 

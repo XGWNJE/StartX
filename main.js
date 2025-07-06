@@ -32,7 +32,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const settingsIcon = document.getElementById('open-settings');
     const settingsPanel = document.getElementById('settings-panel');
     const glassEffectToggle = document.getElementById('theme-switch');
-    const searchEngineGroup = document.getElementById('search-engine-group');    const wallpaperGrid = document.getElementById('wallpaper-grid');
+    const searchEngineGroup = document.getElementById('search-engine-group');
+    const themeName = document.getElementById('theme-name');
+    const wallpaperGrid = document.getElementById('wallpaper-grid');
     const addWallpaperInput = document.getElementById('add-wallpaper-input');
     const addWallpaperBtn = document.getElementById('add-wallpaper-btn');
     const wallpaperInput = document.getElementById('wallpaper-input');
@@ -73,7 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             // Wallpaper
             customWallpapers = data.customWallpapers || [];
-            const savedWallpaperPath = data.wallpaper || 'wallpapers/default1.jpg';
+            const savedWallpaperPath = data.wallpaper || 'wallpapers/blurry-background.svg';
             applyWallpaper(savedWallpaperPath);
             updateWallpaperSelection(savedWallpaperPath);
 
@@ -105,7 +107,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     addWallpaperInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
-        if (file && file.type.startsWith('image/')) {
+        if (file) {
+            if (file.size > 2 * 1024 * 1024) { // 2MB limit
+                alert('图片文件过大，请选择小于2MB的文件。');
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = (event) => {
                 const newWallpaper = {
@@ -195,7 +202,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             chrome.storage.local.get('wallpaper', (data) => {
                 if (data.wallpaper === deletedWallpaperPath) {
-                    const defaultPath = 'wallpapers/default1.jpg';
+                    const defaultPath = 'wallpapers/blurry-background.svg';
                     chrome.storage.local.set({ wallpaper: defaultPath }, () => {
                         applyWallpaper(defaultPath);
                         updateWallpaperSelection(defaultPath);
@@ -246,7 +253,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const search = new Search();
 
     // --- Initialization Sequence ---
-    await populateWallpapers();
     loadSettings();
     await search.init();
 
@@ -284,37 +290,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function handleKeydown(e) {
-        const suggestions = suggestionsContainer.querySelectorAll('.suggestion-item');
+        const items = suggestionsContainer.querySelectorAll('.suggestion-item');
 
-        if (e.key === 'Escape') {
-            e.preventDefault();
-            selectedIndex = -1;
-            updateSelectionHighlight(suggestions);
-            return;
+        // Handle selection navigation first
+        switch (e.key) {
+            case 'ArrowDown':
+            case 'Tab':
+                if (!items.length) return;
+                e.preventDefault();
+                selectedIndex = (selectedIndex + 1) % items.length;
+                updateSelectionHighlight(items);
+                return; // Stop further execution
+            case 'ArrowUp':
+                if (!items.length) return;
+                e.preventDefault();
+                selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+                updateSelectionHighlight(items);
+                return; // Stop further execution
+            case 'Escape':
+                e.preventDefault();
+                selectedIndex = -1;
+                updateSelectionHighlight(items);
+                return; // Stop further execution
         }
 
+        // Handle 'Enter' key separately
         if (e.key === 'Enter') {
             e.preventDefault();
-            if (selectedIndex > -1 && suggestions.length > 0) {
-                const items = suggestionsContainer.querySelectorAll('.suggestion-item');
+            if (selectedIndex > -1 && items.length > 0) {
                 const selectedUrl = items[selectedIndex].dataset.url;
                 window.location.href = selectedUrl;
             } else {
                 performSearch();
             }
-            return;
-        }
-
-        if (suggestions.length === 0) return;
-
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            selectedIndex = (selectedIndex + 1) % suggestions.length;
-            updateSelectionHighlight(suggestions);
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            selectedIndex = (selectedIndex - 1 + suggestions.length) % suggestions.length;
-            updateSelectionHighlight(suggestions);
         }
     }
     
