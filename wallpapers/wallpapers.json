@@ -1,12 +1,14 @@
-{
-  "defaultWallpapers": [
-    {
-      "name": "default1.jpg",
-      "title": "默认壁纸 1"
-    },
-    {
-      "name": "default2.jpg",
-      "title": "默认壁纸 2"
-    }
-  ]
-} 
+[
+  {
+    "id": "default1",
+    "name": "Mountains and Lake",
+    "path": "wallpapers/default1.jpg",
+    "thumbnail": "wallpapers/default1.jpg"
+  },
+  {
+    "id": "default2",
+    "name": "Abstract Waves",
+    "path": "wallpapers/default2.jpg",
+    "thumbnail": "wallpapers/default2.jpg"
+  }
+] 

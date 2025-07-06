@@ -1,29 +1,63 @@
 :root {
-    /* Dark Theme (Default) */
-    --primary-bg: rgba(255, 255, 255, 0.2);
-    --primary-border: rgba(255, 255, 255, 0.3);
-    --primary-text: #212121;
-    --secondary-text: #333;
-    --highlight-bg: rgba(255, 255, 255, 0.3);
-    --settings-panel-bg: rgba(255, 255, 255, 0.15);
-    --settings-panel-border: rgba(255, 255, 255, 0.2);
-    --pill-bg: rgba(0, 0, 0, 0.1);
-    --pill-slider-bg: #212121;
-    --pill-text-selected: white;
+    --primary-text: #f0f0f0;
+    --secondary-text: #a0a0a0;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --pill-slider-bg: #f0f0f0;
+    --pill-text-selected: #111;
+
+    /* Base styles (Glass effect OFF) */
+    --base-bg: #1e1e1e;
+    --base-highlight-bg: #2a2a2a;
+
+    /* Glass effect styles (Glass effect ON) */
+    --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 60%), rgba(30, 30, 30, 0.2);
+    --glass-highlight-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 60%), rgba(30, 30, 30, 0.4);
+    --glass-settings-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 60%), rgba(30, 30, 30, 0.4);
 }
 
-body.light-theme {
-    /* Light Theme */
-    --primary-bg: rgba(255, 255, 255, 0.4);
-    --primary-border: rgba(0, 0, 0, 0.2);
-    --primary-text: #212121;
-    --secondary-text: #555;
-    --highlight-bg: rgba(0, 0, 0, 0.1);
-    --settings-panel-bg: rgba(255, 255, 255, 0.5);
-    --settings-panel-border: rgba(0, 0, 0, 0.1);
-    --pill-bg: rgba(0, 0, 0, 0.1);
-    --pill-slider-bg: #212121;
-    --pill-text-selected: white;
+body {
+    background-color: #111; /* Fallback for when wallpaper is loading/missing */
+}
+
+/* Base Component Styles */
+.help-button, #open-settings, #searchInput, .suggestions-container, .tooltip {
+    background: var(--base-bg);
+    border: 1px solid var(--border-color);
+    backdrop-filter: none;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, backdrop-filter 0.2s;
+}
+#searchInput:focus { background: var(--base-highlight-bg); }
+.suggestion-item.selected { background-color: var(--base-highlight-bg); }
+#open-settings:hover { background-color: var(--base-highlight-bg); }
+.help-button:hover { background: var(--base-highlight-bg); }
+.settings-panel {
+    background: var(--base-bg);
+    border-left: 1px solid var(--border-color);
+    backdrop-filter: none;
+}
+
+/* Glass Effect Styles */
+body.glass-effect-enabled .help-button,
+body.glass-effect-enabled #open-settings,
+body.glass-effect-enabled #searchInput,
+body.glass-effect-enabled .suggestions-container,
+body.glass-effect-enabled .tooltip {
+    background: var(--glass-bg);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+body.glass-effect-enabled #searchInput:focus,
+body.glass-effect-enabled .suggestion-item.selected,
+body.glass-effect-enabled #open-settings:hover,
+body.glass-effect-enabled .help-button:hover {
+    background: var(--glass-highlight-bg);
+}
+
+body.glass-effect-enabled .settings-panel {
+    background: var(--glass-settings-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
 body, html {
@@ -47,10 +81,6 @@ body, html {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: var(--primary-bg);
-    border: 1px solid var(--primary-border);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -62,7 +92,8 @@ body, html {
 }
 
 .help-button:hover {
-    background: var(--highlight-bg);
+    transform: rotate(45deg);
+    opacity: 1;
 }
 
 .tooltip {
@@ -70,10 +101,6 @@ body, html {
     top: 0;
     left: 50px;
     padding: 10px 15px;
-    background: var(--primary-bg);
-    border: 1px solid var(--primary-border);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
     border-radius: 8px;
     color: var(--primary-text);
     white-space: nowrap;
@@ -96,12 +123,8 @@ body, html {
     right: -350px; /* Hidden by default */
     width: 350px;
     height: 100%;
-    background: var(--settings-panel-bg);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border-left: 1px solid var(--settings-panel-border);
     z-index: 200;
-    transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.2s, backdrop-filter 0.2s;
     color: var(--primary-text);
 }
 
@@ -114,7 +137,7 @@ body, html {
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    border-bottom: 1px solid var(--settings-panel-border);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .settings-header h3 {
@@ -165,7 +188,7 @@ body, html {
 .radio-group.pill-style {
     position: relative;
     display: flex;
-    background-color: var(--pill-bg);
+    background-color: var(--base-bg);
     border-radius: 20px;
     padding: 4px;
 }
@@ -260,6 +283,77 @@ input:checked + .slider:before {
     transform: translateX(22px);
 }
 
+.wallpaper-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.wallpaper-thumb {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 Aspect Ratio */
+    background-size: cover;
+    background-position: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+    border: 2px solid transparent;
+    box-sizing: border-box;
+}
+
+.wallpaper-thumb:hover {
+    transform: scale(1.05);
+}
+
+.wallpaper-thumb.selected {
+    border-color: var(--pill-slider-bg);
+}
+
+.add-wallpaper {
+    border: 2px dashed var(--primary-text);
+    opacity: 0.6;
+}
+
+.add-wallpaper span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 40px;
+    font-weight: lighter;
+    color: var(--primary-text);
+    line-height: 1;
+}
+
+.add-wallpaper:hover {
+    opacity: 1;
+    border-color: var(--pill-slider-bg);
+}
+
+.wallpaper-thumb .delete-wallpaper {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    color: white;
+    border-radius: 50%;
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    line-height: 20px;
+    text-align: center;
+    z-index: 2;
+}
+
+.wallpaper-thumb.custom-wallpaper:hover .delete-wallpaper {
+    display: flex;
+}
 
 .settings-button-container {
     position: fixed;
@@ -273,16 +367,12 @@ input:checked + .slider:before {
     height: 24px;
     padding: 8px;
     border-radius: 50%;
-    background: var(--primary-bg);
-    border: 1px solid var(--primary-border);
-    backdrop-filter: blur(10px);
     cursor: pointer;
-    transition: background-color 0.15s, transform 0.2s;
+    transition: background-color 0.15s, transform 0.2s, background 0.2s;
     opacity: 0.7;
 }
 
 #open-settings:hover {
-    background-color: var(--highlight-bg);
     transform: rotate(45deg);
     opacity: 1;
 }
@@ -323,14 +413,11 @@ input:checked + .slider:before {
 #searchInput {
     width: 100%;
     padding: 15px 20px;
-    border: 1px solid var(--primary-border);
     border-radius: 28px;
-    background-color: var(--primary-bg);
     color: var(--primary-text);
     font-size: 16px;
     outline: none;
     box-sizing: border-box;
-    transition: background-color 0.15s;
 }
 
 #searchInput::placeholder {
@@ -338,12 +425,19 @@ input:checked + .slider:before {
 }
 
 #searchInput:focus {
-    background-color: var(--highlight-bg);
+    background: var(--base-highlight-bg);
 }
 
 .search-wrapper.suggestions-active {
     transform: translateY(-200px);
     max-width: 600px;
+    border-radius: 0 0 28px 28px;
+    margin-top: -1px;
+    overflow: hidden;
+    max-height: 400px;
+    overflow-y: auto;
+    border-top: none;
+    box-sizing: border-box;
 }
 
 .search-wrapper.suggestions-active #searchInput {
@@ -353,19 +447,6 @@ input:checked + .slider:before {
 
 .suggestions-container {
     display: none;
-    position: absolute;
-    width: 100%;
-    background: var(--primary-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: 0 0 28px 28px;
-    margin-top: -1px;
-    overflow: hidden;
-    max-height: 400px;
-    overflow-y: auto;
-    border: 1px solid var(--primary-border);
-    border-top: none;
-    box-sizing: border-box;
 }
 
 .search-wrapper.suggestions-active .suggestions-container {
@@ -383,10 +464,6 @@ input:checked + .slider:before {
 
 .suggestion-item:hover {
     cursor: pointer;
-}
-
-.suggestion-item.selected {
-    background-color: var(--highlight-bg);
 }
 
 .suggestion-item img {

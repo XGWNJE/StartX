@@ -1,7 +1,8 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const searchInput = document.getElementById('searchInput');
     const suggestionsContainer = document.getElementById('suggestions');
     const searchWrapper = document.querySelector('.search-wrapper');
+    const backgroundContainer = document.querySelector('.background-container');
     
     const searchEngines = {
         google: 'https://www.google.com/search?q=',
@@ -20,13 +21,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchEngineGroup = document.getElementById('search-engine-group');
     const themeSwitch = document.getElementById('theme-switch');
     const themeName = document.getElementById('theme-name');
+    const wallpaperGrid = document.getElementById('wallpaper-grid');
+    const addWallpaperInput = document.getElementById('add-wallpaper-input');
+    let customWallpapers = [];
 
     openSettingsBtn.addEventListener('click', () => settingsPanel.classList.add('open'));
     closeSettingsBtn.addEventListener('click', () => settingsPanel.classList.remove('open'));
 
     // Load settings and initialize
     function loadSettings() {
-        chrome.storage.local.get(['searchEngine', 'theme'], (data) => {
+        chrome.storage.local.get(['searchEngine', 'glassEffect', 'wallpaper', 'customWallpapers'], (data) => {
             // Search engine
             const savedEngine = data.searchEngine || 'google';
             currentSearchEngine = searchEngines[savedEngine];
@@ -37,13 +41,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateLabelColors();
             }
 
-            // Theme
-            const savedTheme = data.theme || 'dark';
-            if (savedTheme === 'light') {
-                document.body.classList.add('light-theme');
+            // Glass Effect
+            const glassEffect = data.glassEffect !== false; // Default to true
+            if (glassEffect) {
+                document.body.classList.add('glass-effect-enabled');
                 themeSwitch.checked = true;
             }
             updateThemeName();
+            
+            // Wallpaper
+            customWallpapers = data.customWallpapers || [];
+            const savedWallpaperPath = data.wallpaper || 'wallpapers/default1.jpg';
+            applyWallpaper(savedWallpaperPath);
+            updateWallpaperSelection(savedWallpaperPath);
+
+            // Populate custom wallpapers
+            customWallpapers.forEach(wallpaper => {
+                createWallpaperThumb(wallpaper, true);
+            });
         });
     }
 
@@ -57,17 +72,131 @@ document.addEventListener('DOMContentLoaded', () => {
     
     themeSwitch.addEventListener('change', (e) => {
         if (e.target.checked) {
-            document.body.classList.add('light-theme');
-            chrome.storage.local.set({ theme: 'light' });
+            document.body.classList.add('glass-effect-enabled');
+            chrome.storage.local.set({ glassEffect: true });
         } else {
-            document.body.classList.remove('light-theme');
-            chrome.storage.local.set({ theme: 'dark' });
+            document.body.classList.remove('glass-effect-enabled');
+            chrome.storage.local.set({ glassEffect: false });
         }
         updateThemeName();
     });
 
+    addWallpaperInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const newWallpaper = {
+                    id: `custom_${Date.now()}`,
+                    name: file.name,
+                    path: event.target.result // Base64 Data URL
+                };
+                saveCustomWallpaper(newWallpaper);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    function saveCustomWallpaper(wallpaper) {
+        customWallpapers.push(wallpaper);
+        chrome.storage.local.set({ customWallpapers: customWallpapers }, () => {
+             if (chrome.runtime.lastError) {
+                console.error(`Error saving wallpaper: ${chrome.runtime.lastError.message}`);
+                // Optional: handle error, e.g., remove from UI
+            } else {
+                createWallpaperThumb(wallpaper, true);
+            }
+        });
+    }
+
+    async function populateWallpapers() {
+        try {
+            const response = await fetch('wallpapers/wallpapers.json');
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const wallpapers = await response.json();
+            
+            wallpapers.forEach(wallpaper => createWallpaperThumb(wallpaper, false));
+        } catch (error) {
+            console.warn('Could not load wallpapers.json. Default wallpapers will be used.', error);
+        }
+    }
+    
+    function createWallpaperThumb(wallpaper, isCustom) {
+        const thumb = document.createElement('div');
+        thumb.className = 'wallpaper-thumb';
+        const thumbPath = wallpaper.thumbnail || wallpaper.path;
+        thumb.style.backgroundImage = `url('${thumbPath}')`;
+        thumb.dataset.path = wallpaper.path;
+        thumb.dataset.id = wallpaper.id;
+        thumb.title = wallpaper.name;
+
+        if (isCustom) {
+            thumb.classList.add('custom-wallpaper');
+            const deleteBtn = document.createElement('div');
+            deleteBtn.className = 'delete-wallpaper';
+            deleteBtn.innerHTML = '&times;';
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteCustomWallpaper(wallpaper.id);
+            });
+            thumb.appendChild(deleteBtn);
+        }
+
+        thumb.addEventListener('click', () => {
+            const newPath = thumb.dataset.path;
+            chrome.storage.local.set({ wallpaper: newPath }, () => {
+                applyWallpaper(newPath);
+                updateWallpaperSelection(newPath);
+            });
+        });
+        
+        wallpaperGrid.appendChild(thumb);
+    }
+
+    function deleteCustomWallpaper(wallpaperId) {
+        const wallpaperIndex = customWallpapers.findIndex(w => w.id === wallpaperId);
+        if (wallpaperIndex === -1) return;
+
+        const deletedWallpaperPath = customWallpapers[wallpaperIndex].path;
+        customWallpapers.splice(wallpaperIndex, 1);
+
+        chrome.storage.local.set({ customWallpapers: customWallpapers }, () => {
+             if (chrome.runtime.lastError) {
+                console.error(`Error deleting wallpaper: ${chrome.runtime.lastError.message}`);
+                return;
+            }
+            
+            const thumbToRemove = document.querySelector(`.wallpaper-thumb[data-id='${wallpaperId}']`);
+            if (thumbToRemove) {
+                thumbToRemove.remove();
+            }
+
+            chrome.storage.local.get('wallpaper', (data) => {
+                if (data.wallpaper === deletedWallpaperPath) {
+                    const defaultPath = 'wallpapers/default1.jpg';
+                    chrome.storage.local.set({ wallpaper: defaultPath }, () => {
+                        applyWallpaper(defaultPath);
+                        updateWallpaperSelection(defaultPath);
+                    });
+                }
+            });
+        });
+    }
+
+    function applyWallpaper(path) {
+        if (!path) return;
+        backgroundContainer.style.backgroundImage = `url('${path}')`;
+    }
+
+    function updateWallpaperSelection(path) {
+        const thumbs = document.querySelectorAll('.wallpaper-thumb');
+        thumbs.forEach(thumb => {
+            thumb.classList.toggle('selected', thumb.dataset.path === path);
+        });
+    }
+
     function updateThemeName() {
-        themeName.textContent = document.body.classList.contains('light-theme') ? '浅色模式' : '深色模式';
+        themeName.textContent = `玻璃效果: ${document.body.classList.contains('glass-effect-enabled') ? '开启' : '关闭'}`;
     }
     
     function updatePillBackground(radio) {
@@ -92,6 +221,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- Initialization Sequence ---
+    await populateWallpapers();
     loadSettings();
 
     suggestionsContainer.addEventListener('mouseleave', () => {
