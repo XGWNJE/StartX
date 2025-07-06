@@ -1,6 +1,6 @@
 {
   "name": "StartX",
-  "description": "A better new tab page for Chrome.",
+  "description": "一款简洁美观的新标签页，支持网页与书签搜索、自定义壁纸。",
   "version": "1.0",
   "manifest_version": 3,
   "chrome_url_overrides": {
@@ -8,7 +8,8 @@
   },
   "permissions": [
     "bookmarks",
-    "storage"
+    "storage",
+    "favicon"
   ],
   "icons": {
     "16": "icons/icon16.png",

@@ -11,22 +11,45 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     let currentSearchEngine = searchEngines.google;
 
-    const faviconUrl = (url) => `https://www.google.com/s2/favicons?sz=32&domain_url=${encodeURIComponent(url)}`;
+    function getDomain(url) {
+        try {
+            return new URL(url).hostname;
+        } catch (e) {
+            return url;
+        }
+    }
+
+    function faviconUrl(u) {
+        const url = new URL(chrome.runtime.getURL("/_favicon/"));
+        url.searchParams.set("pageUrl", u);
+        url.searchParams.set("size", "32");
+        return url.toString();
+    }
+
     let selectedIndex = -1;
 
     // Settings Panel
+    const settingsIcon = document.getElementById('open-settings');
     const settingsPanel = document.getElementById('settings-panel');
-    const openSettingsBtn = document.getElementById('open-settings');
-    const closeSettingsBtn = document.getElementById('close-settings');
-    const searchEngineGroup = document.getElementById('search-engine-group');
-    const themeSwitch = document.getElementById('theme-switch');
-    const themeName = document.getElementById('theme-name');
-    const wallpaperGrid = document.getElementById('wallpaper-grid');
+    const glassEffectToggle = document.getElementById('theme-switch');
+    const searchEngineGroup = document.getElementById('search-engine-group');    const wallpaperGrid = document.getElementById('wallpaper-grid');
     const addWallpaperInput = document.getElementById('add-wallpaper-input');
+    const addWallpaperBtn = document.getElementById('add-wallpaper-btn');
+    const wallpaperInput = document.getElementById('wallpaper-input');
     let customWallpapers = [];
 
-    openSettingsBtn.addEventListener('click', () => settingsPanel.classList.add('open'));
-    closeSettingsBtn.addEventListener('click', () => settingsPanel.classList.remove('open'));
+    settingsIcon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        settingsPanel.classList.toggle('open');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (settingsPanel.classList.contains('open')) {
+            if (!settingsPanel.contains(e.target) && !settingsIcon.contains(e.target)) {
+                settingsPanel.classList.remove('open');
+            }
+        }
+    });
 
     // Load settings and initialize
     function loadSettings() {
@@ -45,9 +68,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const glassEffect = data.glassEffect !== false; // Default to true
             if (glassEffect) {
                 document.body.classList.add('glass-effect-enabled');
-                themeSwitch.checked = true;
+                glassEffectToggle.checked = true;
             }
-            updateThemeName();
             
             // Wallpaper
             customWallpapers = data.customWallpapers || [];
@@ -60,6 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 createWallpaperThumb(wallpaper, true);
             });
         });
+        updateThemeName();
     }
 
     searchEngineGroup.addEventListener('change', (e) => {
@@ -70,7 +93,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateLabelColors();
     });
     
-    themeSwitch.addEventListener('change', (e) => {
+    glassEffectToggle.addEventListener('change', (e) => {
         if (e.target.checked) {
             document.body.classList.add('glass-effect-enabled');
             chrome.storage.local.set({ glassEffect: true });
@@ -78,7 +101,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.body.classList.remove('glass-effect-enabled');
             chrome.storage.local.set({ glassEffect: false });
         }
-        updateThemeName();
     });
 
     addWallpaperInput.addEventListener('change', (e) => {
@@ -196,7 +218,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function updateThemeName() {
-        themeName.textContent = `玻璃效果: ${document.body.classList.contains('glass-effect-enabled') ? '开启' : '关闭'}`;
+        // This function is removed as per the instructions
     }
     
     function updatePillBackground(radio) {
@@ -221,9 +243,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    const search = new Search();
+
     // --- Initialization Sequence ---
     await populateWallpapers();
     loadSettings();
+    await search.init();
+
+    const searchBox = document.querySelector('.search-box');
+    searchBox.addEventListener('mousemove', e => {
+        const rect = searchBox.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        searchBox.style.setProperty('--mouse-x', `${x}px`);
+        searchBox.style.setProperty('--mouse-y', `${y}px`);
+    });
 
     suggestionsContainer.addEventListener('mouseleave', () => {
         selectedIndex = -1;
@@ -241,8 +275,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function handleInputChange(e) {
         const query = e.target.value.trim();
         if (query.length > 0) {
-            const bookmarks = await searchBookmarks(query);
-            showSuggestions(bookmarks);
+            const results = search.performSearch(query);
+            showSuggestions(results);
         } else {
             hideSuggestions();
         }
@@ -262,7 +296,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (e.key === 'Enter') {
             e.preventDefault();
             if (selectedIndex > -1 && suggestions.length > 0) {
-                suggestions[selectedIndex].click();
+                const items = suggestionsContainer.querySelectorAll('.suggestion-item');
+                const selectedUrl = items[selectedIndex].dataset.url;
+                window.location.href = selectedUrl;
             } else {
                 performSearch();
             }
@@ -324,6 +360,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             bookmarks.forEach((bookmark, index) => {
                 const item = document.createElement('div');
                 item.className = 'suggestion-item';
+                item.dataset.url = bookmark.url;
                 item.addEventListener('click', () => {
                     window.location.href = bookmark.url;
                 });
@@ -341,6 +378,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const title = document.createElement('span');
                 title.className = 'title';
                 title.textContent = bookmark.title;
+                title.title = bookmark.title;
 
                 const url = document.createElement('span');
                 url.className = 'url';
@@ -369,13 +407,5 @@ document.addEventListener('DOMContentLoaded', async () => {
             '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
             '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
         return !!urlPattern.test(text);
-    }
-    
-    function getDomain(url) {
-        try {
-            return new URL(url).hostname;
-        } catch (e) {
-            return '';
-        }
     }
 }); 

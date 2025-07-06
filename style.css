@@ -10,9 +10,8 @@
     --base-highlight-bg: #2a2a2a;
 
     /* Glass effect styles (Glass effect ON) */
-    --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 60%), rgba(30, 30, 30, 0.2);
+    --glass-panel-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 60%), rgba(30, 30, 30, 0.25);
     --glass-highlight-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 60%), rgba(30, 30, 30, 0.4);
-    --glass-settings-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 60%), rgba(30, 30, 30, 0.4);
 }
 
 body {
@@ -42,9 +41,13 @@ body.glass-effect-enabled #open-settings,
 body.glass-effect-enabled #searchInput,
 body.glass-effect-enabled .suggestions-container,
 body.glass-effect-enabled .tooltip {
-    background: var(--glass-bg);
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
+    background: var(--glass-panel-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+body.glass-effect-enabled #searchInput {
+    background: transparent;
 }
 
 body.glass-effect-enabled #searchInput:focus,
@@ -55,7 +58,7 @@ body.glass-effect-enabled .help-button:hover {
 }
 
 body.glass-effect-enabled .settings-panel {
-    background: var(--glass-settings-bg);
+    background: var(--glass-panel-bg);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 }
@@ -403,11 +406,49 @@ input:checked + .slider:before {
     position: relative;
     width: 100%;
     max-width: 480px;
-    transition: transform 0.25s cubic-bezier(0.6, -0.28, 0.74, 0.05), max-width 0.25s cubic-bezier(0.6, -0.28, 0.74, 0.05);
+    margin: 0 auto;
+    position: relative;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .search-box {
     display: flex;
+    position: relative;
+    --highlight-size: 150px;
+    position: relative;
+    border-radius: 30px;
+    transition: border-radius 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.search-box::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 28px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    
+    background: radial-gradient(
+        circle at var(--mouse-x) var(--mouse-y),
+        rgba(255, 255, 255, 0.8) 0%,
+        rgba(255, 255, 255, 0) 25%
+    );
+    
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+          mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+        
+    padding: 1px; /* Defines the border thickness */
+}
+
+.search-box:hover::before {
+    opacity: 1;
 }
 
 #searchInput {
@@ -418,6 +459,9 @@ input:checked + .slider:before {
     font-size: 16px;
     outline: none;
     box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+    transition: border-radius 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #searchInput::placeholder {
@@ -429,38 +473,70 @@ input:checked + .slider:before {
 }
 
 .search-wrapper.suggestions-active {
-    transform: translateY(-200px);
+    transform: translateY(-120px);
     max-width: 600px;
-    border-radius: 0 0 28px 28px;
-    margin-top: -1px;
-    overflow: hidden;
+}
+
+.suggestions-container {
+    position: absolute;
+    width: 100%;
+    margin-top: 12px;
+    border-radius: 28px;
+    background-color: var(--base-bg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     max-height: 400px;
     overflow-y: auto;
     border-top: none;
     box-sizing: border-box;
+    visibility: hidden;
+    transition: background-color 0.3s ease;
 }
 
-.search-wrapper.suggestions-active #searchInput {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
+body.glass-effect-enabled .search-box,
+body.glass-effect-enabled .settings-panel,
+body.glass-effect-enabled .suggestions-container {
+    background: var(--glass-panel-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
-.suggestions-container {
-    display: none;
+body.glass-effect-enabled #searchInput {
+    background: transparent;
+}
+
+body.glass-effect-enabled #searchInput:focus,
+body.glass-effect-enabled .suggestion-item.selected,
+body.glass-effect-enabled #open-settings:hover,
+body.glass-effect-enabled .help-button:hover {
+    background: var(--glass-highlight-bg);
 }
 
 .search-wrapper.suggestions-active .suggestions-container {
-    display: block;
+    visibility: visible;
 }
 
 .suggestion-item {
-    padding: 10px 20px;
+    padding: 8px 20px;
     text-align: left;
     cursor: pointer;
     color: var(--primary-text);
     display: flex;
     align-items: center;
+    opacity: 0;
+    transform: translateY(-15px);
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
 }
+
+.search-wrapper.suggestions-active .suggestion-item {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.search-wrapper.suggestions-active .suggestion-item:nth-child(1) { transition-delay: 0.4s, 0.4s, 0s; }
+.search-wrapper.suggestions-active .suggestion-item:nth-child(2) { transition-delay: 0.47s, 0.47s, 0s; }
+.search-wrapper.suggestions-active .suggestion-item:nth-child(3) { transition-delay: 0.54s, 0.54s, 0s; }
+.search-wrapper.suggestions-active .suggestion-item:nth-child(4) { transition-delay: 0.61s, 0.61s, 0s; }
+.search-wrapper.suggestions-active .suggestion-item:nth-child(5) { transition-delay: 0.68s, 0.68s, 0s; }
 
 .suggestion-item:hover {
     cursor: pointer;
@@ -474,6 +550,9 @@ input:checked + .slider:before {
 
 .suggestion-item .title {
     font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .suggestion-item .url {
@@ -484,6 +563,10 @@ input:checked + .slider:before {
     overflow: hidden;
     text-overflow: ellipsis;
     flex-grow: 1;
+}
+
+.suggestion-item.selected {
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Hide scrollbar for suggestions */
