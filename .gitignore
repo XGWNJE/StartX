@@ -1,0 +1,6 @@
+# Cursor-specific files
+/.cursor 
+/.vscode
+/node_modules
+/.DS_Store
+
