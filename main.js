@@ -92,9 +92,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 搜索输入框监听器
         searchInput.addEventListener('input', handleInputChange);
         searchInput.addEventListener('keydown', handleKeydown);
+        
+        // 处理搜索框焦点状态，控制logo显示/隐藏
+        searchInput.addEventListener('focus', () => {
+            document.body.classList.add('search-focus');
+        });
+        
+        searchInput.addEventListener('blur', () => {
+            // 如果没有显示建议列表，则移除search-focus类
+            if (!searchWrapper.classList.contains('suggestions-active')) {
+                document.body.classList.remove('search-focus');
+            }
+        });
+        
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.search-wrapper')) {
                 suggestionsHandler.hide();
+                document.body.classList.remove('search-focus');
             }
         });
 

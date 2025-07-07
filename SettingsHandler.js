@@ -58,10 +58,10 @@ class SettingsHandler {
             document.body.classList.toggle('glass-effect-enabled', glassEffect);
             this.glassEffectToggle.checked = glassEffect;
             
-            // 图标显示
-            const logoVisible = data.logoVisible !== false;
-            document.documentElement.style.setProperty('--logo-visibility', logoVisible ? 'visible' : 'hidden');
-            this.logoVisibilityToggle.checked = logoVisible;
+            // 图标显示（设置为是否始终隐藏）
+            const alwaysHideLogo = data.alwaysHideLogo === true;
+            document.documentElement.style.setProperty('--logo-visibility', alwaysHideLogo ? 'hidden' : 'visible');
+            this.logoVisibilityToggle.checked = !alwaysHideLogo;
             
             // 壁纸
             this.customWallpapers = data.customWallpapers || [];
@@ -111,9 +111,9 @@ class SettingsHandler {
         });
         
         this.logoVisibilityToggle.addEventListener('change', (e) => {
-            const visible = e.target.checked;
-            document.documentElement.style.setProperty('--logo-visibility', visible ? 'visible' : 'hidden');
-            chrome.storage.local.set({ logoVisible: visible });
+            const alwaysHideLogo = !e.target.checked;
+            document.documentElement.style.setProperty('--logo-visibility', alwaysHideLogo ? 'hidden' : 'visible');
+            chrome.storage.local.set({ alwaysHideLogo: alwaysHideLogo });
         });
 
         // 添加壁纸
