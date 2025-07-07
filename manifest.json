@@ -1,6 +1,6 @@
 {
   "name": "StartX",
-  "description": "一款简洁美观的新标签页，支持网页与书签搜索、自定义壁纸。",
+  "description": "一款简洁美观的起始标签页，让起始页做该做的事",
   "version": "1.0",
   "manifest_version": 3,
   "chrome_url_overrides": {

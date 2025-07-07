@@ -1,13 +1,28 @@
+/**
+ * 管理和搜索浏览器书签.
+ */
 class Search {
+    /**
+     * 初始化 Search 类, 并获取所有书签.
+     */
     constructor() {
+        /** @type {{title: string, url: string}[]} */
         this.bookmarks = [];
         this.init();
     }
 
+    /**
+     * 异步加载所有书签.
+     * @private
+     */
     async init() {
         this.bookmarks = await this.getAllBookmarks();
     }
 
+    /**
+     * 使用 chrome.bookmarks API 从浏览器中检索所有书签.
+     * @returns {Promise<{title: string, url: string}[]>} 一个 Promise, 解析后会返回一个扁平的书签列表.
+     */
     async getAllBookmarks() {
         return new Promise((resolve) => {
             chrome.bookmarks.getTree((tree) => {
@@ -18,6 +33,12 @@ class Search {
         });
     }
 
+    /**
+     * 递归地将书签树扁平化为一个简单的数组.
+     * @param {chrome.bookmarks.BookmarkTreeNode} node - 树中的当前书签节点.
+     * @param {{title: string, url: string}[]} bookmarks - 用于存储扁平化书签的数组.
+     * @private
+     */
     flattenBookmarks(node, bookmarks) {
         if (node.url) {
             bookmarks.push({
@@ -30,6 +51,11 @@ class Search {
         }
     }
 
+    /**
+     * 在已存储的书签上执行搜索.
+     * @param {string} query - 搜索词.
+     * @returns {{title: string, url: string}[]} 匹配的书签列表, 最多返回 20 个结果.
+     */
     performSearch(query) {
         if (!query) {
             return [];

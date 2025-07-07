@@ -56,6 +56,10 @@ body.glass-effect-enabled #open-settings:hover,
 body.glass-effect-enabled .help-button:hover {
     background: var(--glass-highlight-bg);
 }
+    
+body.glass-effect-enabled #open-settings {
+    filter: none;
+}
 
 body.glass-effect-enabled .settings-panel {
     background: var(--glass-panel-bg);
