@@ -105,38 +105,44 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    addWallpaperInput.addEventListener('change', (e) => {
+    const imageCompressor = new ImageCompressor();
+
+    addWallpaperInput.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (file) {
-            if (file.size > 2 * 1024 * 1024) { // 2MB limit
-                alert('图片文件过大，请选择小于2MB的文件。');
-                return;
-            }
+            try {
+                const { compressed, dataUrl } = await imageCompressor.compress(file);
 
-            const reader = new FileReader();
-            reader.onload = (event) => {
+                if (compressed) {
+                    alert('为了节省存储空间，壁纸图片已被自动压缩。');
+                }
+                
                 const newWallpaper = {
-                    id: `custom_${Date.now()}`,
-                    name: file.name,
-                    path: event.target.result // Base64 Data URL
+                    id: `custom-${Date.now()}`,
+                    path: dataUrl,
+                    name: file.name
                 };
-                saveCustomWallpaper(newWallpaper);
-            };
-            reader.readAsDataURL(file);
+
+                // Add to in-memory array first
+                const updatedWallpapers = [...customWallpapers, newWallpaper];
+                
+                // Then save the entire updated array to storage
+                chrome.storage.local.set({ customWallpapers: updatedWallpapers }, () => {
+                    if (chrome.runtime.lastError) {
+                        console.error('Error saving wallpaper:', chrome.runtime.lastError.message);
+                        alert('保存壁纸失败，存储空间已满。请在设置中删除一些不用的壁纸，以释放空间。');
+                    } else {
+                        customWallpapers.push(newWallpaper); // Update local state only on success
+                        createWallpaperThumb(newWallpaper, true);
+                    }
+                });
+
+            } catch (error) {
+                console.error('Could not process image:', error);
+                alert('无法处理该图片，请尝试其他文件。');
+            }
         }
     });
-
-    function saveCustomWallpaper(wallpaper) {
-        customWallpapers.push(wallpaper);
-        chrome.storage.local.set({ customWallpapers: customWallpapers }, () => {
-             if (chrome.runtime.lastError) {
-                console.error(`Error saving wallpaper: ${chrome.runtime.lastError.message}`);
-                // Optional: handle error, e.g., remove from UI
-            } else {
-                createWallpaperThumb(wallpaper, true);
-            }
-        });
-    }
 
     async function populateWallpapers() {
         try {
