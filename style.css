@@ -575,5 +575,43 @@ body.glass-effect-enabled .help-button:hover {
 
 /* Hide scrollbar for suggestions */
 .suggestions-container::-webkit-scrollbar {
-  display: none;
+    display: none;
+}
+
+/* About Section in Settings */
+.about-container {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--secondary-text);
+}
+
+.about-text {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.button-link {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px 15px;
+    background-color: var(--base-highlight-bg);
+    color: var(--primary-text);
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    text-align: center;
+    transition: background-color 0.2s;
+}
+
+.button-link:hover {
+    background-color: #3a3a3a;
+}
+
+body.glass-effect-enabled .button-link {
+    background: var(--glass-highlight-bg);
+}
+
+body.glass-effect-enabled .button-link:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 60%), rgba(30, 30, 30, 0.5);
 } 
