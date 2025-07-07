@@ -7,6 +7,7 @@ class SettingsHandler {
      * @param {HTMLElement} options.settingsIcon - 打开设置的图标元素.
      * @param {HTMLElement} options.settingsPanel - 设置面板元素.
      * @param {HTMLElement} options.glassEffectToggle - 玻璃效果的开关元素.
+     * @param {HTMLElement} options.logoVisibilityToggle - 图标显示的开关元素.
      * @param {HTMLElement} options.searchEngineGroup - 搜索引擎的单选按钮组.
      * @param {HTMLElement} options.wallpaperGrid - 显示壁纸缩略图的网格.
      * @param {HTMLElement} options.addWallpaperInput - 添加壁纸的文件输入框.
@@ -19,6 +20,7 @@ class SettingsHandler {
         this.settingsIcon = options.settingsIcon;
         this.settingsPanel = options.settingsPanel;
         this.glassEffectToggle = options.glassEffectToggle;
+        this.logoVisibilityToggle = options.logoVisibilityToggle;
         this.searchEngineGroup = options.searchEngineGroup;
         this.wallpaperGrid = options.wallpaperGrid;
         this.addWallpaperInput = options.addWallpaperInput;
@@ -40,7 +42,7 @@ class SettingsHandler {
      * 从 chrome.storage 加载所有设置.
      */
     loadSettings() {
-        chrome.storage.local.get(['searchEngine', 'glassEffect', 'wallpaper', 'customWallpapers'], (data) => {
+        chrome.storage.local.get(['searchEngine', 'glassEffect', 'wallpaper', 'customWallpapers', 'logoVisible'], (data) => {
             // 搜索引擎
             const savedEngine = data.searchEngine || 'google';
             this.onSearchEngineChange(this.searchEngines[savedEngine]);
@@ -55,6 +57,11 @@ class SettingsHandler {
             const glassEffect = data.glassEffect !== false;
             document.body.classList.toggle('glass-effect-enabled', glassEffect);
             this.glassEffectToggle.checked = glassEffect;
+            
+            // 图标显示
+            const logoVisible = data.logoVisible !== false;
+            document.documentElement.style.setProperty('--logo-visibility', logoVisible ? 'visible' : 'hidden');
+            this.logoVisibilityToggle.checked = logoVisible;
             
             // 壁纸
             this.customWallpapers = data.customWallpapers || [];
@@ -101,6 +108,12 @@ class SettingsHandler {
             const enabled = e.target.checked;
             document.body.classList.toggle('glass-effect-enabled', enabled);
             chrome.storage.local.set({ glassEffect: enabled });
+        });
+        
+        this.logoVisibilityToggle.addEventListener('change', (e) => {
+            const visible = e.target.checked;
+            document.documentElement.style.setProperty('--logo-visibility', visible ? 'visible' : 'hidden');
+            chrome.storage.local.set({ logoVisible: visible });
         });
 
         // 添加壁纸

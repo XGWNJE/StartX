@@ -12,10 +12,33 @@
     /* Glass effect styles (Glass effect ON) */
     --glass-panel-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 60%), rgba(30, 30, 30, 0.25);
     --glass-highlight-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 60%), rgba(30, 30, 30, 0.4);
+
+    /* Logo visibility */
+    --logo-visibility: visible;
 }
 
 body {
     background-color: #111; /* Fallback for when wallpaper is loading/missing */
+}
+
+/* Logo Styling */
+.logo-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 90;
+    visibility: var(--logo-visibility);
+}
+
+#startx-logo {
+    width: 48px;
+    height: 48px;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+#startx-logo:hover {
+    opacity: 1;
 }
 
 /* Base Component Styles */
@@ -235,6 +258,17 @@ body, html {
 }
 
 #theme-name {
+    margin-left: 15px;
+    font-weight: 500;
+}
+
+.logo-switch-wrapper {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+}
+
+#logo-name {
     margin-left: 15px;
     font-weight: 500;
 }

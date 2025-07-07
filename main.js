@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         settingsIcon: document.getElementById('open-settings'),
         settingsPanel: document.getElementById('settings-panel'),
         glassEffectToggle: document.getElementById('theme-switch'),
+        logoVisibilityToggle: document.getElementById('logo-switch'),
         searchEngineGroup: document.getElementById('search-engine-group'),
         wallpaperGrid: document.getElementById('wallpaper-grid'),
         addWallpaperInput: document.getElementById('add-wallpaper-input'),

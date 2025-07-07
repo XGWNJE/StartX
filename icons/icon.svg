@@ -13,6 +13,6 @@
       <feComposite in="SourceGraphic" in2="blur" operator="over" />
     </filter>
   </defs>
-  <path d="M100 24 L148 64 L148 112 C148 128 132 144 116 144 L84 144 C68 144 52 128 52 112 L52 96 L116 96 C133.67 96 148 81.67 148 64 L100 24 Z M84 144 L116 144 L100 176 L84 144 Z" fill="url(#primaryGradient)" filter="url(#glow)" />
+  <path d="M100 24 L148 64 L148 112 C148 128 132 144 116 144 L84 144 C68 144 52 128 52 112 L52 96 L116 96 C133.67 96 148 81.67 148 64 L100 24 Z M84 144 L116 144 L100 176 L84 144 Z" fill="url(#primaryGradient)" />
   <path d="M52 96 L52 112 C52 94.33 66.33 80 84 80 L100 80 L100 24 L52 64 L52 96 Z" fill="url(#secondaryGradient)" />
 </svg> 
