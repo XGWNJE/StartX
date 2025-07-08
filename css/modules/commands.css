@@ -25,6 +25,83 @@
   border-left: 3px solid #e74c3c;
 }
 
+/* 默认搜索建议样式 */
+.command-result.search-suggestion {
+  padding: 8px 0;
+}
+
+.search-suggestion-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.search-suggestion-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.search-suggestion-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.search-suggestion-item .search-icon {
+  margin-right: 12px;
+  color: var(--text-secondary);
+  font-size: 16px;
+  opacity: 0.7;
+}
+
+.search-suggestion-item .search-text {
+  flex: 1;
+}
+
+.search-suggestion-engine {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin-right: 8px;
+  color: var(--text-secondary);
+}
+
+.search-suggestion-item.selected {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* 多引擎搜索建议样式 */
+.search-engine-section {
+  margin-bottom: 12px;
+}
+
+.search-engine-header {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 0 16px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 4px;
+}
+
+.search-engine-google .search-suggestion-engine {
+  background-color: rgba(66, 133, 244, 0.2);
+  color: #4285f4;
+}
+
+.search-engine-bing .search-suggestion-engine {
+  background-color: rgba(0, 120, 215, 0.2);
+  color: #0078d7;
+}
+
+.search-engine-baidu .search-suggestion-engine {
+  background-color: rgba(45, 97, 224, 0.2);
+  color: #2d61e0;
+}
+
 /* 计算器结果样式 */
 .command-result.calculator {
   display: flex;

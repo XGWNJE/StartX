@@ -9,13 +9,13 @@ class SettingsHandler {
      * @param {HTMLElement} options.glassEffectToggle - 玻璃效果的开关元素.
      * @param {HTMLElement} options.logoVisibilityToggle - 图标显示的开关元素.
      * @param {HTMLElement} options.languageSelector - 语言选择下拉框.
-     * @param {HTMLElement} options.searchEngineGroup - 搜索引擎的单选按钮组.
+     * @param {HTMLElement} options.searchEngineGroup - 搜索引擎的切换开关组.
      * @param {HTMLElement} options.wallpaperGrid - 显示壁纸缩略图的网格.
      * @param {HTMLElement} options.addWallpaperInput - 添加壁纸的文件输入框.
      * @param {HTMLElement} options.backgroundContainer - 应用壁纸的背景容器.
      * @param {ImageCompressor} options.imageCompressor - 用于压缩图片的 ImageCompressor 实例.
      * @param {object} options.searchEngines - 包含搜索引擎 URL 的对象.
-     * @param {function(string): void} options.onSearchEngineChange - 当搜索引擎改变时调用的回调函数.
+     * @param {function(object, object): void} options.onSearchEngineChange - 当搜索引擎改变时调用的回调函数，传递URL和引擎启用状态.
      * @param {I18n} options.i18n - 国际化模块实例.
      */
     constructor(options) {
@@ -34,6 +34,13 @@ class SettingsHandler {
         this.onSearchEngineChange = options.onSearchEngineChange;
         this.i18n = options.i18n;
 
+        // 存储已启用的搜索引擎状态
+        this.enabledSearchEngines = {
+            google: true,
+            bing: true,
+            baidu: true
+        };
+
         /** @type {{id: string, path: string, name: string}[]} */
         this.customWallpapers = [];
 
@@ -46,16 +53,26 @@ class SettingsHandler {
      * 从 chrome.storage 加载所有设置.
      */
     loadSettings() {
-        chrome.storage.local.get(['searchEngine', 'glassEffect', 'wallpaper', 'customWallpapers', 'alwaysHideLogo', 'locale'], (data) => {
+        chrome.storage.local.get(['enabledSearchEngines', 'primarySearchEngine', 'glassEffect', 'wallpaper', 'customWallpapers', 'alwaysHideLogo', 'locale'], (data) => {
             // 搜索引擎
-            const savedEngine = data.searchEngine || 'google';
-            this.onSearchEngineChange(this.searchEngines[savedEngine]);
-            const radio = this.searchEngineGroup.querySelector(`input[name="searchEngine"][value="${savedEngine}"]`);
-            if (radio) {
-                radio.checked = true;
-                this._updatePillBackground(radio);
-                this._updateLabelColors();
-            }
+            const enabledEngines = data.enabledSearchEngines || { google: true, bing: true, baidu: true };
+            const primaryEngine = data.primarySearchEngine || 'google';
+            
+            this.enabledSearchEngines = enabledEngines;
+            
+            // 更新搜索引擎的启用状态
+            Object.entries(this.enabledSearchEngines).forEach(([engine, enabled]) => {
+                const toggle = this.searchEngineGroup.querySelector(`input[name="searchEngine"][value="${engine}"]`);
+                if (toggle) {
+                    toggle.checked = enabled;
+                }
+            });
+            
+            // 通知主应用搜索引擎更改
+            this.onSearchEngineChange(
+                this.searchEngines[primaryEngine], 
+                this.enabledSearchEngines
+            );
 
             // 玻璃效果
             const glassEffect = data.glassEffect !== false;
@@ -138,11 +155,33 @@ class SettingsHandler {
 
         // 设置项控件
         this.searchEngineGroup.addEventListener('change', (e) => {
-            const selectedEngine = e.target.value;
-            this.onSearchEngineChange(this.searchEngines[selectedEngine]);
-            chrome.storage.local.set({ searchEngine: selectedEngine });
-            this._updatePillBackground(e.target);
-            this._updateLabelColors();
+            if (e.target.name === 'searchEngine') {
+                const selectedEngine = e.target.value;
+                const isEnabled = e.target.checked;
+                
+                // 更新启用状态
+                this.enabledSearchEngines[selectedEngine] = isEnabled;
+                
+                // 确保至少有一个搜索引擎是启用的
+                const hasEnabledEngine = Object.values(this.enabledSearchEngines).some(enabled => enabled);
+                
+                if (!hasEnabledEngine) {
+                    // 如果没有搜索引擎启用，强制启用当前的
+                    this.enabledSearchEngines[selectedEngine] = true;
+                    e.target.checked = true;
+                }
+                
+                // 保存设置
+                chrome.storage.local.set({ 
+                    enabledSearchEngines: this.enabledSearchEngines,
+                });
+                
+                // 通知更改
+                this.onSearchEngineChange(
+                    this.searchEngines, 
+                    this.enabledSearchEngines
+                );
+            }
         });
         
         this.glassEffectToggle.addEventListener('change', (e) => {
@@ -249,85 +288,68 @@ class SettingsHandler {
     }
 
     /**
-     * 为一个壁纸创建 DOM 缩略图.
-     * @param {object} wallpaper - 壁纸对象.
+     * 创建壁纸缩略图.
+     * @param {{id: string, path: string, name: string}} wallpaper - 壁纸信息.
      * @param {boolean} isCustom - 是否为自定义壁纸.
      */
     createWallpaperThumb(wallpaper, isCustom) {
         const thumb = document.createElement('div');
         thumb.className = 'wallpaper-thumb';
-        const thumbPath = wallpaper.thumbnail || wallpaper.path;
-        thumb.style.backgroundImage = `url('${thumbPath}')`;
         thumb.dataset.path = wallpaper.path;
         thumb.dataset.id = wallpaper.id;
-        thumb.title = wallpaper.name;
-
-        if (isCustom) {
-            thumb.classList.add('custom-wallpaper');
-            const deleteBtn = document.createElement('div');
-            deleteBtn.className = 'delete-wallpaper';
-            deleteBtn.innerHTML = '&times;';
-            deleteBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.deleteCustomWallpaper(wallpaper.id);
-            });
-            thumb.appendChild(deleteBtn);
-        }
-
+        thumb.style.backgroundImage = `url('${wallpaper.path}')`;
+        thumb.title = wallpaper.name || '';
+        
+        // 添加点击事件以应用壁纸
         thumb.addEventListener('click', () => {
-            const newPath = thumb.dataset.path;
-            chrome.storage.local.set({ wallpaper: newPath }, () => {
-                this.applyWallpaper(newPath);
-                this.updateWallpaperSelection(newPath);
+            chrome.storage.local.set({ wallpaper: wallpaper.path }, () => {
+                this.applyWallpaper(wallpaper.path);
+                this.updateWallpaperSelection(wallpaper.path);
             });
         });
         
-        this.wallpaperGrid.appendChild(thumb);
+        // 对于自定义壁纸，添加删除按钮
+        if (isCustom) {
+            const deleteBtn = document.createElement('div');
+            deleteBtn.className = 'delete-icon';
+            deleteBtn.innerHTML = '×';
+            deleteBtn.title = '删除壁纸';
+            
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // 防止触发壁纸点击事件
+                if (confirm('确定要删除这张壁纸吗？')) {
+                    this.deleteCustomWallpaper(wallpaper.id);
+                }
+            });
+            
+            thumb.appendChild(deleteBtn);
+        }
+        
+        // 添加到壁纸网格，插入到"添加"按钮之前
+        const addBtn = this.wallpaperGrid.querySelector('.add-wallpaper');
+        this.wallpaperGrid.insertBefore(thumb, addBtn.nextSibling);
+        
+        // 更新选中状态
+        chrome.storage.local.get('wallpaper', (data) => {
+            if (data.wallpaper === wallpaper.path) {
+                thumb.classList.add('selected');
+            }
+        });
     }
 
     /**
-     * 从 JSON 文件加载并显示默认壁纸.
+     * 异步加载壁纸列表并填充网格.
      */
     async populateWallpapers() {
         try {
             const response = await fetch('wallpapers/wallpapers.json');
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const wallpapers = await response.json();
             
-            wallpapers.forEach(wallpaper => this.createWallpaperThumb(wallpaper, false));
+            wallpapers.forEach(wallpaper => {
+                this.createWallpaperThumb(wallpaper, false);
+            });
         } catch (error) {
-            console.warn('Could not load wallpapers.json. Default wallpapers will be used.', error);
+            console.error('无法加载壁纸列表', error);
         }
-    }
-    
-    /**
-     * 更新搜索引擎单选按钮的 'pill' 背景位置.
-     * @param {HTMLInputElement} radio - 被选中的单选按钮.
-     * @private
-     */
-    _updatePillBackground(radio) {
-        const selectedLabel = radio.parentNode;
-        const background = this.searchEngineGroup.querySelector('.radio-pill-background');
-        if (background && selectedLabel && selectedLabel.parentElement.classList.contains('pill-style')) {
-            const labelIndex = Array.from(selectedLabel.parentElement.children).indexOf(selectedLabel) - 1;
-            if (labelIndex > -1) {
-                 background.style.transform = `translateX(${labelIndex * 100}%)`;
-            }
-        }
-    }
-
-    /**
-     * 更新搜索引擎标签的文本颜色.
-     * @private
-     */
-    _updateLabelColors() {
-        const labels = this.searchEngineGroup.querySelectorAll('.radio-label');
-        labels.forEach(label => {
-            if (label.querySelector('input').checked) {
-                label.classList.add('selected-label');
-            } else {
-                label.classList.remove('selected-label');
-            }
-        });
     }
 } 

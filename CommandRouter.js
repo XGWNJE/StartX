@@ -7,7 +7,18 @@ class CommandRouter {
    */
   constructor() {
     this.commands = new Map();
+    this.searchSuggestionFetcher = new SearchSuggestionFetcher();
     this.registerDefaultCommands();
+    
+    // 存储当前启用的搜索引擎
+    this.enabledSearchEngines = {
+      google: true,
+      bing: true,
+      baidu: true
+    };
+    
+    // 设置默认主要搜索引擎（用于执行搜索）
+    this.primarySearchEngine = 'google';
   }
 
   /**
@@ -62,10 +73,42 @@ class CommandRouter {
    * @private
    */
   async handleDefaultSearch(input) {
+    // 获取所有启用的搜索引擎的建议
+    const allSuggestions = await this.searchSuggestionFetcher.fetchAllSuggestions(input);
+    
     return {
       type: "default",
       query: input,
+      allSuggestions: allSuggestions,
       success: true
     };
+  }
+  
+  /**
+   * 更新当前使用的搜索引擎
+   * @param {Object} searchEnginesUrls - 所有搜索引擎的URL映射
+   * @param {Object} enabledEngines - 启用状态的搜索引擎对象
+   */
+  setSearchEngine(searchEnginesUrls, enabledEngines) {
+    // 更新启用的搜索引擎
+    this.enabledSearchEngines = {...enabledEngines};
+    
+    // 将启用状态告知搜索建议获取器
+    this.searchSuggestionFetcher.setEnabledEngines(this.enabledSearchEngines);
+    
+    // 设置主要搜索引擎（优先级：google > bing > baidu）
+    if (this.enabledSearchEngines.google) {
+      this.primarySearchEngine = 'google';
+    } else if (this.enabledSearchEngines.bing) {
+      this.primarySearchEngine = 'bing';
+    } else if (this.enabledSearchEngines.baidu) {
+      this.primarySearchEngine = 'baidu';
+    }
+    
+    // 如果没有启用的搜索引擎（应该不会发生），默认使用google
+    if (!this.primarySearchEngine) {
+      this.primarySearchEngine = 'google';
+      this.enabledSearchEngines.google = true;
+    }
   }
 } 

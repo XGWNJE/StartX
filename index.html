@@ -55,20 +55,28 @@
             </div>
             <div class="setting-item">
                 <label class="setting-label" data-i18n="settings.search_engine">搜索引擎</label>
-                <div class="radio-group pill-style" id="search-engine-group">
-                    <div class="radio-pill-background"></div>
-                    <label class="radio-label">
-                        <input type="radio" name="searchEngine" value="google" checked>
-                        Google
-                    </label>
-                    <label class="radio-label">
-                        <input type="radio" name="searchEngine" value="bing">
-                        Bing
-                    </label>
-                    <label class="radio-label">
-                        <input type="radio" name="searchEngine" value="baidu">
-                        Baidu
-                    </label>
+                <div class="toggle-group" id="search-engine-group">
+                    <div class="toggle-item">
+                        <label class="switch">
+                            <input type="checkbox" name="searchEngine" value="google" checked>
+                            <span class="slider round"></span>
+                        </label>
+                        <span class="toggle-label">Google</span>
+                    </div>
+                    <div class="toggle-item">
+                        <label class="switch">
+                            <input type="checkbox" name="searchEngine" value="bing" checked>
+                            <span class="slider round"></span>
+                        </label>
+                        <span class="toggle-label">Bing</span>
+                    </div>
+                    <div class="toggle-item">
+                        <label class="switch">
+                            <input type="checkbox" name="searchEngine" value="baidu" checked>
+                            <span class="slider round"></span>
+                        </label>
+                        <span class="toggle-label">Baidu</span>
+                    </div>
                 </div>
             </div>
             <div class="setting-item">
@@ -125,6 +133,7 @@
     <script src="WeatherCommand.js"></script>
     <script src="TranslateCommand.js"></script>
     <script src="BookmarkCommand.js"></script>
+    <script src="SearchSuggestionFetcher.js"></script>
     <script src="CommandRouter.js"></script>
     <script src="main.js"></script>
 </body>
