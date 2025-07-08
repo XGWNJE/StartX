@@ -36,7 +36,7 @@
     position: absolute;
     top: 0;
     left: 50px;
-    padding: 10px 15px;
+    padding: 15px 20px;
     border-radius: 8px;
     color: var(--primary-text);
     white-space: nowrap;
@@ -47,6 +47,22 @@
     transition: opacity 0.15s, visibility 0.15s;
     background: var(--base-bg);
     border: 1px solid var(--border-color);
+    max-width: 250px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    backdrop-filter: var(--backdrop-filter);
+    -webkit-backdrop-filter: var(--backdrop-filter);
+}
+
+.tooltip p {
+    margin: 8px 0 4px 0;
+}
+
+.tooltip p:first-child {
+    margin-top: 0;
+}
+
+.tooltip strong {
+    color: var(--accent-color);
 }
 
 .help-container:hover .tooltip {

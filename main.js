@@ -21,6 +21,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const search = new Search();
     const imageCompressor = new ImageCompressor();
     const suggestionsHandler = new SuggestionsHandler(suggestionsContainer, searchWrapper);
+    // 初始化命令路由器
+    const commandRouter = new CommandRouter();
+    
     const settingsHandler = new SettingsHandler({
         settingsIcon: document.getElementById('open-settings'),
         settingsPanel: document.getElementById('settings-panel'),
@@ -63,23 +66,232 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    // --- 渲染命令结果 ---
+    function renderCommandResult(result) {
+        // 根据结果类型渲染不同的UI
+        suggestionsContainer.innerHTML = '';
+        
+        if (!result.success) {
+            // 渲染错误信息
+            const errorItem = document.createElement('div');
+            errorItem.className = 'command-result error';
+            errorItem.textContent = result.error || '命令执行失败';
+            suggestionsContainer.appendChild(errorItem);
+            searchWrapper.classList.add('suggestions-active');
+            return;
+        }
+        
+        switch (result.type) {
+            case 'calculator':
+                renderCalculatorResult(result);
+                break;
+            case 'weather':
+                renderWeatherResult(result);
+                break;
+            case 'translate':
+                renderTranslateResult(result);
+                break;
+            case 'bookmark':
+                // 使用现有的建议显示系统
+                suggestionsHandler.show(result.results);
+                return;
+            default:
+                // 默认搜索不显示任何特殊UI
+                return;
+        }
+        
+        // 显示结果容器
+        searchWrapper.classList.add('suggestions-active');
+    }
+
+    // 渲染计算器结果
+    function renderCalculatorResult(result) {
+        const calcItem = document.createElement('div');
+        calcItem.className = 'command-result calculator';
+        
+        const expression = document.createElement('div');
+        expression.className = 'expression';
+        expression.textContent = result.expression;
+        
+        const resultValue = document.createElement('div');
+        resultValue.className = 'result-value';
+        resultValue.textContent = result.result;
+        
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'copy-btn';
+        copyBtn.innerHTML = '📋';
+        copyBtn.title = '复制结果';
+        copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(result.result.toString());
+            copyBtn.textContent = '✓';
+            setTimeout(() => { copyBtn.innerHTML = '📋'; }, 1000);
+        });
+        
+        calcItem.appendChild(expression);
+        calcItem.appendChild(resultValue);
+        calcItem.appendChild(copyBtn);
+        
+        suggestionsContainer.appendChild(calcItem);
+    }
+    
+    // 渲染天气结果
+    function renderWeatherResult(result) {
+        const weatherItem = document.createElement('div');
+        weatherItem.className = 'command-result weather';
+        
+        const cityHeader = document.createElement('div');
+        cityHeader.className = 'city-header';
+        cityHeader.textContent = result.city;
+        
+        const currentWeather = document.createElement('div');
+        currentWeather.className = 'current-weather';
+        
+        const temperature = document.createElement('div');
+        temperature.className = 'temperature';
+        temperature.textContent = `${result.data.temperature.current}°C`;
+        
+        const condition = document.createElement('div');
+        condition.className = 'condition';
+        condition.textContent = result.data.condition;
+        
+        const details = document.createElement('div');
+        details.className = 'weather-details';
+        details.innerHTML = `
+            <div>湿度: ${result.data.humidity}%</div>
+            <div>风速: ${result.data.wind.speed} m/s</div>
+            <div>风向: ${result.data.wind.direction}</div>
+        `;
+        
+        const forecast = document.createElement('div');
+        forecast.className = 'forecast';
+        
+        result.data.forecast.forEach(day => {
+            const dayForecast = document.createElement('div');
+            dayForecast.className = 'day-forecast';
+            dayForecast.innerHTML = `
+                <div class="date">${day.date}</div>
+                <div class="day-condition">${day.condition}</div>
+                <div class="day-temp">${day.temp.min}°C - ${day.temp.max}°C</div>
+            `;
+            forecast.appendChild(dayForecast);
+        });
+        
+        currentWeather.appendChild(temperature);
+        currentWeather.appendChild(condition);
+        
+        weatherItem.appendChild(cityHeader);
+        weatherItem.appendChild(currentWeather);
+        weatherItem.appendChild(details);
+        weatherItem.appendChild(forecast);
+        
+        suggestionsContainer.appendChild(weatherItem);
+    }
+    
+    // 渲染翻译结果
+    function renderTranslateResult(result) {
+        const translateItem = document.createElement('div');
+        translateItem.className = 'command-result translate';
+        
+        const originalSection = document.createElement('div');
+        originalSection.className = 'translate-section original';
+        
+        const originalHeader = document.createElement('div');
+        originalHeader.className = 'translate-header';
+        originalHeader.textContent = result.sourceLanguage === 'auto' ? '原文' : `原文 (${result.sourceLanguage})`;
+        
+        const originalText = document.createElement('div');
+        originalText.className = 'translate-text';
+        originalText.textContent = result.original;
+        
+        const originalCopyBtn = document.createElement('button');
+        originalCopyBtn.className = 'copy-btn';
+        originalCopyBtn.innerHTML = '📋';
+        originalCopyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(result.original);
+            originalCopyBtn.textContent = '✓';
+            setTimeout(() => { originalCopyBtn.innerHTML = '📋'; }, 1000);
+        });
+        
+        originalSection.appendChild(originalHeader);
+        originalSection.appendChild(originalText);
+        originalSection.appendChild(originalCopyBtn);
+        
+        const translatedSection = document.createElement('div');
+        translatedSection.className = 'translate-section translated';
+        
+        const translatedHeader = document.createElement('div');
+        translatedHeader.className = 'translate-header';
+        translatedHeader.textContent = `译文 (${result.targetLanguage})`;
+        
+        const translatedText = document.createElement('div');
+        translatedText.className = 'translate-text';
+        translatedText.textContent = result.translated;
+        
+        const translatedCopyBtn = document.createElement('button');
+        translatedCopyBtn.className = 'copy-btn';
+        translatedCopyBtn.innerHTML = '📋';
+        translatedCopyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(result.translated);
+            translatedCopyBtn.textContent = '✓';
+            setTimeout(() => { translatedCopyBtn.innerHTML = '📋'; }, 1000);
+        });
+        
+        const speakBtn = document.createElement('button');
+        speakBtn.className = 'speak-btn';
+        speakBtn.innerHTML = '🔊';
+        speakBtn.addEventListener('click', () => {
+            const utterance = new SpeechSynthesisUtterance(result.translated);
+            utterance.lang = result.targetLanguage;
+            speechSynthesis.speak(utterance);
+        });
+        
+        translatedSection.appendChild(translatedHeader);
+        translatedSection.appendChild(translatedText);
+        
+        const buttonsDiv = document.createElement('div');
+        buttonsDiv.className = 'translate-buttons';
+        buttonsDiv.appendChild(translatedCopyBtn);
+        buttonsDiv.appendChild(speakBtn);
+        translatedSection.appendChild(buttonsDiv);
+        
+        translateItem.appendChild(originalSection);
+        translateItem.appendChild(translatedSection);
+        
+        suggestionsContainer.appendChild(translateItem);
+    }
+
     // --- 事件处理器 ---
     async function handleInputChange(e) {
         const query = e.target.value.trim();
+        
         if (query.length > 0) {
-            const results = search.performSearch(query);
-            suggestionsHandler.show(results);
+            // 路由到命令处理器
+            const result = await commandRouter.route(query);
+            
+            // 如果是默认搜索且不是空格前缀，使用默认搜索引擎建议
+            if (result.type === 'default') {
+                const results = search.performSearch(query);
+                suggestionsHandler.show(results);
+            } else {
+                // 渲染命令结果
+                renderCommandResult(result);
+            }
         } else {
             suggestionsHandler.hide();
         }
     }
 
     function handleKeydown(e) {
+        // 检查建议是否可见
+        const isSuggestionsVisible = searchWrapper.classList.contains('suggestions-active');
+        
         // 允许建议处理器处理导航键
-        const navigationHandled = suggestionsHandler.navigate(e.key);
-        if (navigationHandled) {
-            e.preventDefault();
-            return;
+        if (isSuggestionsVisible) {
+            const navigationHandled = suggestionsHandler.navigate(e.key);
+            if (navigationHandled) {
+                e.preventDefault();
+                return;
+            }
         }
 
         // 处理 'Enter' 键以执行搜索或导航到选定的 URL

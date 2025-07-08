@@ -102,6 +102,22 @@ class SettingsHandler {
             closeButton.addEventListener('click', () => {
                 this.settingsPanel.classList.remove('open');
             });
+            
+            // 确保关闭按钮的title属性能正确翻译
+            if (this.i18n) {
+                this.i18n.setLocale = this.i18n.setLocale.bind(this.i18n);
+                const originalSetLocale = this.i18n.setLocale;
+                this.i18n.setLocale = async function(locale) {
+                    await originalSetLocale(locale);
+                    // 更新关闭按钮的title属性
+                    closeButton.title = this.translate('settings.close');
+                };
+                
+                // 初始设置title
+                if (this.i18n.currentLocale) {
+                    closeButton.title = this.i18n.translate('settings.close');
+                }
+            }
         }
 
         document.addEventListener('click', (e) => {

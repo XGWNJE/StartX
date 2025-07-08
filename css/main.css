@@ -12,4 +12,5 @@
 @import 'modules/settings.css';
 @import 'modules/controls.css';
 @import 'modules/wallpapers.css';
-@import 'modules/theme.css'; 
+@import 'modules/theme.css';
+@import 'modules/commands.css'; 

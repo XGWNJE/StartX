@@ -42,13 +42,290 @@
 
 ## 🚀 未来计划
 
-- **指令驱动搜索框**:
-  - 为搜索栏引入前缀指令，实现功能的即时调用，例如：
-  - **内置计算器**: 输入 `= (2 + 10) * 3` 可直接在建议栏看到结果 `36`。
-  - **实时天气**: 输入 `tq 北京` 可快速获取当地天气信息。
-  - 这种创新的交互方式将取代传统的卡片式信息展示，带来更高效、更具个性的启动页体验。
+一个全新的命令行风格搜索栏系统，基于前缀识别不同功能，保持简洁而强大的用户体验。
 
-- **扩展更多快捷模块**:
-  - 浏览器历史记录搜索。
-  - 汇率与单位换算。
-  - ...以及更多等你来建议的功能！
+### 1. 核心交互流程
+
+```
+用户输入 → 前缀检测 → 执行对应命令 → 渲染结果
+```
+
+## 前缀系统设计
+
+### 默认行为（无前缀）
+- **功能**：搜索引擎结果预览
+- **示例**：`新冠疫情最新消息`
+- **结果**：显示Google/Bing/Baidu的搜索建议
+
+### 书签检索（空格前缀）
+- **前缀**：` `（空格开头）
+- **语法**：` [查询词]`
+- **示例**：` github`
+- **结果**：显示匹配的书签列表
+
+### 计算器（等号前缀）
+- **前缀**：`=`
+- **语法**：`= [表达式]`
+- **示例**：`= (15*7)+(22/2)`
+- **结果**：`116`（即时计算结果）
+
+### 天气查询（tq前缀）
+- **前缀**：`tq`
+- **语法**：`tq [城市名]`
+- **示例**：`tq 上海`
+- **结果**：显示上海当前天气和未来预报
+
+### 翻译功能（tr前缀）
+- **前缀**：`tr`
+- **语法**：
+  - 简单：`tr [文本]`（自动检测语言）
+  - 高级：`tr [源语言]>[目标语言] [文本]`
+- **示例**：
+  - `tr hello world`（自动检测为英语，翻译到用户系统语言）
+  - `tr en>zh hello world`（英语翻译为中文）
+  - `tr zh>ja 你好世界`（中文翻译为日语）
+
+## 技术实现方案
+
+### 前缀检测与路由系统
+
+```javascript
+class CommandRouter {
+  constructor() {
+    this.commands = new Map();
+    this.registerDefaultCommands();
+  }
+
+  // 注册默认命令
+  registerDefaultCommands() {
+    // 计算器命令
+    this.register("=", new CalculatorCommand());
+    // 天气命令
+    this.register("tq", new WeatherCommand());
+    // 翻译命令
+    this.register("tr", new TranslateCommand());
+    // 书签命令 (特殊处理空格前缀)
+    this.register(" ", new BookmarkCommand());
+  }
+
+  // 动态注册新命令
+  register(prefix, commandHandler) {
+    this.commands.set(prefix, commandHandler);
+  }
+
+  // 路由请求到对应处理器
+  async route(input) {
+    // 空格前缀特殊处理
+    if (input.startsWith(" ")) {
+      return await this.commands.get(" ").execute(input.substring(1));
+    }
+
+    // 其他前缀处理
+    for (const [prefix, handler] of this.commands.entries()) {
+      if (prefix !== " " && input.startsWith(prefix)) {
+        return await handler.execute(input.substring(prefix.length).trim());
+      }
+    }
+
+    // 默认为搜索引擎查询
+    return await this.handleDefaultSearch(input);
+  }
+}
+```
+
+### 命令处理基类
+
+```javascript
+class CommandHandler {
+  async execute(params) {
+    // 子类实现具体处理逻辑
+    throw new Error("Command handler must implement execute method");
+  }
+  
+  getResultTemplate() {
+    // 子类可覆盖，返回渲染模板
+    return "default";
+  }
+}
+```
+
+## 实现细节
+
+### 1. 计算器命令
+
+```javascript
+class CalculatorCommand extends CommandHandler {
+  async execute(expression) {
+    try {
+      // 安全计算表达式
+      const result = this.safeEval(expression);
+      return {
+        type: "calculator",
+        expression: expression,
+        result: result,
+        success: true
+      };
+    } catch (error) {
+      return {
+        type: "calculator",
+        expression: expression,
+        error: "计算错误",
+        success: false
+      };
+    }
+  }
+  
+  safeEval(expr) {
+    // 使用安全的数学表达式求值方法
+    // 实际实现可能需要使用math.js等库
+    return eval(expr); // 注意：实际实现需要更安全的方法
+  }
+}
+```
+
+### 2. 天气命令
+
+```javascript
+class WeatherCommand extends CommandHandler {
+  async execute(city) {
+    try {
+      // 调用天气API获取数据
+      const weatherData = await this.fetchWeatherData(city);
+      return {
+        type: "weather",
+        city: city,
+        data: weatherData,
+        success: true
+      };
+    } catch (error) {
+      return {
+        type: "weather",
+        city: city,
+        error: "获取天气信息失败",
+        success: false
+      };
+    }
+  }
+  
+  async fetchWeatherData(city) {
+    // 实际实现需调用适当的天气API
+    // 例如OpenWeatherMap等
+    // 返回处理后的天气数据
+  }
+}
+```
+
+### 3. 翻译命令
+
+```javascript
+class TranslateCommand extends CommandHandler {
+  async execute(params) {
+    // 解析翻译参数
+    const {sourceLanguage, targetLanguage, text} = this.parseTranslateParams(params);
+    
+    try {
+      // 调用翻译API
+      const translatedText = await this.translate(text, sourceLanguage, targetLanguage);
+      return {
+        type: "translate",
+        original: text,
+        translated: translatedText,
+        sourceLanguage,
+        targetLanguage,
+        success: true
+      };
+    } catch (error) {
+      return {
+        type: "translate",
+        error: "翻译失败",
+        success: false
+      };
+    }
+  }
+  
+  parseTranslateParams(params) {
+    // 解析如 "en>zh Hello world" 或简单的 "Hello world"
+    if (params.includes(">")) {
+      const parts = params.split(" ");
+      const langParts = parts[0].split(">");
+      return {
+        sourceLanguage: langParts[0],
+        targetLanguage: langParts[1],
+        text: parts.slice(1).join(" ")
+      };
+    } else {
+      return {
+        sourceLanguage: "auto",
+        targetLanguage: "auto",
+        text: params
+      };
+    }
+  }
+}
+```
+
+## UI 组件设计
+
+结果展示区域需要根据不同命令类型呈现不同的UI组件：
+
+1. **计算器结果**：简洁显示表达式和计算结果
+2. **天气信息**：包含城市、温度、天气状况和图标
+3. **翻译结果**：显示原文和译文，提供发音和复制功能
+
+## 与现有系统整合
+
+现有的搜索系统需要做如下调整：
+
+1. 输入监听需要增加前缀检测逻辑
+2. 书签功能改为仅当空格前缀时激活
+3. 在检测到前缀指令时，关闭默认的搜索引擎建议
+4. 为不同类型的结果设计相应的展示模板
+
+## 技术建议
+
+1. 使用策略模式实现命令处理系统
+2. 采用异步处理保证UI响应性
+3. 实现命令扩展机制，方便未来添加新功能
+4. 添加本地缓存减少API调用
+
+# 命令功能展示模板设计
+
+## 1. 计算器结果模板（= 前缀）
+- 半透明玻璃卡片，圆角边框
+- 上方显示原始表达式（浅色文本）
+- 下方显示计算结果（较大字号、高亮色）
+- 右侧添加"复制结果"图标按钮
+- 鼠标悬停时轻微缩放效果
+
+## 2. 天气信息模板（tq 前缀）
+- 主卡片包含当前天气，右侧滑动切换未来天气
+- 城市名称与当前日期置顶
+- 中央显示大型天气图标与温度
+- 底部显示湿度、风速等附加信息
+- 日出日落时间以小型时钟图形展示
+- 支持暗/亮两种主题适应
+
+## 3. 翻译结果模板（tr 前缀）
+- 上下分区设计，清晰分隔原文与译文
+- 语言标识以小标签形式展示
+- 提供发音按钮（扬声器图标）
+- 复制按钮位于各区域右侧
+- 长文本支持优雅折叠/展开
+- 对齐方式根据语言特性自动调整
+
+## 4. 书签检索模板（空格前缀）
+- 保持现有书签列表风格一致性
+- 每项包含网站图标、标题及URL预览
+- 突出显示匹配的关键词
+- 鼠标悬停时显示完整URL与访问时间
+- 支持键盘导航，选中项添加柔和光晕效果
+
+## 通用设计元素
+- 所有模板保持毛玻璃效果一致性
+- 色彩方案跟随主题设置自动切换
+- 卡片边缘采用细微阴影提升层次感
+- 字体选用与主界面一致
+- 添加优雅的过渡动画，保持流畅体验
+- 错误状态下显示友好提示与重试选项
+
+所有模板将在用户输入时实时更新，保持响应式设计以适应各种屏幕尺寸，并支持键盘快捷键操作以提升效率。

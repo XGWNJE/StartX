@@ -4,7 +4,7 @@
     "code": "en"
   },
   "search": {
-    "placeholder": "Search bookmarks/web"
+    "placeholder": "Search or use commands (=, tq, tr, space)"
   },
   "settings": {
     "title": "Settings",
@@ -23,7 +23,12 @@
     "shortcuts": "Keyboard shortcuts",
     "select": "↑ / ↓ / Tab : Select",
     "open": "↵ Enter : Open",
-    "cancel": "Esc : Cancel selection"
+    "cancel": "Esc : Cancel selection",
+    "commands": "Command prefixes",
+    "calc": "= : Calculator",
+    "weather": "tq : Weather",
+    "translate": "tr : Translation",
+    "bookmark": "Space : Bookmark search"
   },
   "wallpaper": {
     "add": "Add wallpaper"

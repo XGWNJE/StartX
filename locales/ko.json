@@ -4,7 +4,7 @@
     "code": "ko"
   },
   "search": {
-    "placeholder": "북마크/웹 검색"
+    "placeholder": "검색 또는 명령어 사용 (=, tq, tr, 스페이스)"
   },
   "settings": {
     "title": "설정",
@@ -23,7 +23,12 @@
     "shortcuts": "키보드 단축키",
     "select": "↑ / ↓ / Tab : 선택",
     "open": "↵ Enter : 열기",
-    "cancel": "Esc : 선택 취소"
+    "cancel": "Esc : 선택 취소",
+    "commands": "명령어 접두사",
+    "calc": "= : 계산기",
+    "weather": "tq : 날씨",
+    "translate": "tr : 번역",
+    "bookmark": "스페이스 : 북마크 검색"
   },
   "wallpaper": {
     "add": "배경화면 추가"

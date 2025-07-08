@@ -4,7 +4,7 @@
     "code": "ja"
   },
   "search": {
-    "placeholder": "ブックマーク/ウェブ検索"
+    "placeholder": "検索またはコマンドを使用 (=, tq, tr, スペース)"
   },
   "settings": {
     "title": "設定",
@@ -23,7 +23,12 @@
     "shortcuts": "キーボードショートカット",
     "select": "↑ / ↓ / Tab : 選択",
     "open": "↵ Enter : 開く",
-    "cancel": "Esc : 選択をキャンセル"
+    "cancel": "Esc : 選択をキャンセル",
+    "commands": "コマンドプレフィックス",
+    "calc": "= : 電卓",
+    "weather": "tq : 天気",
+    "translate": "tr : 翻訳",
+    "bookmark": "スペース : ブックマーク検索"
   },
   "wallpaper": {
     "add": "壁紙を追加"
