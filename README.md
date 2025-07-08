@@ -1,6 +1,4 @@
-# StartX - 简洁新标签页
-![128](https://github.com/user-attachments/assets/f312ffd7-c00a-4b1c-b113-f750e0e0fe61)
-
+# StartX - 简洁新标签页 ![128](https://github.com/user-attachments/assets/f312ffd7-c00a-4b1c-b113-f750e0e0fe61)
 
 
 一款为你量身打造的 Chrome 新标签页，集美观与实用于一体。
