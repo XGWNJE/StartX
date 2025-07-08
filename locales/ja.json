@@ -8,6 +8,7 @@
   },
   "settings": {
     "title": "設定",
+    "close": "閉じる",
     "language": "言語",
     "appearance": "外観",
     "theme": "ガラスエフェクト",

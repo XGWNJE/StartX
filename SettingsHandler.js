@@ -96,6 +96,14 @@ class SettingsHandler {
             this.settingsPanel.classList.toggle('open');
         });
 
+        // 关闭按钮
+        const closeButton = this.settingsPanel.querySelector('.close-button');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                this.settingsPanel.classList.remove('open');
+            });
+        }
+
         document.addEventListener('click', (e) => {
             if (this.settingsPanel.classList.contains('open')) {
                 if (!this.settingsPanel.contains(e.target) && !this.settingsIcon.contains(e.target)) {

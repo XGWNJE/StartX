@@ -8,6 +8,7 @@
   },
   "settings": {
     "title": "설정",
+    "close": "닫기",
     "language": "언어",
     "appearance": "외관",
     "theme": "유리 효과",

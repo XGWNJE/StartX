@@ -8,6 +8,7 @@
   },
   "settings": {
     "title": "Settings",
+    "close": "Close",
     "language": "Language",
     "appearance": "Appearance",
     "theme": "Glass effect",
