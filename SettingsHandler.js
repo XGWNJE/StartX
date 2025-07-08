@@ -8,6 +8,7 @@ class SettingsHandler {
      * @param {HTMLElement} options.settingsPanel - 设置面板元素.
      * @param {HTMLElement} options.glassEffectToggle - 玻璃效果的开关元素.
      * @param {HTMLElement} options.logoVisibilityToggle - 图标显示的开关元素.
+     * @param {HTMLElement} options.languageSelector - 语言选择下拉框.
      * @param {HTMLElement} options.searchEngineGroup - 搜索引擎的单选按钮组.
      * @param {HTMLElement} options.wallpaperGrid - 显示壁纸缩略图的网格.
      * @param {HTMLElement} options.addWallpaperInput - 添加壁纸的文件输入框.
@@ -15,12 +16,14 @@ class SettingsHandler {
      * @param {ImageCompressor} options.imageCompressor - 用于压缩图片的 ImageCompressor 实例.
      * @param {object} options.searchEngines - 包含搜索引擎 URL 的对象.
      * @param {function(string): void} options.onSearchEngineChange - 当搜索引擎改变时调用的回调函数.
+     * @param {I18n} options.i18n - 国际化模块实例.
      */
     constructor(options) {
         this.settingsIcon = options.settingsIcon;
         this.settingsPanel = options.settingsPanel;
         this.glassEffectToggle = options.glassEffectToggle;
         this.logoVisibilityToggle = options.logoVisibilityToggle;
+        this.languageSelector = options.languageSelector;
         this.searchEngineGroup = options.searchEngineGroup;
         this.wallpaperGrid = options.wallpaperGrid;
         this.addWallpaperInput = options.addWallpaperInput;
@@ -29,6 +32,7 @@ class SettingsHandler {
         this.imageCompressor = options.imageCompressor;
         this.searchEngines = options.searchEngines;
         this.onSearchEngineChange = options.onSearchEngineChange;
+        this.i18n = options.i18n;
 
         /** @type {{id: string, path: string, name: string}[]} */
         this.customWallpapers = [];
@@ -42,7 +46,7 @@ class SettingsHandler {
      * 从 chrome.storage 加载所有设置.
      */
     loadSettings() {
-        chrome.storage.local.get(['searchEngine', 'glassEffect', 'wallpaper', 'customWallpapers', 'logoVisible'], (data) => {
+        chrome.storage.local.get(['searchEngine', 'glassEffect', 'wallpaper', 'customWallpapers', 'alwaysHideLogo', 'locale'], (data) => {
             // 搜索引擎
             const savedEngine = data.searchEngine || 'google';
             this.onSearchEngineChange(this.searchEngines[savedEngine]);
@@ -62,6 +66,11 @@ class SettingsHandler {
             const alwaysHideLogo = data.alwaysHideLogo === true;
             document.documentElement.style.setProperty('--logo-visibility', alwaysHideLogo ? 'hidden' : 'visible');
             this.logoVisibilityToggle.checked = !alwaysHideLogo;
+            
+            // 语言设置
+            if (data.locale && this.languageSelector) {
+                this.languageSelector.value = data.locale;
+            }
             
             // 壁纸
             this.customWallpapers = data.customWallpapers || [];
@@ -94,6 +103,14 @@ class SettingsHandler {
                 }
             }
         });
+
+        // 语言选择
+        if (this.languageSelector && this.i18n) {
+            this.languageSelector.addEventListener('change', async (e) => {
+                const selectedLocale = e.target.value;
+                await this.i18n.setLocale(selectedLocale);
+            });
+        }
 
         // 设置项控件
         this.searchEngineGroup.addEventListener('change', (e) => {

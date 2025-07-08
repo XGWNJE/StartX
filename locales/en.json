@@ -1,0 +1,30 @@
+{
+  "language": {
+    "name": "English",
+    "code": "en"
+  },
+  "search": {
+    "placeholder": "Search bookmarks/web"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "appearance": "Appearance",
+    "theme": "Glass effect",
+    "logo": "Show logo and text",
+    "search_engine": "Search engine",
+    "wallpaper": "Wallpaper",
+    "about": "About",
+    "about_text": "Visit GitHub repository for updates or to submit your suggestions.",
+    "star_github": "⭐ Star on GitHub"
+  },
+  "help": {
+    "shortcuts": "Keyboard shortcuts",
+    "select": "↑ / ↓ / Tab : Select",
+    "open": "↵ Enter : Open",
+    "cancel": "Esc : Cancel selection"
+  },
+  "wallpaper": {
+    "add": "Add wallpaper"
+  }
+} 

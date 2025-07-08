@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const suggestionsContainer = document.getElementById('suggestions');
     const searchWrapper = document.querySelector('.search-wrapper');
     const searchBox = document.querySelector('.search-box');
+    const languageSelector = document.getElementById('language-select');
 
     // --- 状态与配置 ---
     const searchEngines = {
@@ -14,6 +15,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     let currentSearchEngine = searchEngines.google; // 默认值, 会由 SettingsHandler 初始化
 
     // --- 类实例 ---
+    // 初始化国际化模块
+    await i18n.init();
+
     const search = new Search();
     const imageCompressor = new ImageCompressor();
     const suggestionsHandler = new SuggestionsHandler(suggestionsContainer, searchWrapper);
@@ -22,6 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         settingsPanel: document.getElementById('settings-panel'),
         glassEffectToggle: document.getElementById('theme-switch'),
         logoVisibilityToggle: document.getElementById('logo-switch'),
+        languageSelector: languageSelector,
         searchEngineGroup: document.getElementById('search-engine-group'),
         wallpaperGrid: document.getElementById('wallpaper-grid'),
         addWallpaperInput: document.getElementById('add-wallpaper-input'),
@@ -30,7 +35,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         searchEngines: searchEngines,
         onSearchEngineChange: (newEngineUrl) => {
             currentSearchEngine = newEngineUrl;
-        }
+        },
+        i18n: i18n
     });
 
     // --- 检查字符串是否为有效 URL 的函数 ---

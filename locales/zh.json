@@ -1,0 +1,30 @@
+{
+  "language": {
+    "name": "中文",
+    "code": "zh"
+  },
+  "search": {
+    "placeholder": "搜索书签/网页"
+  },
+  "settings": {
+    "title": "设置",
+    "language": "语言",
+    "appearance": "外观",
+    "theme": "玻璃效果",
+    "logo": "显示logo和文字",
+    "search_engine": "搜索引擎",
+    "wallpaper": "壁纸",
+    "about": "关于项目",
+    "about_text": "前往 GitHub 开源库，关注插件更新或提交你的建议。",
+    "star_github": "⭐ 在 GitHub 上 Star"
+  },
+  "help": {
+    "shortcuts": "键盘快捷键",
+    "select": "↑ / ↓ / Tab : 选择",
+    "open": "↵ Enter : 打开",
+    "cancel": "Esc : 取消选择"
+  },
+  "wallpaper": {
+    "add": "添加壁纸"
+  }
+} 

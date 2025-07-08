@@ -1,0 +1,30 @@
+{
+  "language": {
+    "name": "日本語",
+    "code": "ja"
+  },
+  "search": {
+    "placeholder": "ブックマーク/ウェブ検索"
+  },
+  "settings": {
+    "title": "設定",
+    "language": "言語",
+    "appearance": "外観",
+    "theme": "ガラスエフェクト",
+    "logo": "ロゴとテキストを表示",
+    "search_engine": "検索エンジン",
+    "wallpaper": "壁紙",
+    "about": "プロジェクトについて",
+    "about_text": "GitHubリポジトリにアクセスして、更新を確認したり、提案を提出したりできます。",
+    "star_github": "⭐ GitHubでスター"
+  },
+  "help": {
+    "shortcuts": "キーボードショートカット",
+    "select": "↑ / ↓ / Tab : 選択",
+    "open": "↵ Enter : 開く",
+    "cancel": "Esc : 選択をキャンセル"
+  },
+  "wallpaper": {
+    "add": "壁紙を追加"
+  }
+} 

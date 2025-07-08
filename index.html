@@ -10,10 +10,10 @@
     <div class="help-container">
         <div class="help-button">?</div>
         <div class="tooltip">
-            <p><strong>键盘快捷键</strong></p>
-            <span>↑ / ↓ / Tab : 选择</span><br>
-            <span>↵ Enter : 打开</span><br>
-            <span>Esc : 取消选择</span>
+            <p><strong data-i18n="help.shortcuts">键盘快捷键</strong></p>
+            <span data-i18n="help.select">↑ / ↓ / Tab : 选择</span><br>
+            <span data-i18n="help.open">↵ Enter : 打开</span><br>
+            <span data-i18n="help.cancel">Esc : 取消选择</span>
         </div>
     </div>
     
@@ -26,18 +26,29 @@
     <main class="main-content">
         <div class="search-wrapper">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="搜索书签/网页" autocomplete="off">
+                <input type="text" id="searchInput" data-i18n="search.placeholder" placeholder="搜索书签/网页" autocomplete="off">
             </div>
             <div id="suggestions" class="suggestions-container"></div>
         </div>
     </main>
     <div id="settings-panel" class="settings-panel">
         <div class="settings-header">
-            <h3>设置</h3>
+            <h3 data-i18n="settings.title">设置</h3>
         </div>
         <div class="settings-content">
             <div class="setting-item">
-                <label class="setting-label">搜索引擎</label>
+                <label class="setting-label" data-i18n="settings.language">语言</label>
+                <div class="language-selector">
+                    <select id="language-select">
+                        <option value="zh">中文</option>
+                        <option value="en">English</option>
+                        <option value="ja">日本語</option>
+                        <option value="ko">한국어</option>
+                    </select>
+                </div>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label" data-i18n="settings.search_engine">搜索引擎</label>
                 <div class="radio-group pill-style" id="search-engine-group">
                     <div class="radio-pill-background"></div>
                     <label class="radio-label">
@@ -55,24 +66,24 @@
                 </div>
             </div>
             <div class="setting-item">
-                <label class="setting-label">外观</label>
+                <label class="setting-label" data-i18n="settings.appearance">外观</label>
                 <div class="theme-switch-wrapper">
                     <label class="switch">
                         <input type="checkbox" id="theme-switch">
                         <span class="slider round"></span>
                     </label>
-                    <span id="theme-name">玻璃效果</span>
+                    <span id="theme-name" data-i18n="settings.theme">玻璃效果</span>
                 </div>
                 <div class="logo-switch-wrapper">
                     <label class="switch">
                         <input type="checkbox" id="logo-switch" checked>
                         <span class="slider round"></span>
                     </label>
-                    <span id="logo-name">显示logo和文字</span>
+                    <span id="logo-name" data-i18n="settings.logo">显示logo和文字</span>
                 </div>
             </div>
              <div class="setting-item">
-                <label class="setting-label">壁纸</label>
+                <label class="setting-label" data-i18n="settings.wallpaper">壁纸</label>
                 <div id="wallpaper-grid" class="wallpaper-grid">
                     <label class="wallpaper-thumb add-wallpaper">
                         <input type="file" id="add-wallpaper-input" accept="image/*" style="display: none;">
@@ -82,10 +93,10 @@
                 </div>
             </div>
             <div class="setting-item">
-                <label class="setting-label">关于项目</label>
+                <label class="setting-label" data-i18n="settings.about">关于项目</label>
                 <div class="about-container">
-                    <p class="about-text">前往 GitHub 开源库，关注插件更新或提交你的建议。</p>
-                    <a href="https://github.com/XGWNJE/StartX" target="_blank" class="button-link">
+                    <p class="about-text" data-i18n="settings.about_text">前往 GitHub 开源库，关注插件更新或提交你的建议。</p>
+                    <a href="https://github.com/XGWNJE/StartX" target="_blank" class="button-link" data-i18n="settings.star_github">
                         ⭐ 在 GitHub 上 Star
                     </a>
                 </div>
@@ -97,6 +108,7 @@
         <img id="open-settings" src="icons/settings.svg" alt="Settings">
     </div>
 
+    <script src="I18n.js"></script>
     <script src="Search.js"></script>
     <script src="ImageCompressor.js"></script>
     <script src="Suggestions.js"></script>
