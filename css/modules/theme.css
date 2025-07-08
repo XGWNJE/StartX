@@ -1,0 +1,64 @@
+/* 
+ * theme.css
+ * 主题相关样式，包括基础样式和玻璃效果
+ */
+
+/* Base Component Styles */
+.help-button, #open-settings, #searchInput, .suggestions-container, .tooltip {
+    background: var(--base-bg);
+    border: 1px solid var(--border-color);
+    backdrop-filter: none;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, backdrop-filter 0.2s;
+}
+#searchInput:focus { background: var(--base-highlight-bg); }
+.suggestion-item.selected { background-color: var(--base-highlight-bg); }
+#open-settings:hover { background-color: var(--base-highlight-bg); }
+.help-button:hover { background: var(--base-highlight-bg); }
+
+/* Glass Effect Styles */
+body.glass-effect-enabled .help-button,
+body.glass-effect-enabled #open-settings,
+body.glass-effect-enabled #searchInput,
+body.glass-effect-enabled .suggestions-container,
+body.glass-effect-enabled .tooltip {
+    background: var(--glass-panel-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+body.glass-effect-enabled #searchInput {
+    background: transparent;
+}
+
+body.glass-effect-enabled #searchInput:focus,
+body.glass-effect-enabled .suggestion-item.selected,
+body.glass-effect-enabled #open-settings:hover,
+body.glass-effect-enabled .help-button:hover {
+    background: var(--glass-highlight-bg);
+}
+    
+body.glass-effect-enabled #open-settings {
+    filter: none;
+}
+
+body.glass-effect-enabled .settings-panel {
+    background: var(--glass-panel-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+body.glass-effect-enabled .search-box,
+body.glass-effect-enabled .settings-panel,
+body.glass-effect-enabled .suggestions-container {
+    background: var(--glass-panel-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+body.glass-effect-enabled .button-link {
+    background: var(--glass-highlight-bg);
+}
+
+body.glass-effect-enabled .button-link:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 60%), rgba(30, 30, 30, 0.5);
+} 

@@ -1,0 +1,26 @@
+/* 
+ * variables.css
+ * 包含全局CSS变量和颜色定义
+ */
+
+:root {
+    --primary-text: #f0f0f0;
+    --secondary-text: #a0a0a0;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --pill-slider-bg: #f0f0f0;
+    --pill-text-selected: #111;
+
+    /* Base styles (Glass effect OFF) */
+    --base-bg: #1e1e1e;
+    --base-highlight-bg: #2a2a2a;
+
+    /* Glass effect styles (Glass effect ON) */
+    --glass-panel-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 60%), rgba(30, 30, 30, 0.25);
+    --glass-highlight-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 60%), rgba(30, 30, 30, 0.4);
+
+    /* Logo visibility */
+    --logo-visibility: visible;
+    --logo-opacity: 1;
+    --logo-transform: translateY(0);
+    --logo-transition: opacity 0.3s ease, transform 0.3s ease;
+} 

@@ -1,0 +1,15 @@
+/*
+ * main.css
+ * StartX 主样式文件，导入所有模块
+ */
+
+/* 导入模块化CSS文件 */
+@import 'modules/variables.css';
+@import 'modules/base.css';
+@import 'modules/logo.css';
+@import 'modules/help.css';
+@import 'modules/search.css';
+@import 'modules/settings.css';
+@import 'modules/controls.css';
+@import 'modules/wallpapers.css';
+@import 'modules/theme.css'; 
