@@ -139,6 +139,16 @@ class I18n {
   }
   
   /**
+   * t方法作为translate的别名，方便简短调用
+   * @param {string} key 键路径，如 "settings.title"
+   * @param {Object} [params={}] 替换参数
+   * @returns {string} 翻译后的字符串
+   */
+  t(key, params = {}) {
+    return this.translate(key, params);
+  }
+  
+  /**
    * 替换字符串中的参数
    * @param {string} text 带参数的文本，如 "Hello, {name}!"
    * @param {Object} params 参数对象，如 {name: "World"}
