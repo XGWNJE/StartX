@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const settingsHandler = new SettingsHandler({
         settingsIcon: document.getElementById('open-settings'),
         settingsPanel: document.getElementById('settings-panel'),
-        glassEffectToggle: document.getElementById('theme-switch'),
         logoVisibilityToggle: document.getElementById('logo-switch'),
         languageSelector: languageSelector,
         searchEngineGroup: document.getElementById('search-engine-group'),
@@ -528,20 +527,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         // 设置输入框占位符文本
         const setPlaceholder = () => {
-            const placeholders = {
-                'google': i18n.translate('search.google_placeholder'),
-                'bing': i18n.translate('search.bing_placeholder'),
-                'baidu': i18n.translate('search.baidu_placeholder')
-            };
-            searchInput.placeholder = placeholders[currentSearchEngine] || i18n.translate('search.placeholder');
+            searchInput.placeholder = i18n.translate('search.placeholder');
         };
         
         // 监听国际化变更以更新占位符
         if (i18n.setLocale) {
             const originalSetLocale = i18n.setLocale;
+            const i18nInstance = i18n; // 保存i18n实例的引用
             i18n.setLocale = async function(locale) {
                 await originalSetLocale(locale);
-                setPlaceholder();
+                searchInput.placeholder = i18nInstance.translate('search.placeholder');
             };
         }
         

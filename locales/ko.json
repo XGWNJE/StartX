@@ -4,14 +4,13 @@
     "code": "ko"
   },
   "search": {
-    "placeholder": "검색 또는 명령어 사용 (=, tq, tr, 스페이스)"
+    "placeholder": "검색 또는 명령어 사용"
   },
   "settings": {
     "title": "설정",
     "close": "닫기",
     "language": "언어",
     "appearance": "외관",
-    "theme": "유리 효과",
     "logo": "로고 및 텍스트 표시",
     "search_engine": "검색 엔진",
     "wallpaper": "배경화면",

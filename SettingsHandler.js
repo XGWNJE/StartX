@@ -6,7 +6,6 @@ class SettingsHandler {
      * @param {object} options - 配置对象.
      * @param {HTMLElement} options.settingsIcon - 打开设置的图标元素.
      * @param {HTMLElement} options.settingsPanel - 设置面板元素.
-     * @param {HTMLElement} options.glassEffectToggle - 玻璃效果的开关元素.
      * @param {HTMLElement} options.logoVisibilityToggle - 图标显示的开关元素.
      * @param {HTMLElement} options.languageSelector - 语言选择下拉框.
      * @param {HTMLElement} options.searchEngineGroup - 搜索引擎的切换开关组.
@@ -21,7 +20,6 @@ class SettingsHandler {
     constructor(options) {
         this.settingsIcon = options.settingsIcon;
         this.settingsPanel = options.settingsPanel;
-        this.glassEffectToggle = options.glassEffectToggle;
         this.logoVisibilityToggle = options.logoVisibilityToggle;
         this.languageSelector = options.languageSelector;
         this.searchEngineGroup = options.searchEngineGroup;
@@ -53,7 +51,7 @@ class SettingsHandler {
      * 从 chrome.storage 加载所有设置.
      */
     loadSettings() {
-        chrome.storage.local.get(['enabledSearchEngines', 'primarySearchEngine', 'glassEffect', 'wallpaper', 'customWallpapers', 'alwaysHideLogo', 'locale'], (data) => {
+        chrome.storage.local.get(['enabledSearchEngines', 'primarySearchEngine', 'wallpaper', 'customWallpapers', 'alwaysHideLogo', 'locale'], (data) => {
             // 搜索引擎
             const enabledEngines = data.enabledSearchEngines || { google: true, bing: true, baidu: true };
             const primaryEngine = data.primarySearchEngine || 'google';
@@ -73,11 +71,6 @@ class SettingsHandler {
                 this.searchEngines[primaryEngine], 
                 this.enabledSearchEngines
             );
-
-            // 玻璃效果
-            const glassEffect = data.glassEffect !== false;
-            document.body.classList.toggle('glass-effect-enabled', glassEffect);
-            this.glassEffectToggle.checked = glassEffect;
             
             // 图标显示（设置为是否始终隐藏）
             const alwaysHideLogo = data.alwaysHideLogo === true;
@@ -124,10 +117,11 @@ class SettingsHandler {
             if (this.i18n) {
                 this.i18n.setLocale = this.i18n.setLocale.bind(this.i18n);
                 const originalSetLocale = this.i18n.setLocale;
+                const i18nInstance = this.i18n; // 保存i18n实例的引用
                 this.i18n.setLocale = async function(locale) {
                     await originalSetLocale(locale);
                     // 更新关闭按钮的title属性
-                    closeButton.title = this.translate('settings.close');
+                    closeButton.title = i18nInstance.translate('settings.close');
                 };
                 
                 // 初始设置title
@@ -182,12 +176,6 @@ class SettingsHandler {
                     this.enabledSearchEngines
                 );
             }
-        });
-        
-        this.glassEffectToggle.addEventListener('change', (e) => {
-            const enabled = e.target.checked;
-            document.body.classList.toggle('glass-effect-enabled', enabled);
-            chrome.storage.local.set({ glassEffect: enabled });
         });
         
         this.logoVisibilityToggle.addEventListener('change', (e) => {

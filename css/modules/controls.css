@@ -20,7 +20,9 @@
 .radio-group.pill-style {
     position: relative;
     display: flex;
-    background-color: var(--base-bg);
+    background: var(--glass-panel-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border-radius: 20px;
     padding: 4px;
 }
@@ -58,9 +60,9 @@
     width: 100%;
     padding: 8px 12px;
     border-radius: 8px;
-    background: var(--base-bg);
+    background-color: transparent;
     color: var(--primary-text);
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     outline: none;
     font-size: 14px;
     cursor: pointer;
@@ -72,17 +74,12 @@
     background-position: right 12px top 50%;
     background-size: 12px auto;
     padding-right: 30px;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
 }
 
 .language-selector select:hover {
     border-color: rgba(255, 255, 255, 0.3);
-}
-
-body.glass-effect-enabled .language-selector select {
-    background-color: transparent;
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    border-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Switch Toggle */

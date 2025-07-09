@@ -4,14 +4,13 @@
     "code": "ja"
   },
   "search": {
-    "placeholder": "検索またはコマンドを使用 (=, tq, tr, スペース)"
+    "placeholder": "検索またはコマンドを使用"
   },
   "settings": {
     "title": "設定",
     "close": "閉じる",
     "language": "言語",
     "appearance": "外観",
-    "theme": "ガラスエフェクト",
     "logo": "ロゴとテキストを表示",
     "search_engine": "検索エンジン",
     "wallpaper": "壁紙",

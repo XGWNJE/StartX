@@ -4,14 +4,13 @@
     "code": "en"
   },
   "search": {
-    "placeholder": "Search or use commands (=, tq, tr, space)"
+    "placeholder": "Search or use commands"
   },
   "settings": {
     "title": "Settings",
     "close": "Close",
     "language": "Language",
     "appearance": "Appearance",
-    "theme": "Glass effect",
     "logo": "Show logo and text",
     "search_engine": "Search engine",
     "wallpaper": "Wallpaper",

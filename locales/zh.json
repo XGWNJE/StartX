@@ -4,14 +4,13 @@
     "code": "zh"
   },
   "search": {
-    "placeholder": "搜索或使用命令 (=, tq, tr, 空格)"
+    "placeholder": "搜索或使用命令"
   },
   "settings": {
     "title": "设置",
     "close": "关闭",
     "language": "语言",
     "appearance": "外观",
-    "theme": "玻璃效果",
     "logo": "显示logo和文字",
     "search_engine": "搜索引擎",
     "wallpaper": "壁纸",
