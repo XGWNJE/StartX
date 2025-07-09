@@ -27,7 +27,7 @@
     "calc": "= : 계산기",
     "weather": "tq : 날씨",
     "translate": "tr : 번역",
-    "bookmark": "스페이스 : 북마크 검색"
+    "bookmark": "/ : 북마크 검색"
   },
   "wallpaper": {
     "add": "배경화면 추가"

@@ -1,5 +1,5 @@
 /**
- * 书签命令处理器 - 处理以空格开头的书签搜索
+ * 书签命令处理器 - 处理以"/"开头的书签搜索
  */
 class BookmarkCommand extends CommandHandler {
   /**

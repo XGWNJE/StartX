@@ -51,9 +51,30 @@
 
 .search-suggestion-item .search-icon {
   margin-right: 12px;
-  color: var(--text-secondary);
-  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
   opacity: 0.7;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.search-suggestion-item:hover .search-icon {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.search-engine-google .search-icon svg {
+  stroke: #4285f4;
+}
+
+.search-engine-bing .search-icon svg {
+  stroke: #0078d7;
+}
+
+.search-engine-baidu .search-icon svg {
+  stroke: #2d61e0;
 }
 
 .search-suggestion-item .search-text {
@@ -62,11 +83,35 @@
 
 .search-suggestion-engine {
   font-size: 12px;
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 3px 8px;
+  border-radius: 12px;
   background-color: rgba(255, 255, 255, 0.1);
-  margin-right: 8px;
   color: var(--text-secondary);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, background-color 0.2s;
+  margin-left: 10px;
+  margin-right: 4px;
+}
+
+.search-suggestion-item:hover .search-suggestion-engine {
+  transform: translateY(-1px);
+}
+
+.search-engine-google .search-suggestion-engine {
+  background-color: rgba(66, 133, 244, 0.15);
+  color: #4285f4;
+}
+
+.search-engine-bing .search-suggestion-engine {
+  background-color: rgba(0, 120, 215, 0.15);
+  color: #0078d7;
+}
+
+.search-engine-baidu .search-suggestion-engine {
+  background-color: rgba(45, 97, 224, 0.15);
+  color: #2d61e0;
 }
 
 .search-suggestion-item.selected {
@@ -85,21 +130,6 @@
   padding: 0 16px 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   margin-bottom: 4px;
-}
-
-.search-engine-google .search-suggestion-engine {
-  background-color: rgba(66, 133, 244, 0.2);
-  color: #4285f4;
-}
-
-.search-engine-bing .search-suggestion-engine {
-  background-color: rgba(0, 120, 215, 0.2);
-  color: #0078d7;
-}
-
-.search-engine-baidu .search-suggestion-engine {
-  background-color: rgba(45, 97, 224, 0.2);
-  color: #2d61e0;
 }
 
 /* 计算器结果样式 */

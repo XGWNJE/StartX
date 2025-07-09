@@ -31,8 +31,8 @@ class CommandRouter {
     this.register("tq", new WeatherCommand());
     // 翻译命令
     this.register("tr", new TranslateCommand());
-    // 书签命令 (特殊处理空格前缀)
-    this.register(" ", new BookmarkCommand());
+    // 书签命令
+    this.register("/", new BookmarkCommand());
   }
 
   /**
@@ -50,15 +50,23 @@ class CommandRouter {
    * @returns {Promise<Object>} - 命令执行结果
    */
   async route(input) {
-    // 空格前缀特殊处理
-    if (input.startsWith(" ")) {
-      return await this.commands.get(" ").execute(input.substring(1));
-    }
-
-    // 其他前缀处理
-    for (const [prefix, handler] of this.commands.entries()) {
-      if (prefix !== " " && input.startsWith(prefix)) {
-        return await handler.execute(input.substring(prefix.length).trim());
+    // 快速检查是否以已知前缀开头
+    if (input && input.length > 0) {
+      const firstChar = input.charAt(0);
+      
+      // 直接查找映射表中的前缀处理器
+      const handler = this.commands.get(firstChar);
+      if (handler) {
+        return await handler.execute(input.substring(1).trim());
+      }
+      
+      // 检查多字符前缀
+      if (input.length >= 2) {
+        const prefix2 = input.substring(0, 2);
+        const handler2 = this.commands.get(prefix2);
+        if (handler2) {
+          return await handler2.execute(input.substring(2).trim());
+        }
       }
     }
 

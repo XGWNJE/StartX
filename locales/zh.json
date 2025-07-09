@@ -27,7 +27,7 @@
     "calc": "= : 计算器",
     "weather": "tq : 天气查询",
     "translate": "tr : 翻译",
-    "bookmark": "空格 : 书签搜索"
+    "bookmark": "/ : 书签搜索"
   },
   "wallpaper": {
     "add": "添加壁纸"

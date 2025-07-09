@@ -11,8 +11,8 @@
 }
 
 .help-button {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -21,15 +21,20 @@
     font-size: 20px;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.15s;
-    background: var(--base-bg);
+    transition: transform 0.3s;
+    background: var(--glass-panel-bg);
     border: 1px solid var(--border-color);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .help-button:hover {
     transform: rotate(45deg);
-    opacity: 1;
-    background: var(--base-highlight-bg);
 }
 
 .tooltip {
@@ -45,12 +50,12 @@
     visibility: hidden;
     opacity: 0;
     transition: opacity 0.15s, visibility 0.15s;
-    background: var(--base-bg);
+    background: var(--glass-panel-bg);
     border: 1px solid var(--border-color);
     max-width: 250px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    backdrop-filter: var(--backdrop-filter);
-    -webkit-backdrop-filter: var(--backdrop-filter);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .tooltip p {

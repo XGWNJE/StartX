@@ -27,7 +27,7 @@
     "calc": "= : Calculator",
     "weather": "tq : Weather",
     "translate": "tr : Translation",
-    "bookmark": "Space : Bookmark search"
+    "bookmark": "/ : Bookmark search"
   },
   "wallpaper": {
     "add": "Add wallpaper"
