@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const settingsHandler = new SettingsHandler({
         settingsIcon: document.getElementById('open-settings'),
         settingsPanel: document.getElementById('settings-panel'),
-        logoVisibilityToggle: document.getElementById('logo-switch'),
         languageSelector: languageSelector,
         searchEngineGroup: document.getElementById('search-engine-group'),
         wallpaperGrid: document.getElementById('wallpaper-grid'),
@@ -518,6 +517,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         // 输入框获得焦点时再次显示建议
         searchInput.addEventListener('focus', async (e) => {
+            // 添加search-focus类到body，使logo隐藏
+            document.body.classList.add('search-focus');
+            
             const query = searchInput.value.trim();
             if (query) {
                 const result = await commandRouter.route(query);
@@ -525,6 +527,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                     renderCommandResult(result);
                 }
             }
+        });
+        
+        // 输入框失去焦点且没有显示建议时移除search-focus类
+        searchInput.addEventListener('blur', (e) => {
+            // 延迟检查，确保不是点击了建议项
+            setTimeout(() => {
+                if (!searchWrapper.classList.contains('suggestions-active')) {
+                    document.body.classList.remove('search-focus');
+                }
+            }, 100);
         });
     }
 

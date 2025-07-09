@@ -14,9 +14,5 @@
     --glass-panel-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 60%), rgba(30, 30, 30, 0.25);
     --glass-highlight-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 60%), rgba(30, 30, 30, 0.4);
 
-    /* Logo visibility */
-    --logo-visibility: visible;
-    --logo-opacity: 1;
-    --logo-transform: translateY(0);
-    --logo-transition: opacity 0.3s ease, transform 0.3s ease;
+
 } 

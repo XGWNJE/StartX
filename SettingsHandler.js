@@ -6,7 +6,6 @@ class SettingsHandler {
      * @param {object} options - 配置对象.
      * @param {HTMLElement} options.settingsIcon - 打开设置的图标元素.
      * @param {HTMLElement} options.settingsPanel - 设置面板元素.
-     * @param {HTMLElement} options.logoVisibilityToggle - 图标显示的开关元素.
      * @param {HTMLElement} options.languageSelector - 语言选择下拉框.
      * @param {HTMLElement} options.searchEngineGroup - 搜索引擎的切换开关组.
      * @param {HTMLElement} options.wallpaperGrid - 显示壁纸缩略图的网格.
@@ -20,7 +19,6 @@ class SettingsHandler {
     constructor(options) {
         this.settingsIcon = options.settingsIcon;
         this.settingsPanel = options.settingsPanel;
-        this.logoVisibilityToggle = options.logoVisibilityToggle;
         this.languageSelector = options.languageSelector;
         this.searchEngineGroup = options.searchEngineGroup;
         this.wallpaperGrid = options.wallpaperGrid;
@@ -72,10 +70,7 @@ class SettingsHandler {
                 this.enabledSearchEngines
             );
             
-            // 图标显示（设置为是否始终隐藏）
-            const alwaysHideLogo = data.alwaysHideLogo === true;
-            document.documentElement.style.setProperty('--logo-visibility', alwaysHideLogo ? 'hidden' : 'visible');
-            this.logoVisibilityToggle.checked = !alwaysHideLogo;
+
             
             // 语言设置
             if (data.locale && this.languageSelector) {
@@ -177,12 +172,7 @@ class SettingsHandler {
                 );
             }
         });
-        
-        this.logoVisibilityToggle.addEventListener('change', (e) => {
-            const alwaysHideLogo = !e.target.checked;
-            document.documentElement.style.setProperty('--logo-visibility', alwaysHideLogo ? 'hidden' : 'visible');
-            chrome.storage.local.set({ alwaysHideLogo: alwaysHideLogo });
-        });
+
 
         // 添加壁纸
         this.addWallpaperInput.addEventListener('change', async (e) => {
