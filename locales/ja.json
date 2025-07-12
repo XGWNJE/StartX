@@ -4,7 +4,7 @@
     "code": "ja"
   },
   "search": {
-    "placeholder": "検索またはコマンドを使用"
+    "placeholder": "ブックマーク/ウェブ検索"
   },
   "settings": {
     "title": "設定",
@@ -12,19 +12,16 @@
     "language": "言語",
     "search_engine": "検索エンジン",
     "wallpaper": "壁紙",
-    "about": "プロジェクトについて",
-    "about_text": "GitHubリポジトリにアクセスして、更新を確認したり、提案を提出したりできます。",
+    "about": "このプロジェクトについて",
+    "about_text": "GitHubのリポジトリを訪問して、更新を確認したり提案を提出したりできます。",
     "star_github": "⭐ GitHubでスター"
   },
   "help": {
     "shortcuts": "キーボードショートカット",
     "select": "↑ / ↓ / Tab : 選択",
     "open": "↵ Enter : 開く",
-    "cancel": "Esc : 選択をキャンセル",
+    "cancel": "Esc : 選択解除",
     "commands": "コマンドプレフィックス",
-    "calc": "= : 電卓",
-    "weather": "tq : 天気",
-    "translate": "tr : 翻訳",
     "bookmark": "/ : ブックマーク検索"
   },
   "wallpaper": {

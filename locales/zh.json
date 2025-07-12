@@ -4,7 +4,7 @@
     "code": "zh"
   },
   "search": {
-    "placeholder": "搜索或使用命令"
+    "placeholder": "搜索书签/网页"
   },
   "settings": {
     "title": "设置",
@@ -22,9 +22,6 @@
     "open": "↵ Enter : 打开",
     "cancel": "Esc : 取消选择",
     "commands": "命令前缀",
-    "calc": "= : 计算器",
-    "weather": "tq : 天气查询",
-    "translate": "tr : 翻译",
     "bookmark": "/ : 书签搜索"
   },
   "wallpaper": {

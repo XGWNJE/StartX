@@ -4,28 +4,25 @@
     "code": "en"
   },
   "search": {
-    "placeholder": "Search or use commands"
+    "placeholder": "Search bookmarks/web"
   },
   "settings": {
     "title": "Settings",
     "close": "Close",
     "language": "Language",
-    "search_engine": "Search engine",
+    "search_engine": "Search Engine",
     "wallpaper": "Wallpaper",
     "about": "About",
-    "about_text": "Visit GitHub repository for updates or to submit your suggestions.",
+    "about_text": "Visit the GitHub repository for updates or to submit your suggestions.",
     "star_github": "⭐ Star on GitHub"
   },
   "help": {
-    "shortcuts": "Keyboard shortcuts",
+    "shortcuts": "Keyboard Shortcuts",
     "select": "↑ / ↓ / Tab : Select",
     "open": "↵ Enter : Open",
     "cancel": "Esc : Cancel selection",
-    "commands": "Command prefixes",
-    "calc": "= : Calculator",
-    "weather": "tq : Weather",
-    "translate": "tr : Translation",
-    "bookmark": "/ : Bookmark search"
+    "commands": "Command Prefixes",
+    "bookmark": "/ : Search bookmarks"
   },
   "wallpaper": {
     "add": "Add wallpaper"

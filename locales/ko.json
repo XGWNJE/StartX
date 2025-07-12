@@ -4,7 +4,7 @@
     "code": "ko"
   },
   "search": {
-    "placeholder": "검색 또는 명령어 사용"
+    "placeholder": "북마크/웹 검색"
   },
   "settings": {
     "title": "설정",
@@ -12,9 +12,9 @@
     "language": "언어",
     "search_engine": "검색 엔진",
     "wallpaper": "배경화면",
-    "about": "프로젝트 정보",
+    "about": "프로젝트 소개",
     "about_text": "GitHub 저장소를 방문하여 업데이트를 확인하거나 제안을 제출하세요.",
-    "star_github": "⭐ GitHub에서 스타하기"
+    "star_github": "⭐ GitHub에서 스타"
   },
   "help": {
     "shortcuts": "키보드 단축키",
@@ -22,9 +22,6 @@
     "open": "↵ Enter : 열기",
     "cancel": "Esc : 선택 취소",
     "commands": "명령어 접두사",
-    "calc": "= : 계산기",
-    "weather": "tq : 날씨",
-    "translate": "tr : 번역",
     "bookmark": "/ : 북마크 검색"
   },
   "wallpaper": {

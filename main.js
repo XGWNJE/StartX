@@ -100,15 +100,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         
         switch (result.type) {
-            case 'calculator':
-                renderCalculatorResult(result);
-                break;
-            case 'weather':
-                renderWeatherResult(result);
-                break;
-            case 'translate':
-                renderTranslateResult(result);
-                break;
             case 'bookmark':
                 // 使用现有的建议显示系统
                 suggestionsHandler.show(result.results);
@@ -199,372 +190,156 @@ document.addEventListener('DOMContentLoaded', async () => {
                     window.location.href = `${searchUrl}${encodeURIComponent(suggestion)}`;
                 });
 
-                // 鼠标悬停事件 - 高亮显示
-                item.addEventListener('mouseenter', () => {
-                    // 移除其他项的选中状态
-                    allSuggestionItems.forEach(el => {
-                        el.classList.remove('selected');
-                    });
-                    // 添加当前项的选中状态
-                    item.classList.add('selected');
-                    currentSelectedSuggestion = allSuggestionItems.indexOf(item);
-                });
-
                 suggestionsList.appendChild(item);
                 allSuggestionItems.push(item);
             });
 
             engineSection.appendChild(engineHeader);
             engineSection.appendChild(suggestionsList);
+            
             searchSuggestionsContainer.appendChild(engineSection);
         }
-
+        
         suggestionsContainer.appendChild(searchSuggestionsContainer);
-        
-        // 设置全局变量，用于键盘导航
-        window.allSuggestionItems = allSuggestionItems;
-        window.currentSelectedSuggestion = -1;
-
-        // 显示搜索结果容器
         searchWrapper.classList.add('suggestions-active');
-    }
-
-    // 渲染计算器结果
-    function renderCalculatorResult(result) {
-        const calcItem = document.createElement('div');
-        calcItem.className = 'command-result calculator';
         
-        const expression = document.createElement('div');
-        expression.className = 'expression';
-        expression.textContent = result.expression;
-        
-        const resultValue = document.createElement('div');
-        resultValue.className = 'result-value';
-        resultValue.textContent = result.result;
-        
-        const copyBtn = document.createElement('button');
-        copyBtn.className = 'copy-btn';
-        copyBtn.innerHTML = '📋';
-        copyBtn.title = '复制结果';
-        copyBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(result.result.toString());
-            copyBtn.textContent = '✓';
-            setTimeout(() => { copyBtn.innerHTML = '📋'; }, 1000);
-        });
-        
-        calcItem.appendChild(expression);
-        calcItem.appendChild(resultValue);
-        calcItem.appendChild(copyBtn);
-        
-        suggestionsContainer.appendChild(calcItem);
+        // 设置导航用的数据属性
+        window.searchSuggestions = allSuggestionItems;
     }
     
-    // 渲染天气结果
-    function renderWeatherResult(result) {
-        const weatherItem = document.createElement('div');
-        weatherItem.className = 'command-result weather';
-        
-        const cityHeader = document.createElement('div');
-        cityHeader.className = 'city-header';
-        cityHeader.textContent = result.city;
-        
-        const currentWeather = document.createElement('div');
-        currentWeather.className = 'current-weather';
-        
-        const temperature = document.createElement('div');
-        temperature.className = 'temperature';
-        temperature.textContent = `${result.data.temperature.current}°C`;
-        
-        const condition = document.createElement('div');
-        condition.className = 'condition';
-        condition.textContent = result.data.condition;
-        
-        const details = document.createElement('div');
-        details.className = 'weather-details';
-        details.innerHTML = `
-            <div>湿度: ${result.data.humidity}%</div>
-            <div>风速: ${result.data.wind.speed} m/s</div>
-            <div>风向: ${result.data.wind.direction}</div>
-        `;
-        
-        const forecast = document.createElement('div');
-        forecast.className = 'forecast';
-        
-        result.data.forecast.forEach(day => {
-            const dayForecast = document.createElement('div');
-            dayForecast.className = 'day-forecast';
-            dayForecast.innerHTML = `
-                <div class="date">${day.date}</div>
-                <div class="day-condition">${day.condition}</div>
-                <div class="day-temp">${day.temp.min}°C - ${day.temp.max}°C</div>
-            `;
-            forecast.appendChild(dayForecast);
-        });
-        
-        currentWeather.appendChild(temperature);
-        currentWeather.appendChild(condition);
-        
-        weatherItem.appendChild(cityHeader);
-        weatherItem.appendChild(currentWeather);
-        weatherItem.appendChild(details);
-        weatherItem.appendChild(forecast);
-        
-        suggestionsContainer.appendChild(weatherItem);
-    }
-    
-    function renderTranslateResult(result) {
-        const translateItem = document.createElement('div');
-        translateItem.className = 'command-result translate';
-        
-        // 原文部分
-        const originalSection = document.createElement('div');
-        originalSection.className = 'translate-section original';
-        
-        const originalHeader = document.createElement('div');
-        originalHeader.className = 'translate-header';
-        originalHeader.textContent = `${result.fromLanguage}`;
-        
-        const originalText = document.createElement('div');
-        originalText.className = 'translate-text';
-        originalText.textContent = result.text;
-        
-        const originalButtons = document.createElement('div');
-        originalButtons.className = 'translate-buttons';
-        
-        const originalCopyBtn = document.createElement('button');
-        originalCopyBtn.className = 'copy-btn';
-        originalCopyBtn.innerHTML = '📋';
-        originalCopyBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(result.text);
-            originalCopyBtn.innerHTML = '✓';
-            setTimeout(() => { originalCopyBtn.innerHTML = '📋'; }, 1000);
-        });
-        
-        const originalSpeakBtn = document.createElement('button');
-        originalSpeakBtn.className = 'speak-btn';
-        originalSpeakBtn.innerHTML = '🔊';
-        originalSpeakBtn.addEventListener('click', () => {
-            const utterance = new SpeechSynthesisUtterance(result.text);
-            utterance.lang = result.fromLanguageCode || 'en-US';
-            window.speechSynthesis.speak(utterance);
-        });
-        
-        originalButtons.appendChild(originalCopyBtn);
-        originalButtons.appendChild(originalSpeakBtn);
-        
-        originalSection.appendChild(originalHeader);
-        originalSection.appendChild(originalText);
-        originalSection.appendChild(originalButtons);
-        
-        // 翻译结果部分
-        const translatedSection = document.createElement('div');
-        translatedSection.className = 'translate-section translated';
-        
-        const translatedHeader = document.createElement('div');
-        translatedHeader.className = 'translate-header';
-        translatedHeader.textContent = `${result.toLanguage}`;
-        
-        const translatedText = document.createElement('div');
-        translatedText.className = 'translate-text';
-        translatedText.textContent = result.translation;
-        
-        const translatedButtons = document.createElement('div');
-        translatedButtons.className = 'translate-buttons';
-        
-        const translatedCopyBtn = document.createElement('button');
-        translatedCopyBtn.className = 'copy-btn';
-        translatedCopyBtn.innerHTML = '📋';
-        translatedCopyBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(result.translation);
-            translatedCopyBtn.innerHTML = '✓';
-            setTimeout(() => { translatedCopyBtn.innerHTML = '📋'; }, 1000);
-        });
-        
-        const translatedSpeakBtn = document.createElement('button');
-        translatedSpeakBtn.className = 'speak-btn';
-        translatedSpeakBtn.innerHTML = '🔊';
-        translatedSpeakBtn.addEventListener('click', () => {
-            const utterance = new SpeechSynthesisUtterance(result.translation);
-            utterance.lang = result.toLanguageCode || 'en-US';
-            window.speechSynthesis.speak(utterance);
-        });
-        
-        translatedButtons.appendChild(translatedCopyBtn);
-        translatedButtons.appendChild(translatedSpeakBtn);
-        
-        translatedSection.appendChild(translatedHeader);
-        translatedSection.appendChild(translatedText);
-        translatedSection.appendChild(translatedButtons);
-        
-        // 添加到容器
-        translateItem.appendChild(originalSection);
-        translateItem.appendChild(translatedSection);
-        
-        suggestionsContainer.appendChild(translateItem);
-    }
-
-    // 键盘导航搜索建议
+    // --- 键盘导航功能 ---
     function navigateSearchSuggestions(key) {
-        if (!window.allSuggestionItems || window.allSuggestionItems.length === 0) {
-            return false;
+        const suggestions = window.searchSuggestions || [];
+        if (suggestions.length === 0) return;
+        
+        const currentSelected = document.querySelector('.search-suggestion-item.selected');
+        let currentIndex = -1;
+        
+        if (currentSelected) {
+            currentIndex = suggestions.indexOf(currentSelected);
+            currentSelected.classList.remove('selected');
         }
-
-        const items = window.allSuggestionItems;
-        let currentIndex = window.currentSelectedSuggestion;
-
+        
+        let newIndex;
         if (key === 'ArrowDown' || key === 'Tab') {
-            currentIndex = (currentIndex + 1) % items.length;
+            newIndex = currentIndex < suggestions.length - 1 ? currentIndex + 1 : 0;
         } else if (key === 'ArrowUp') {
-            currentIndex = (currentIndex - 1 + items.length) % items.length;
-        } else if (key === 'Escape') {
-            currentIndex = -1;
-        } else {
-            return false;
-        }
-
-        // 移除所有选中状态
-        items.forEach(item => item.classList.remove('selected'));
-        
-        // 设置新的选中状态
-        if (currentIndex >= 0) {
-            items[currentIndex].classList.add('selected');
-            items[currentIndex].scrollIntoView({ block: 'nearest' });
+            newIndex = currentIndex > 0 ? currentIndex - 1 : suggestions.length - 1;
         }
         
-        window.currentSelectedSuggestion = currentIndex;
-        return true;
+        suggestions[newIndex].classList.add('selected');
+        suggestions[newIndex].scrollIntoView({ block: 'nearest' });
     }
-
-    // 获取当前选中的搜索建议
+    
     function getSelectedSearchSuggestion() {
-        if (window.currentSelectedSuggestion >= 0 && window.allSuggestionItems) {
-            const selectedItem = window.allSuggestionItems[window.currentSelectedSuggestion];
-            return {
-                query: selectedItem.dataset.query,
-                engine: selectedItem.dataset.engine
-            };
-        }
-        return null;
+        const selected = document.querySelector('.search-suggestion-item.selected');
+        if (!selected) return null;
+        
+        return {
+            query: selected.dataset.query,
+            engine: selected.dataset.engine
+        };
     }
 
-    // 输入框内容变化事件处理
+    // --- 事件处理函数 ---
     async function handleInputChange(e) {
-        const query = searchInput.value.trim();
+        const input = e.target.value.trim();
         
-        // 路由到命令处理器
-        if (query) {
-            const result = await commandRouter.route(query);
-            if (result) {
-                renderCommandResult(result);
-            }
+        // 检查是否为命令
+        if (input) {
+            const result = await commandRouter.route(input);
+            renderCommandResult(result);
         } else {
-            // 输入为空，隐藏建议
+            // 清空输入时隐藏建议
+            suggestionsContainer.innerHTML = '';
             searchWrapper.classList.remove('suggestions-active');
         }
     }
 
-    // 键盘按下事件处理
+    // 处理键盘输入
     function handleKeydown(e) {
-        // 如果建议处于活动状态，处理导航键
-        if (searchWrapper.classList.contains('suggestions-active')) {
-            if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Tab' || e.key === 'Escape') {
-                if (navigateSearchSuggestions(e.key)) {
-                    e.preventDefault();
-                    return;
-                }
-            }
-            
-            // 回车键处理：选中建议或执行搜索
-            if (e.key === 'Enter') {
+        const key = e.key;
+        
+        // 检查是否有活跃的建议列表
+        const hasActiveSuggestions = searchWrapper.classList.contains('suggestions-active') && 
+                                    window.searchSuggestions && 
+                                    window.searchSuggestions.length > 0;
+                                    
+        if (hasActiveSuggestions) {
+            if (key === 'ArrowDown' || key === 'ArrowUp' || (key === 'Tab' && !e.shiftKey)) {
+                e.preventDefault(); // 防止Tab移动焦点
+                navigateSearchSuggestions(key);
+                return;
+            } else if (key === 'Enter') {
                 const selected = getSelectedSearchSuggestion();
                 if (selected) {
+                    e.preventDefault();
                     const searchUrl = searchEngines[selected.engine];
                     window.location.href = `${searchUrl}${encodeURIComponent(selected.query)}`;
-                    e.preventDefault();
-                    return;
-                } else {
-                    performSearch();
-                    e.preventDefault();
                     return;
                 }
+            } else if (key === 'Escape') {
+                suggestionsContainer.innerHTML = '';
+                searchWrapper.classList.remove('suggestions-active');
+                return;
             }
-        } else if (e.key === 'Enter') {
-            // 如果建议不活动，直接执行搜索
+        }
+        
+        // 如果没有建议列表或按下了其他键，允许正常输入
+        if (key === 'Enter') {
             performSearch();
-            e.preventDefault();
-            return;
         }
     }
 
-    // 设置事件监听器
+    // --- 设置事件监听器 ---
     function setupEventListeners() {
-        // 监听输入框内容变化
-        let inputDebounceTimer;
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(inputDebounceTimer);
-            inputDebounceTimer = setTimeout(() => handleInputChange(e), 300);
-        });
-        
-        // 监听键盘事件
+        // 搜索输入框事件
+        searchInput.addEventListener('input', handleInputChange);
         searchInput.addEventListener('keydown', handleKeydown);
         
-        // 点击外部区域隐藏建议
+        // 点击搜索框外部时隐藏建议
         document.addEventListener('click', (e) => {
             if (!searchWrapper.contains(e.target)) {
                 searchWrapper.classList.remove('suggestions-active');
             }
         });
         
-        // 输入框获得焦点时再次显示建议
-        searchInput.addEventListener('focus', async (e) => {
-            // 添加search-focus类到body，使logo隐藏
-            document.body.classList.add('search-focus');
-            
-            const query = searchInput.value.trim();
-            if (query) {
-                const result = await commandRouter.route(query);
-                if (result) {
-                    renderCommandResult(result);
-                }
-            }
+        // 帮助按钮
+        const helpButton = document.querySelector('.help-button');
+        const tooltip = document.querySelector('.tooltip');
+        
+        helpButton.addEventListener('mouseenter', () => {
+            tooltip.style.display = 'block';
         });
         
-        // 输入框失去焦点且没有显示建议时移除search-focus类
-        searchInput.addEventListener('blur', (e) => {
-            // 延迟检查，确保不是点击了建议项
-            setTimeout(() => {
-                if (!searchWrapper.classList.contains('suggestions-active')) {
-                    document.body.classList.remove('search-focus');
-                }
-            }, 100);
+        helpButton.addEventListener('mouseleave', () => {
+            tooltip.style.display = 'none';
         });
-    }
-
-    // 初始化
-    async function init() {
-        // 焦点到搜索输入框
-        searchInput.focus();
         
-        setupEventListeners();
-        
-        // 设置输入框占位符文本
-        const setPlaceholder = () => {
-            searchInput.placeholder = i18n.translate('search.placeholder');
-        };
-        
-        // 监听国际化变更以更新占位符
-        if (i18n.setLocale) {
-            const originalSetLocale = i18n.setLocale;
-            const i18nInstance = i18n; // 保存i18n实例的引用
-            i18n.setLocale = async function(locale) {
-                await originalSetLocale(locale);
-                searchInput.placeholder = i18nInstance.translate('search.placeholder');
-            };
-        }
-        
-        setPlaceholder();
+        tooltip.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
     }
     
-    // 启动应用
+    // --- 初始化函数 ---
+    async function init() {
+        // 设置事件监听器
+        setupEventListeners();
+        
+        // 设置搜索框占位符文本
+        const setPlaceholder = () => {
+            const placeholderKey = 'search.placeholder';
+            searchInput.placeholder = i18n.translate(placeholderKey);
+        };
+        
+        // 初始设置占位符并在语言更改时更新
+        setPlaceholder();
+        i18n.onLanguageChange(setPlaceholder);
+
+        // 设置焦点到搜索框
+        searchInput.focus();
+    }
+
+    // 开始初始化
     init();
 }); 

@@ -25,13 +25,7 @@ class CommandRouter {
    * 注册默认命令
    */
   registerDefaultCommands() {
-    // 计算器命令
-    this.register("=", new CalculatorCommand());
-    // 天气命令
-    this.register("tq", new WeatherCommand());
-    // 翻译命令
-    this.register("tr", new TranslateCommand());
-    // 书签命令
+    // 仅保留书签命令
     this.register("/", new BookmarkCommand());
   }
 
@@ -58,15 +52,6 @@ class CommandRouter {
       const handler = this.commands.get(firstChar);
       if (handler) {
         return await handler.execute(input.substring(1).trim());
-      }
-      
-      // 检查多字符前缀
-      if (input.length >= 2) {
-        const prefix2 = input.substring(0, 2);
-        const handler2 = this.commands.get(prefix2);
-        if (handler2) {
-          return await handler2.execute(input.substring(2).trim());
-        }
       }
     }
 
